@@ -28,7 +28,7 @@ namespace WebApplication1.Controllers
         [HttpGet("{id}")] //Defines an HTTP GET endpoint (api/users/{id}).
         public async Task<ActionResult<Users>> GetUserById(int id)
         {
-            var user = await _context.Users.FindAsync(id); //FindAsy(only for primary key)-Searches for a user with the given ID in the database.
+            var user = await _context.Users.FindAsync(id); //FindAsync(only for primary key)-Searches for a user with the given ID in the database.
 
             if (user == null)
             {

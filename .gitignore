@@ -1,6 +1,5 @@
 # Build Folders
 bin/
-obj/
 
 # User-specific files
 *.user
@@ -17,12 +16,6 @@ logs/
 .vscode/
 .vs/
 *.ide/
-
-# Configuration files
-appsettings.Development.json
-
-# Entity Framework Migrations
-Migrations/
 
 # Dependency Cache
 packages/
