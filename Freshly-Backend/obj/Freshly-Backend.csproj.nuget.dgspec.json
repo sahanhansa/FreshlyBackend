@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/rohansi/Desktop/FreshlyBackend/Freshly-Backend/Freshly-Backend/Freshly-Backend.csproj": {}
+    "/Users/rohansi/Desktop/untitled folder 2/FreshlyBackend/Freshly-Backend/Freshly-Backend.csproj": {}
   },
   "projects": {
-    "/Users/rohansi/Desktop/FreshlyBackend/Freshly-Backend/Freshly-Backend/Freshly-Backend.csproj": {
+    "/Users/rohansi/Desktop/untitled folder 2/FreshlyBackend/Freshly-Backend/Freshly-Backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/rohansi/Desktop/FreshlyBackend/Freshly-Backend/Freshly-Backend/Freshly-Backend.csproj",
+        "projectUniqueName": "/Users/rohansi/Desktop/untitled folder 2/FreshlyBackend/Freshly-Backend/Freshly-Backend.csproj",
         "projectName": "Freshly-Backend",
-        "projectPath": "/Users/rohansi/Desktop/FreshlyBackend/Freshly-Backend/Freshly-Backend/Freshly-Backend.csproj",
+        "projectPath": "/Users/rohansi/Desktop/untitled folder 2/FreshlyBackend/Freshly-Backend/Freshly-Backend.csproj",
         "packagesPath": "/Users/rohansi/.nuget/packages/",
-        "outputPath": "/Users/rohansi/Desktop/FreshlyBackend/Freshly-Backend/Freshly-Backend/obj/",
+        "outputPath": "/Users/rohansi/Desktop/untitled folder 2/FreshlyBackend/Freshly-Backend/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/rohansi/.nuget/NuGet/NuGet.Config"
