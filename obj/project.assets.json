@@ -5154,11 +5154,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/rohansi/RiderProjects/WebApplication1/WebApplication1/WebApplication1.csproj",
+      "projectUniqueName": "/Users/rohansi/Desktop/untitled folder 2/FreshlyBackend/WebApplication1.csproj",
       "projectName": "WebApplication1",
-      "projectPath": "/Users/rohansi/RiderProjects/WebApplication1/WebApplication1/WebApplication1.csproj",
+      "projectPath": "/Users/rohansi/Desktop/untitled folder 2/FreshlyBackend/WebApplication1.csproj",
       "packagesPath": "/Users/rohansi/.nuget/packages/",
-      "outputPath": "/Users/rohansi/RiderProjects/WebApplication1/WebApplication1/obj/",
+      "outputPath": "/Users/rohansi/Desktop/untitled folder 2/FreshlyBackend/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/rohansi/.nuget/NuGet/NuGet.Config"
@@ -5179,7 +5179,13 @@
         "warnAsError": [
           "NU1605"
         ]
-      }
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      },
+      "SdkAnalysisLevel": "9.0.200"
     },
     "frameworks": {
       "net8.0": {
@@ -5237,7 +5243,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.100/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/Users/rohansi/.dotnet/sdk/9.0.200/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
