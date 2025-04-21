@@ -35,5 +35,8 @@ namespace FreshlyBackendNew.Models
 
         [Required]
         public string City { get; set; } = string.Empty;
+
+        // One-to-One Relationship
+        public Laundry Laundry { get; set; }
     }
 }
