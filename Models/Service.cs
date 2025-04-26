@@ -7,7 +7,7 @@ namespace FreshlyBackendNew.Models
         public Service()
         {
             ServiceId = Guid.NewGuid();
-            ItemServices = new List<ItemService>();
+            
         }
 
         [Key]
@@ -16,8 +16,6 @@ namespace FreshlyBackendNew.Models
         [Required]
         public required string Name { get; set; }
 
-        // Many-to-Many Relationship with Item
-        public ICollection<ItemService> ItemServices { get; set; }
     }
 }
 

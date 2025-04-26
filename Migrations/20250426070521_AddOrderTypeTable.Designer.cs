@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FreshlyBackendNew.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250408163302_AddFeedbackTable")]
-    partial class AddFeedbackTable
+    [Migration("20250426070521_AddOrderTypeTable")]
+    partial class AddOrderTypeTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,10 +31,6 @@ namespace FreshlyBackendNew.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -43,23 +39,11 @@ namespace FreshlyBackendNew.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("HouseNo")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("PostalCode")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Street")
                         .IsRequired()
                         .HasColumnType("longtext");
 
@@ -81,6 +65,9 @@ namespace FreshlyBackendNew.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
 
                     b.HasKey("FeedbackId");
 
@@ -108,19 +95,7 @@ namespace FreshlyBackendNew.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Contact")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("HouseNo")
                         .IsRequired()
                         .HasColumnType("longtext");
 
@@ -128,15 +103,7 @@ namespace FreshlyBackendNew.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("Passcode")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("PostalCode")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Street")
+                    b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("longtext");
 
@@ -155,17 +122,6 @@ namespace FreshlyBackendNew.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("DeliveryDate")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("DeliveryTime")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<string>("PickupDate")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -174,17 +130,34 @@ namespace FreshlyBackendNew.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("Status")
+                    b.Property<DateTime>("PlacedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("PlacedTime")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("Time")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int>("Total")
+                        .HasColumnType("int");
 
                     b.HasKey("OrderId");
 
                     b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("FreshlyBackendNew.Models.OrderType", b =>
+                {
+                    b.Property<Guid>("TypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("TypeName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("TypeId");
+
+                    b.ToTable("OrderTypes");
                 });
 
             modelBuilder.Entity("FreshlyBackendNew.Models.Owner", b =>
@@ -192,14 +165,6 @@ namespace FreshlyBackendNew.Migrations
                     b.Property<Guid>("OwnerId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Contact")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -209,19 +174,7 @@ namespace FreshlyBackendNew.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("HouseNo")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("OwnerName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Street")
                         .IsRequired()
                         .HasColumnType("longtext");
 
@@ -289,6 +242,21 @@ namespace FreshlyBackendNew.Migrations
                     b.ToTable("Services");
                 });
 
+            modelBuilder.Entity("FreshlyBackendNew.Models.Status", b =>
+                {
+                    b.Property<Guid>("StatusID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("StatusID");
+
+                    b.ToTable("Statuses");
+                });
+
             modelBuilder.Entity("FreshlyBackendNew.Models.User", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -296,6 +264,10 @@ namespace FreshlyBackendNew.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("longtext");
 

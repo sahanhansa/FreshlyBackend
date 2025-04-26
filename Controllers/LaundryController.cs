@@ -64,14 +64,9 @@ namespace FreshlyBackendNew.Controllers
             // Update fields
             laundry.LaundryName = updatedLaundry.LaundryName;
             laundry.Username = updatedLaundry.Username;
-            laundry.Passcode = updatedLaundry.Passcode;
-            laundry.Contact = updatedLaundry.Contact;
+            laundry.Password = updatedLaundry.Password;
             laundry.Email = updatedLaundry.Email;
-            laundry.HouseNo = updatedLaundry.HouseNo;
-            laundry.Street = updatedLaundry.Street;
-            laundry.City = updatedLaundry.City;
-            laundry.PostalCode = updatedLaundry.PostalCode;
-
+           
             await _context.SaveChangesAsync();
             return Ok(laundry);
         }

@@ -13,30 +13,14 @@ namespace FreshlyBackendNew.Models
         public Guid OwnerId { get; set; }
 
         [Required]
-        public string FirstName { get; set; } = string.Empty;
+        public required string FirstName { get; set; }
 
         [Required]
-        public string LastName { get; set; } = string.Empty;
+        public required string LastName { get; set; }
 
-        [Required]
-        public string OwnerName { get; set; } = string.Empty;
+       [Required]
+        public required string Email { get; set; }
 
-        [Required]
-        public string Contact { get; set; } = string.Empty;
 
-        [Required]
-        public string Email { get; set; } = string.Empty;
-
-        [Required]
-        public string HouseNo { get; set; } = string.Empty;
-
-        [Required]
-        public string Street { get; set; } = string.Empty;
-
-        [Required]
-        public string City { get; set; } = string.Empty;
-
-        // One-to-One Relationship
-        public Laundry Laundry { get; set; }
     }
 }

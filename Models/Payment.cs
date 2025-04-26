@@ -26,9 +26,5 @@ namespace FreshlyBackendNew.Models
 
         [Required]
         public required string Status { get; set; }
-
-        // One-to-One Relationship with Order
-        public Guid OrderId { get; set; }
-        public Order Order { get; set; }
     }
 }

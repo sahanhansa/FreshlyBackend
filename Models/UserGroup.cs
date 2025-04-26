@@ -7,8 +7,7 @@ namespace FreshlyBackendNew.Models
         public UserGroup()
         {
             UserGroupId = Guid.NewGuid();
-            Users = new List<User>();
-            UserGroupPrivileges = new List<UserGroupPrivilege>();
+
         }
 
         [Key]
@@ -17,10 +16,6 @@ namespace FreshlyBackendNew.Models
         [Required]
         public required string UserGroupName { get; set; }
 
-        // One-to-Many Relationship with User
-        public ICollection<User> Users { get; set; }
-
-        // Many-to-Many Relationship with Privilege
-        public ICollection<UserGroupPrivilege> UserGroupPrivileges { get; set; }
     }
 }
+

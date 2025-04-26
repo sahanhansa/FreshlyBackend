@@ -65,13 +65,8 @@ namespace FreshlyBackendNew.Controllers
             // Update fields
             owner.FirstName = updatedOwner.FirstName;
             owner.LastName = updatedOwner.LastName;
-            owner.OwnerName = updatedOwner.OwnerName;
-            owner.Contact = updatedOwner.Contact;
             owner.Email = updatedOwner.Email;
-            owner.HouseNo = updatedOwner.HouseNo;
-            owner.Street = updatedOwner.Street;
-            owner.City = updatedOwner.City;
-
+            
             await _context.SaveChangesAsync();
             return Ok(owner);
         }

@@ -67,10 +67,6 @@ namespace FreshlyBackendNew.Controllers
             customer.Username = updatedCustomer.Username;
             customer.Password = updatedCustomer.Password;
             customer.Email = updatedCustomer.Email;
-            customer.HouseNo = updatedCustomer.HouseNo;
-            customer.Street = updatedCustomer.Street;
-            customer.City = updatedCustomer.City;
-            customer.PostalCode = updatedCustomer.PostalCode;
 
             await _context.SaveChangesAsync();
             return Ok(customer);

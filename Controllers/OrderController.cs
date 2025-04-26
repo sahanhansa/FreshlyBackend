@@ -56,13 +56,11 @@ namespace FreshlyBackendNew.Controllers
             if (order == null)
                 return NotFound();
 
-            order.Status = updatedOrder.Status;
+            order.Total = updatedOrder.Total;
             order.PickupDate = updatedOrder.PickupDate;
             order.PickupTime = updatedOrder.PickupTime;
-            order.DeliveryDate = updatedOrder.DeliveryDate;
-            order.DeliveryTime = updatedOrder.DeliveryTime;
-            order.Date = updatedOrder.Date;
-            order.Time = updatedOrder.Time;
+            order.PlacedDate = updatedOrder.PlacedDate;
+            order.PlacedTime = updatedOrder.PlacedTime;
 
             await _context.SaveChangesAsync();
             return Ok(order);

@@ -1,4 +1,6 @@
-﻿using FreshlyBackendNew.Data;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using FreshlyBackendNew.Data;
 using FreshlyBackendNew.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -27,31 +29,31 @@ namespace FreshlyBackendNew.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<UserGroup>> GetUserGroup(Guid id)
         {
-            var group = await _context.UserGroups.FindAsync(id);
-            if (group == null)
+            var userGroup = await _context.UserGroups.FindAsync(id);
+            if (userGroup == null)
                 return NotFound();
 
-            return group;
+            return userGroup;
         }
 
         // POST: api/UserGroup
         [HttpPost]
-        public async Task<ActionResult<UserGroup>> CreateUserGroup(UserGroup group)
+        public async Task<ActionResult<UserGroup>> CreateUserGroup(UserGroup userGroup)
         {
-            _context.UserGroups.Add(group);
+            _context.UserGroups.Add(userGroup);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetUserGroup), new { id = group.UserGroupId }, group);
+            return CreatedAtAction(nameof(GetUserGroup), new { id = userGroup.UserGroupId }, userGroup);
         }
 
         // PUT: api/UserGroup/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUserGroup(Guid id, UserGroup group)
+        public async Task<IActionResult> UpdateUserGroup(Guid id, UserGroup userGroup)
         {
-            if (id != group.UserGroupId)
+            if (id != userGroup.UserGroupId)
                 return BadRequest();
 
-            _context.Entry(group).State = EntityState.Modified;
+            _context.Entry(userGroup).State = EntityState.Modified;
 
             try
             {
@@ -59,7 +61,7 @@ namespace FreshlyBackendNew.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_context.UserGroups.Any(e => e.UserGroupId == id))
+                if (!_context.UserGroups.Any(ug => ug.UserGroupId == id))
                     return NotFound();
                 else
                     throw;
@@ -72,11 +74,11 @@ namespace FreshlyBackendNew.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUserGroup(Guid id)
         {
-            var group = await _context.UserGroups.FindAsync(id);
-            if (group == null)
+            var userGroup = await _context.UserGroups.FindAsync(id);
+            if (userGroup == null)
                 return NotFound();
 
-            _context.UserGroups.Remove(group);
+            _context.UserGroups.Remove(userGroup);
             await _context.SaveChangesAsync();
 
             return NoContent();
