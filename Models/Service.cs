@@ -16,6 +16,13 @@ namespace FreshlyBackendNew.Models
         [Required]
         public required string Name { get; set; }
 
+        // Navigation property for OrderDetails
+        public ICollection<OrderDetails> OrderDetails { get; set; }
+
+        // Navigation property for LaundryItemService
+        public ICollection<LaundryItemService> LaundryItemServices { get; set; }
+
+
     }
 }
 

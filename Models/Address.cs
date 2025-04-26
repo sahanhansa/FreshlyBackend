@@ -23,5 +23,14 @@ namespace FreshlyBackendNew.Models
 
         [Required]
         public required string PostalCode { get; set; }
+
+        // Navigation property for the related Customer
+        public Customer Customer { get; set; }
+
+        // Navigation property for the related Laundry
+        public Laundry Laundry { get; set; }
+
+        // Navigation property for the related Owner
+        public Owner Owner { get; set; }
     }
 }

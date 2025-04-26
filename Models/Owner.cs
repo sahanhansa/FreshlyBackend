@@ -21,6 +21,13 @@ namespace FreshlyBackendNew.Models
        [Required]
         public required string Email { get; set; }
 
+        // Navigation property for the related Laundry
+        public Laundry Laundry { get; set; }
 
+        // Foreign key for Address
+        public Guid AddressId { get; set; }
+
+        // Navigation property for the related Address
+        public Address Address { get; set; }
     }
 }

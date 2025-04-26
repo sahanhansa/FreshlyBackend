@@ -14,5 +14,10 @@ namespace FreshlyBackendNew.Models
 
         [Required]
         public required string TypeName { get; set; }
+
+
+        // Navigation property for one-to-many relationship
+        public ICollection<Order> Orders { get; set; }
+
     }
 }

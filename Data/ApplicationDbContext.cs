@@ -9,20 +9,20 @@ namespace FreshlyBackendNew.Data
         public DbSet<Laundry> Laundries { get; set; }
         public DbSet<Owner> Owners { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderDetails> OrderDetails { get; set; }
         public DbSet<Status> Statuses { get; set; }//ok
         public DbSet<OrderType> OrderTypes { get; set; }//ok
-
         public DbSet<Address> Addresses { get; set; }
-
-
+        public DbSet<Contact> Contacts { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Item> Items { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<User> Users { get; set; }//ok
         public DbSet<Privilege> Privileges { get; set; } //ok
         public DbSet<UserGroup> UserGroups { get; set; }//ok
-
+        public DbSet<PrivilegeUserGroup> PrivilegeUserGroups { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
+        public DbSet<LaundryItemService> LaundryItemServices { get; set; }
 
 
 
@@ -37,8 +37,153 @@ namespace FreshlyBackendNew.Data
             modelBuilder.Entity<Customer>()
                 .Property(c => c.CustomerId)
                 .ValueGeneratedOnAdd();
-           
 
+            // Configure many-to-many relationship between Privilege and UserGroup
+            modelBuilder.Entity<PrivilegeUserGroup>()
+                .HasOne(pug => pug.Privilege)
+                .WithMany(p => p.PrivilegeUserGroups)
+                .HasForeignKey(pug => pug.PrivilegeId);
+
+            modelBuilder.Entity<PrivilegeUserGroup>()
+                .HasOne(pug => pug.UserGroup)
+                .WithMany(ug => ug.PrivilegeUserGroups)
+                .HasForeignKey(pug => pug.UserGroupId);
+
+            // Configure one-to-many relationship between UserGroup and User
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.UserGroup)
+                .WithMany(ug => ug.Users)
+                .HasForeignKey(u => u.UserGroupId);
+
+            // Configure one-to-many relationship between Status and Order
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Status)
+                .WithMany(s => s.Orders)
+                .HasForeignKey(o => o.StatusId);
+
+            // Configure one-to-many relationship between OrderType and Order
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.OrderType)
+                .WithMany(ot => ot.Orders)
+                .HasForeignKey(o => o.TypeId);
+
+            // Configure one-to-many relationship between User and Order
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.User)
+                .WithMany(u => u.Orders)
+                .HasForeignKey(o => o.UserId);
+
+            // Configure one-to-many relationship between Laundry and Order
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Laundry)
+                .WithMany(l => l.Orders)
+                .HasForeignKey(o => o.LaundryId);
+
+
+            // Configure one-to-many relationship between Customer and Order
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Customer)
+                .WithMany(c => c.Orders)
+                .HasForeignKey(o => o.CustomerId);
+
+            //Configure one-to-one relationship between Payment and Order
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Payment)
+                .WithOne(p => p.Order)
+                .HasForeignKey<Payment>(p => p.OrderId);
+
+            //Configure one-to-one relationship between Customer and Payment
+            modelBuilder.Entity<Customer>()
+                .HasOne(c => c.Address)
+                .WithOne()
+                .HasForeignKey<Customer>(c => c.AddressId);
+
+            // Configure composite primary key for Contact
+            modelBuilder.Entity<Contact>()
+                .HasKey(c => new { c.ContactId, c.ContactNumber });
+
+            // Configure one-to-many relationship between Customer and Contact
+            modelBuilder.Entity<Contact>()
+                .HasOne(c => c.Customer)
+                .WithMany(cu => cu.Contacts)
+                .HasForeignKey(c => c.CustomerId);
+
+            // Configure one-to-many relationship between Laundry and Feedback
+            modelBuilder.Entity<Feedback>()
+                .HasOne(f => f.Laundry)
+                .WithMany(l => l.Feedbacks)
+                .HasForeignKey(f => f.LaundryId);
+
+            // Configure one-to-many relationship between Customer and Feedback
+            modelBuilder.Entity<Feedback>()
+                .HasOne(f => f.Customer)
+                .WithMany(c => c.Feedbacks)
+                .HasForeignKey(f => f.CustomerId);
+
+
+            // Configure one-to-many relationship between Laundry and Contact
+            modelBuilder.Entity<Contact>()
+                .HasOne(c => c.Laundry)
+                .WithMany(l => l.Contacts)
+                .HasForeignKey(c => c.LaundryId);
+
+            // Configure one-to-one relationship between Address and Laundry
+            modelBuilder.Entity<Laundry>()
+                .HasOne(l => l.Address)
+                .WithOne(a => a.Laundry)
+                .HasForeignKey<Laundry>(l => l.AddressId);
+
+            // Configure one-to-one relationship between Owner and Laundry
+            modelBuilder.Entity<Laundry>()
+                .HasOne(l => l.Owner)
+                .WithOne(o => o.Laundry)
+                .HasForeignKey<Laundry>(l => l.OwnerId);
+
+            // Configure one-to-one relationship between Address and Owner
+            modelBuilder.Entity<Owner>()
+                .HasOne(o => o.Address)
+                .WithOne(a => a.Owner)
+                .HasForeignKey<Owner>(o => o.AddressId);
+
+            // Configure composite primary key for OrderDetails
+            modelBuilder.Entity<OrderDetails>()
+                .HasKey(od => new { od.OrderId, od.ItemId, od.ServiceId });
+
+            // Configure relationships
+            modelBuilder.Entity<OrderDetails>()
+                .HasOne(od => od.Order)
+                .WithMany(o => o.OrderDetails)
+                .HasForeignKey(od => od.OrderId);
+
+            modelBuilder.Entity<OrderDetails>()
+                .HasOne(od => od.Item)
+                .WithMany(i => i.OrderDetails)
+                .HasForeignKey(od => od.ItemId);
+
+            modelBuilder.Entity<OrderDetails>()
+                .HasOne(od => od.Service)
+                .WithMany(s => s.OrderDetails)
+                .HasForeignKey(od => od.ServiceId);
+
+            // Configure composite primary key for LaundryItemService
+            modelBuilder.Entity<LaundryItemService>()
+                .HasKey(lis => new { lis.LaundryId, lis.ItemId, lis.ServiceId });
+
+            // Configure relationships
+            modelBuilder.Entity<LaundryItemService>()
+                .HasOne(lis => lis.Laundry)
+                .WithMany(l => l.LaundryItemServices)
+                .HasForeignKey(lis => lis.LaundryId);
+
+            modelBuilder.Entity<LaundryItemService>()
+                .HasOne(lis => lis.Item)
+                .WithMany(i => i.LaundryItemServices)
+                .HasForeignKey(lis => lis.ItemId);
+
+            modelBuilder.Entity<LaundryItemService>()
+                .HasOne(lis => lis.Service)
+                .WithMany(s => s.LaundryItemServices)
+                .HasForeignKey(lis => lis.ServiceId);
         }
     }
 }

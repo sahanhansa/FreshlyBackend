@@ -27,5 +27,42 @@ namespace FreshlyBackendNew.Models
         [Required]
         public int Total { get; set; }
 
+        // Foreign key for Status
+        public Guid StatusId { get; set; }
+
+        // Navigation property for the related Status
+        public Status Status { get; set; }
+
+        // Foreign key for OrderType
+        public Guid TypeId { get; set; }
+
+        // Navigation property for the related OrderType
+        public OrderType OrderType { get; set; }
+
+        // Foreign key for User
+        public Guid UserId { get; set; }
+
+        // Navigation property for the related User
+        public User User { get; set; }
+
+        // Foreign key for Laundry
+        public Guid LaundryId { get; set; }
+
+        // Navigation property for the related Laundry
+        public Laundry Laundry { get; set; }
+
+        // Foreign key for Customer
+        public Guid CustomerId { get; set; }
+
+        // Navigation property for the related Customer
+        public Customer Customer { get; set; }
+
+        // Navigation property for the related Payment
+        public Payment Payment { get; set; }
+
+        // Navigation property for OrderDetails
+        public ICollection<OrderDetails> OrderDetails { get; set; }
+
+
     }
 }

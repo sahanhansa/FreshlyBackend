@@ -7,7 +7,6 @@ namespace FreshlyBackendNew.Models
         public Privilege()
         {
             PrivilegeId = Guid.NewGuid();
-           
         }
 
         [Key]
@@ -16,5 +15,7 @@ namespace FreshlyBackendNew.Models
         [Required]
         public required string PrivilegeName { get; set; }
 
+        // Navigation property for many-to-many relationship
+        public ICollection<PrivilegeUserGroup> PrivilegeUserGroups { get; set; }
     }
 }

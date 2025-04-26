@@ -26,5 +26,11 @@ namespace FreshlyBackendNew.Models
 
         [Required]
         public required string Status { get; set; }
+
+        // Foreign key for Order
+        public Guid OrderId { get; set; }
+
+        // Navigation property for the related Order
+        public Order Order { get; set; }
     }
 }

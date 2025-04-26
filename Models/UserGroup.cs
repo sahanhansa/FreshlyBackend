@@ -7,7 +7,6 @@ namespace FreshlyBackendNew.Models
         public UserGroup()
         {
             UserGroupId = Guid.NewGuid();
-
         }
 
         [Key]
@@ -15,6 +14,12 @@ namespace FreshlyBackendNew.Models
 
         [Required]
         public required string UserGroupName { get; set; }
+
+        // Navigation property for many-to-many relationship
+        public ICollection<PrivilegeUserGroup> PrivilegeUserGroups { get; set; }
+
+        // Navigation property for one-to-many relationship
+        public ICollection<User> Users { get; set; }
 
     }
 }
