@@ -12,6 +12,7 @@ namespace FreshlyBackendNew.Data
         public DbSet<Status> Statuses { get; set; }//ok
         public DbSet<OrderType> OrderTypes { get; set; }//ok
 
+        public DbSet<Address> Addresses { get; set; }
 
 
         public DbSet<Payment> Payments { get; set; }
