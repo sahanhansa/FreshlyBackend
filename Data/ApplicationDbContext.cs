@@ -93,10 +93,10 @@ namespace FreshlyBackendNew.Data
                 .HasForeignKey<Payment>(p => p.OrderId);
 
             //Configure one-to-one relationship between Customer and Payment
-            modelBuilder.Entity<Customer>()
-                .HasOne(c => c.Address)
-                .WithOne()
-                .HasForeignKey<Customer>(c => c.AddressId);
+            //modelBuilder.Entity<Customer>()
+            //    .HasOne(c => c.Address)
+            //    .WithOne()
+            //    .HasForeignKey<Customer>(c => c.AddressId);
 
             // Configure composite primary key for Contact
             modelBuilder.Entity<Contact>()
@@ -128,10 +128,24 @@ namespace FreshlyBackendNew.Data
                 .HasForeignKey(c => c.LaundryId);
 
             // Configure one-to-one relationship between Address and Laundry
+            //modelBuilder.Entity<Laundry>()
+            //    .HasOne(l => l.Address)
+            //    .WithOne(a => a.Laundry)
+            //    .HasForeignKey<Laundry>(l => l.AddressId);
+
+            // Configure Customer-Address relationship
+            modelBuilder.Entity<Customer>()
+                .HasOne(c => c.Address)
+                .WithOne(a => a.Customer)
+                .HasForeignKey<Customer>(c => c.AddressId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure Laundry-Address relationship
             modelBuilder.Entity<Laundry>()
                 .HasOne(l => l.Address)
                 .WithOne(a => a.Laundry)
-                .HasForeignKey<Laundry>(l => l.AddressId);
+                .HasForeignKey<Laundry>(l => l.AddressId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Configure one-to-one relationship between Owner and Laundry
             modelBuilder.Entity<Laundry>()
