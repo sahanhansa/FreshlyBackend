@@ -4,6 +4,7 @@ using FreshlyBackendNew.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FreshlyBackendNew.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250428043116_AddAllRelationsips")]
+    partial class AddAllRelationsips
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,6 +84,9 @@ namespace FreshlyBackendNew.Migrations
                     b.Property<Guid>("AddressId")
                         .HasColumnType("char(36)");
 
+                    b.Property<Guid?>("AddressId1")
+                        .HasColumnType("char(36)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -104,6 +110,9 @@ namespace FreshlyBackendNew.Migrations
                     b.HasKey("CustomerId");
 
                     b.HasIndex("AddressId")
+                        .IsUnique();
+
+                    b.HasIndex("AddressId1")
                         .IsUnique();
 
                     b.ToTable("Customers");
@@ -501,10 +510,14 @@ namespace FreshlyBackendNew.Migrations
             modelBuilder.Entity("FreshlyBackendNew.Models.Customer", b =>
                 {
                     b.HasOne("FreshlyBackendNew.Models.Address", "Address")
-                        .WithOne("Customer")
+                        .WithOne()
                         .HasForeignKey("FreshlyBackendNew.Models.Customer", "AddressId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("FreshlyBackendNew.Models.Address", null)
+                        .WithOne("Customer")
+                        .HasForeignKey("FreshlyBackendNew.Models.Customer", "AddressId1");
 
                     b.Navigation("Address");
                 });
