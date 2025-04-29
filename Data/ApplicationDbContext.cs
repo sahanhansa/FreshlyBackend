@@ -5,38 +5,40 @@ namespace FreshlyBackendNew.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        public DbSet<Customer> Customers { get; set; } 
-        public DbSet<Laundry> Laundries { get; set; }
-        public DbSet<Owner> Owners { get; set; }
-        public DbSet<Order> Orders { get; set; }
-        public DbSet<OrderDetails> OrderDetails { get; set; }
-        public DbSet<Status> Statuses { get; set; }//ok
-        public DbSet<OrderType> OrderTypes { get; set; }//ok
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Contact> Contacts { get; set; }
-        public DbSet<Payment> Payments { get; set; }
-        public DbSet<Item> Items { get; set; }
-        public DbSet<Service> Services { get; set; }
-        public DbSet<User> Users { get; set; }//ok
-        public DbSet<Privilege> Privileges { get; set; } //ok
-        public DbSet<UserGroup> UserGroups { get; set; }//ok
-        public DbSet<PrivilegeUserGroup> PrivilegeUserGroups { get; set; }
+        public DbSet<Customer> Customers { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
+        public DbSet<Item> Items { get; set; }
+        public DbSet<Laundry> Laundries { get; set; }
         public DbSet<LaundryItemService> LaundryItemServices { get; set; }
-
-
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderDetails> OrderDetails { get; set; }
+        public DbSet<OrderType> OrderTypes { get; set; }
+        public DbSet<Owner> Owners { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<Privilege> Privileges { get; set; }
+        public DbSet<PrivilegeUserGroup> PrivilegeUserGroups { get; set; }
+        public DbSet<Service> Services { get; set; }
+        public DbSet<Status> Statuses { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<UserGroup> UserGroups { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder); // Call the base method first
+            base.OnModelCreating(modelBuilder); 
 
             // Ensures a new Guid is generated when adding a record
             modelBuilder.Entity<Customer>()
                 .Property(c => c.CustomerId)
                 .ValueGeneratedOnAdd();
+
+            // Configure composite primary key for PrivilegeUserGroup
+            modelBuilder.Entity<PrivilegeUserGroup>()
+                .HasKey(pug => new { pug.PrivilegeId, pug.UserGroupId });
 
             // Configure many-to-many relationship between Privilege and UserGroup
             modelBuilder.Entity<PrivilegeUserGroup>()
@@ -92,21 +94,30 @@ namespace FreshlyBackendNew.Data
                 .WithOne(p => p.Order)
                 .HasForeignKey<Payment>(p => p.OrderId);
 
-            //Configure one-to-one relationship between Customer and Payment
-            //modelBuilder.Entity<Customer>()
-            //    .HasOne(c => c.Address)
-            //    .WithOne()
-            //    .HasForeignKey<Customer>(c => c.AddressId);
-
             // Configure composite primary key for Contact
             modelBuilder.Entity<Contact>()
                 .HasKey(c => new { c.ContactId, c.ContactNumber });
 
             // Configure one-to-many relationship between Customer and Contact
-            modelBuilder.Entity<Contact>()
-                .HasOne(c => c.Customer)
-                .WithMany(cu => cu.Contacts)
-                .HasForeignKey(c => c.CustomerId);
+            modelBuilder.Entity<Customer>()
+                .HasMany(cu => cu.Contacts)
+                .WithOne()
+                .HasForeignKey(c => c.ContactId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure one-to-many relationship between Laundry and Contact
+            modelBuilder.Entity<Laundry>()
+                .HasMany(l => l.Contacts)
+                .WithOne()
+                .HasForeignKey(c => c.ContactId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure one-to-many relationship between Owner and Contact
+            modelBuilder.Entity<Owner>()
+                .HasMany(o => o.Contacts)
+                .WithOne()
+                .HasForeignKey(c => c.ContactId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Configure one-to-many relationship between Laundry and Feedback
             modelBuilder.Entity<Feedback>()
@@ -119,19 +130,6 @@ namespace FreshlyBackendNew.Data
                 .HasOne(f => f.Customer)
                 .WithMany(c => c.Feedbacks)
                 .HasForeignKey(f => f.CustomerId);
-
-
-            // Configure one-to-many relationship between Laundry and Contact
-            modelBuilder.Entity<Contact>()
-                .HasOne(c => c.Laundry)
-                .WithMany(l => l.Contacts)
-                .HasForeignKey(c => c.LaundryId);
-
-            // Configure one-to-one relationship between Address and Laundry
-            //modelBuilder.Entity<Laundry>()
-            //    .HasOne(l => l.Address)
-            //    .WithOne(a => a.Laundry)
-            //    .HasForeignKey<Laundry>(l => l.AddressId);
 
             // Configure Customer-Address relationship
             modelBuilder.Entity<Customer>()

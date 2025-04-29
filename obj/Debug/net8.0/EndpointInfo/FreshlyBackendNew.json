@@ -5,6 +5,397 @@
     "version": "1.0"
   },
   "paths": {
+    "/api/Address": {
+      "get": {
+        "tags": [
+          "Address"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Address"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Address"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Address"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Address"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Address"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Address"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Address"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Address"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Address"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Address"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Address/{id}": {
+      "get": {
+        "tags": [
+          "Address"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Address"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Address"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Address"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Address"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Address"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Address"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Address"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Address"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Contact": {
+      "get": {
+        "tags": [
+          "Contact"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Contact"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Contact"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Contact"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Contact"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Contact"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Contact"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Contact"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Contact/{id}": {
+      "get": {
+        "tags": [
+          "Contact"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "contactNumber",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Contact"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "contactNumber",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Contact"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Contact"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Contact"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Contact"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "contactNumber",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Customer": {
       "post": {
         "tags": [
@@ -750,6 +1141,191 @@
         }
       }
     },
+    "/api/OrderType": {
+      "get": {
+        "tags": [
+          "OrderType"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderType"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderType"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderType"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "OrderType"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderType"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderType"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderType"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderType"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderType"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderType"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/OrderType/{id}": {
+      "get": {
+        "tags": [
+          "OrderType"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderType"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderType"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderType"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "OrderType"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderType"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderType"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderType"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "OrderType"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Owner": {
       "post": {
         "tags": [
@@ -1370,6 +1946,191 @@
         }
       }
     },
+    "/api/Status": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Status"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Status"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Status"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Status"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Status"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Status"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Status"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Status/{id}": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Status"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Status"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Status"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Status"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Status"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/User": {
       "get": {
         "tags": [
@@ -1743,16 +2504,70 @@
   },
   "components": {
     "schemas": {
-      "Customer": {
+      "Address": {
         "required": [
           "city",
+          "houseNo",
+          "postalCode",
+          "street"
+        ],
+        "type": "object",
+        "properties": {
+          "addressId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "houseNo": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "street": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "city": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "postalCode": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "customer": {
+            "$ref": "#/components/schemas/Customer"
+          },
+          "laundry": {
+            "$ref": "#/components/schemas/Laundry"
+          },
+          "owner": {
+            "$ref": "#/components/schemas/Owner"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Contact": {
+        "required": [
+          "contactNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "contactId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "contactNumber": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Customer": {
+        "required": [
           "email",
           "firstName",
-          "houseNo",
           "lastName",
           "password",
-          "postalCode",
-          "street",
           "username"
         ],
         "type": "object",
@@ -1781,26 +2596,28 @@
             "minLength": 1,
             "type": "string"
           },
-          "houseNo": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "street": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "city": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "postalCode": {
-            "minLength": 1,
-            "type": "string"
-          },
           "orders": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Order"
+            },
+            "nullable": true
+          },
+          "addressId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "contactId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "contacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Contact"
             },
             "nullable": true
           },
@@ -1810,51 +2627,14 @@
               "$ref": "#/components/schemas/Feedback"
             },
             "nullable": true
-          },
-          "customerLaundries": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CustomerLaundry"
-            },
-            "nullable": true
-          },
-          "userCustomers": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UserCustomer"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "CustomerLaundry": {
-        "type": "object",
-        "properties": {
-          "customerLaundryId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "customerId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "customer": {
-            "$ref": "#/components/schemas/Customer"
-          },
-          "laundryId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "laundry": {
-            "$ref": "#/components/schemas/Laundry"
           }
         },
         "additionalProperties": false
       },
       "Feedback": {
         "required": [
-          "description"
+          "description",
+          "rating"
         ],
         "type": "object",
         "properties": {
@@ -1865,6 +2645,10 @@
           "description": {
             "minLength": 1,
             "type": "string"
+          },
+          "rating": {
+            "type": "integer",
+            "format": "int32"
           },
           "laundryId": {
             "type": "string",
@@ -1897,66 +2681,24 @@
             "minLength": 1,
             "type": "string"
           },
-          "laundryId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "laundry": {
-            "$ref": "#/components/schemas/Laundry"
-          },
-          "itemServices": {
+          "orderDetails": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ItemService"
+              "$ref": "#/components/schemas/OrderDetails"
             },
             "nullable": true
           },
-          "orderItems": {
+          "laundryItemServices": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/OrderItem"
+              "$ref": "#/components/schemas/LaundryItemService"
             },
             "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "ItemService": {
-        "type": "object",
-        "properties": {
-          "itemServiceId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "itemId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "item": {
-            "$ref": "#/components/schemas/Item"
-          },
-          "serviceId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "service": {
-            "$ref": "#/components/schemas/Service"
           }
         },
         "additionalProperties": false
       },
       "Laundry": {
-        "required": [
-          "city",
-          "contact",
-          "email",
-          "houseNo",
-          "laundryName",
-          "passcode",
-          "postalCode",
-          "street",
-          "username"
-        ],
         "type": "object",
         "properties": {
           "laundryId": {
@@ -1964,53 +2706,34 @@
             "format": "uuid"
           },
           "laundryName": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "username": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
-          "passcode": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "contact": {
-            "minLength": 1,
-            "type": "string"
+          "password": {
+            "type": "string",
+            "nullable": true
           },
           "email": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
-          "houseNo": {
-            "minLength": 1,
-            "type": "string"
+          "contactId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
           },
-          "street": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "city": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "postalCode": {
-            "minLength": 1,
-            "type": "string"
+          "addressId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
           },
           "ownerId": {
             "type": "string",
-            "format": "uuid"
-          },
-          "owner": {
-            "$ref": "#/components/schemas/Owner"
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Item"
-            },
+            "format": "uuid",
             "nullable": true
           },
           "orders": {
@@ -2027,32 +2750,69 @@
             },
             "nullable": true
           },
-          "customerLaundries": {
+          "contacts": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CustomerLaundry"
+              "$ref": "#/components/schemas/Contact"
             },
             "nullable": true
           },
-          "userLaundries": {
+          "laundryItemServices": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/UserLaundry"
+              "$ref": "#/components/schemas/LaundryItemService"
             },
             "nullable": true
+          },
+          "owner": {
+            "$ref": "#/components/schemas/Owner"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LaundryItemService": {
+        "required": [
+          "price"
+        ],
+        "type": "object",
+        "properties": {
+          "laundryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "itemId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "serviceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "price": {
+            "type": "number",
+            "format": "double"
+          },
+          "laundry": {
+            "$ref": "#/components/schemas/Laundry"
+          },
+          "item": {
+            "$ref": "#/components/schemas/Item"
+          },
+          "service": {
+            "$ref": "#/components/schemas/Service"
           }
         },
         "additionalProperties": false
       },
       "Order": {
         "required": [
-          "date",
-          "deliveryDate",
-          "deliveryTime",
           "pickupDate",
           "pickupTime",
-          "status",
-          "time"
+          "placedDate",
+          "placedTime"
         ],
         "type": "object",
         "properties": {
@@ -2060,15 +2820,11 @@
             "type": "string",
             "format": "uuid"
           },
-          "date": {
+          "placedDate": {
             "type": "string",
             "format": "date-time"
           },
-          "time": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "status": {
+          "placedTime": {
             "minLength": 1,
             "type": "string"
           },
@@ -2080,30 +2836,19 @@
             "minLength": 1,
             "type": "string"
           },
-          "deliveryDate": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "deliveryTime": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "laundryId": {
+          "statusId": {
             "type": "string",
             "format": "uuid"
           },
-          "laundry": {
-            "$ref": "#/components/schemas/Laundry"
+          "status": {
+            "$ref": "#/components/schemas/Status"
           },
-          "payment": {
-            "$ref": "#/components/schemas/Payment"
-          },
-          "customerId": {
+          "typeId": {
             "type": "string",
             "format": "uuid"
           },
-          "customer": {
-            "$ref": "#/components/schemas/Customer"
+          "orderType": {
+            "$ref": "#/components/schemas/OrderType"
           },
           "userId": {
             "type": "string",
@@ -2112,50 +2857,96 @@
           "user": {
             "$ref": "#/components/schemas/User"
           },
-          "orderItems": {
+          "laundryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "laundry": {
+            "$ref": "#/components/schemas/Laundry"
+          },
+          "customerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "customer": {
+            "$ref": "#/components/schemas/Customer"
+          },
+          "payment": {
+            "$ref": "#/components/schemas/Payment"
+          },
+          "orderDetails": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/OrderItem"
+              "$ref": "#/components/schemas/OrderDetails"
             },
             "nullable": true
           }
         },
         "additionalProperties": false
       },
-      "OrderItem": {
+      "OrderDetails": {
+        "required": [
+          "quantity"
+        ],
         "type": "object",
         "properties": {
-          "orderItemId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "orderId": {
             "type": "string",
             "format": "uuid"
-          },
-          "order": {
-            "$ref": "#/components/schemas/Order"
           },
           "itemId": {
             "type": "string",
             "format": "uuid"
           },
+          "serviceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "order": {
+            "$ref": "#/components/schemas/Order"
+          },
           "item": {
             "$ref": "#/components/schemas/Item"
+          },
+          "service": {
+            "$ref": "#/components/schemas/Service"
+          }
+        },
+        "additionalProperties": false
+      },
+      "OrderType": {
+        "required": [
+          "typeName"
+        ],
+        "type": "object",
+        "properties": {
+          "typeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "typeName": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Order"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
       },
       "Owner": {
         "required": [
-          "city",
-          "contact",
           "email",
           "firstName",
-          "houseNo",
-          "lastName",
-          "ownerName",
-          "street"
+          "lastName"
         ],
         "type": "object",
         "properties": {
@@ -2171,32 +2962,30 @@
             "minLength": 1,
             "type": "string"
           },
-          "ownerName": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "contact": {
-            "minLength": 1,
-            "type": "string"
-          },
           "email": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "houseNo": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "street": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "city": {
             "minLength": 1,
             "type": "string"
           },
           "laundry": {
             "$ref": "#/components/schemas/Laundry"
+          },
+          "addressId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "contactId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "contacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Contact"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -2259,12 +3048,32 @@
             "minLength": 1,
             "type": "string"
           },
-          "userGroupPrivileges": {
+          "privilegeUserGroups": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/UserGroupPrivilege"
+              "$ref": "#/components/schemas/PrivilegeUserGroup"
             },
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PrivilegeUserGroup": {
+        "type": "object",
+        "properties": {
+          "privilegeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "privilege": {
+            "$ref": "#/components/schemas/Privilege"
+          },
+          "userGroupId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userGroup": {
+            "$ref": "#/components/schemas/UserGroup"
           }
         },
         "additionalProperties": false
@@ -2283,10 +3092,41 @@
             "minLength": 1,
             "type": "string"
           },
-          "itemServices": {
+          "orderDetails": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ItemService"
+              "$ref": "#/components/schemas/OrderDetails"
+            },
+            "nullable": true
+          },
+          "laundryItemServices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LaundryItemService"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Status": {
+        "required": [
+          "statusName"
+        ],
+        "type": "object",
+        "properties": {
+          "statusID": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "statusName": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Order"
             },
             "nullable": true
           }
@@ -2296,6 +3136,7 @@
       "User": {
         "required": [
           "email",
+          "password",
           "username"
         ],
         "type": "object",
@@ -2305,6 +3146,10 @@
             "format": "uuid"
           },
           "username": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "password": {
             "minLength": 1,
             "type": "string"
           },
@@ -2325,44 +3170,6 @@
               "$ref": "#/components/schemas/Order"
             },
             "nullable": true
-          },
-          "userLaundries": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UserLaundry"
-            },
-            "nullable": true
-          },
-          "userCustomers": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UserCustomer"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "UserCustomer": {
-        "type": "object",
-        "properties": {
-          "userCustomerId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "userId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "user": {
-            "$ref": "#/components/schemas/User"
-          },
-          "customerId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "customer": {
-            "$ref": "#/components/schemas/Customer"
           }
         },
         "additionalProperties": false
@@ -2381,67 +3188,19 @@
             "minLength": 1,
             "type": "string"
           },
+          "privilegeUserGroups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PrivilegeUserGroup"
+            },
+            "nullable": true
+          },
           "users": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/User"
             },
             "nullable": true
-          },
-          "userGroupPrivileges": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UserGroupPrivilege"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "UserGroupPrivilege": {
-        "type": "object",
-        "properties": {
-          "userGroupPrivilegeId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "userGroupId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "userGroup": {
-            "$ref": "#/components/schemas/UserGroup"
-          },
-          "privilegeId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "privilege": {
-            "$ref": "#/components/schemas/Privilege"
-          }
-        },
-        "additionalProperties": false
-      },
-      "UserLaundry": {
-        "type": "object",
-        "properties": {
-          "userLaundryId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "userId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "user": {
-            "$ref": "#/components/schemas/User"
-          },
-          "laundryId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "laundry": {
-            "$ref": "#/components/schemas/Laundry"
           }
         },
         "additionalProperties": false

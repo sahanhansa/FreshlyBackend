@@ -38,8 +38,12 @@ namespace FreshlyBackendNew.Models
         // Navigation property for the related Address
         public Address Address { get; set; }
 
+        // Foreign key for Contact
+        public Guid ContactId { get; set; }
+
         // Navigation property for the related Contacts
         public ICollection<Contact> Contacts { get; set; }
+
 
         // Navigation property for one-to-many relationship with Feedback
         public ICollection<Feedback> Feedbacks { get; set; }

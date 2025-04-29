@@ -4,9 +4,6 @@ namespace FreshlyBackendNew.Models
 {
     public class PrivilegeUserGroup
     {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
         // Foreign key for Privilege
         public Guid PrivilegeId { get; set; }
         public Privilege Privilege { get; set; }

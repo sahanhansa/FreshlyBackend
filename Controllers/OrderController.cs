@@ -56,7 +56,6 @@ namespace FreshlyBackendNew.Controllers
             if (order == null)
                 return NotFound();
 
-            order.Total = updatedOrder.Total;
             order.PickupDate = updatedOrder.PickupDate;
             order.PickupTime = updatedOrder.PickupTime;
             order.PlacedDate = updatedOrder.PlacedDate;
