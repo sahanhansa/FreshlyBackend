@@ -6,48 +6,30 @@ namespace FreshlyBackendNew.Models
     {
         public Customer()
         {
-            CustomerId = Guid.NewGuid();
-        
+            CustomerId = Guid.NewGuid(); 
+            Orders = new List<Order>();
+            Contacts = new List<Contact>();
+            Feedbacks = new List<Feedback>();
         }
 
+        // Primary Key
         [Key]
         public Guid CustomerId { get; set; }
 
-        [Required]
-        public required string FirstName { get; set; }
+        // Basic Information
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? Username { get; set; }
+        public string? Password { get; set; }
+        public string? Email { get; set; }
 
-        [Required]
-        public required string LastName { get; set; }
-
-        [Required]
-        public required string Username { get; set; }
-
-        [Required]
-        public required string Password { get; set; }
-
-        [Required]
-        public required string Email { get; set; }
-
-
-        // Navigation property for one-to-many relationship
-        public ICollection<Order> Orders { get; set; }
-
-        // Foreign key for Address
-        public Guid AddressId { get; set; }
-
-        // Navigation property for the related Address
-        public Address Address { get; set; }
-
-        // Foreign key for Contact
-        public Guid ContactId { get; set; }
-
-        // Navigation property for the related Contacts
-        public ICollection<Contact> Contacts { get; set; }
-
-
-        // Navigation property for one-to-many relationship with Feedback
-        public ICollection<Feedback> Feedbacks { get; set; }
-
-
+        // Foreign Keys
+        public Guid? AddressId { get; set; }
+        
+        // Navigation Properties
+        public Address? Address { get; set; }
+        public ICollection<Contact>? Contacts { get; set; }
+        public ICollection<Order>? Orders { get; set; }
+        public ICollection<Feedback>? Feedbacks { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using FreshlyBackendNew.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FreshlyBackendNew.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250429104604_FixedContactRelIssue")]
+    partial class FixedContactRelIssue
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,12 +51,10 @@ namespace FreshlyBackendNew.Migrations
             modelBuilder.Entity("FreshlyBackendNew.Models.Contact", b =>
                 {
                     b.Property<Guid>("ContactId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
                     b.Property<string>("ContactNumber")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("char(36)");
@@ -64,7 +65,7 @@ namespace FreshlyBackendNew.Migrations
                     b.Property<Guid?>("OwnerId")
                         .HasColumnType("char(36)");
 
-                    b.HasKey("ContactId");
+                    b.HasKey("ContactId", "ContactNumber");
 
                     b.HasIndex("CustomerId");
 
@@ -447,20 +448,35 @@ namespace FreshlyBackendNew.Migrations
 
             modelBuilder.Entity("FreshlyBackendNew.Models.Contact", b =>
                 {
-                    b.HasOne("FreshlyBackendNew.Models.Customer", "Customer")
+                    b.HasOne("FreshlyBackendNew.Models.Customer", null)
                         .WithMany("Contacts")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("ContactId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FreshlyBackendNew.Models.Laundry", null)
+                        .WithMany("Contacts")
+                        .HasForeignKey("ContactId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FreshlyBackendNew.Models.Owner", null)
+                        .WithMany("Contacts")
+                        .HasForeignKey("ContactId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FreshlyBackendNew.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("FreshlyBackendNew.Models.Laundry", "Laundry")
-                        .WithMany("Contacts")
-                        .HasForeignKey("LaundryId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .WithMany()
+                        .HasForeignKey("LaundryId");
 
                     b.HasOne("FreshlyBackendNew.Models.Owner", "Owner")
-                        .WithMany("Contacts")
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .WithMany()
+                        .HasForeignKey("OwnerId");
 
                     b.Navigation("Customer");
 

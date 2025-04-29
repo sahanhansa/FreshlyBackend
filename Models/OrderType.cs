@@ -6,18 +6,18 @@ namespace FreshlyBackendNew.Models
     {
         public OrderType()
         {
-            TypeId = Guid.NewGuid();
+            TypeId = Guid.NewGuid(); 
+            Orders = new List<Order>();
         }
 
+        // Primary Key
         [Key]
         public Guid TypeId { get; set; }
 
-        [Required]
-        public required string TypeName { get; set; }
+        // Order Type Details
+        public string? TypeName { get; set; }
 
-
-        // Navigation property for one-to-many relationship
-        public ICollection<Order> Orders { get; set; }
-
+        // Navigation Properties
+        public ICollection<Order>? Orders { get; set; }
     }
 }

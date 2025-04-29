@@ -4,13 +4,13 @@ namespace FreshlyBackendNew.Models
 {
     public class PrivilegeUserGroup
     {
-        // Foreign key for Privilege
-        public Guid PrivilegeId { get; set; }
-        public Privilege Privilege { get; set; }
+        // Foreign Keys
+        public Guid? PrivilegeId { get; set; }
+        public Guid? UserGroupId { get; set; }
 
-        // Foreign key for UserGroup
-        public Guid UserGroupId { get; set; }
-        public UserGroup UserGroup { get; set; }
+        // Navigation Properties
+        public Privilege? Privilege { get; set; }
+        public UserGroup? UserGroup { get; set; }
     }
 }
 

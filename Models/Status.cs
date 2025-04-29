@@ -6,17 +6,18 @@ namespace FreshlyBackendNew.Models
     {
         public Status()
         {
-            StatusID = Guid.NewGuid();
+            StatusID = Guid.NewGuid(); 
+            Orders = new List<Order>();
         }
 
+        // Primary Key
         [Key]
         public Guid StatusID { get; set; }
 
-        [Required]
-        public required string StatusName { get; set; }
+        // Status Details
+        public string? StatusName { get; set; }
 
-        // Navigation property for one-to-many relationship
-        public ICollection<Order> Orders { get; set; }
-
+        // Navigation Properties
+        public ICollection<Order>? Orders { get; set; }
     }
 }

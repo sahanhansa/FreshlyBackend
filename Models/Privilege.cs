@@ -7,15 +7,17 @@ namespace FreshlyBackendNew.Models
         public Privilege()
         {
             PrivilegeId = Guid.NewGuid();
+            PrivilegeUserGroups = new List<PrivilegeUserGroup>();
         }
 
+        // Primary Key
         [Key]
         public Guid PrivilegeId { get; set; }
 
-        [Required]
-        public required string PrivilegeName { get; set; }
+        // Privilege Details
+        public string? PrivilegeName { get; set; }
 
-        // Navigation property for many-to-many relationship
-        public ICollection<PrivilegeUserGroup> PrivilegeUserGroups { get; set; }
+        // Navigation Properties
+        public ICollection<PrivilegeUserGroup>? PrivilegeUserGroups { get; set; }
     }
 }

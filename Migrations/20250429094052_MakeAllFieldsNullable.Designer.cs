@@ -4,6 +4,7 @@ using FreshlyBackendNew.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FreshlyBackendNew.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250429094052_MakeAllFieldsNullable")]
+    partial class MakeAllFieldsNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,29 +51,12 @@ namespace FreshlyBackendNew.Migrations
             modelBuilder.Entity("FreshlyBackendNew.Models.Contact", b =>
                 {
                     b.Property<Guid>("ContactId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
                     b.Property<string>("ContactNumber")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(255)");
 
-                    b.Property<Guid?>("CustomerId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid?>("LaundryId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid?>("OwnerId")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("ContactId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("LaundryId");
-
-                    b.HasIndex("OwnerId");
+                    b.HasKey("ContactId", "ContactNumber");
 
                     b.ToTable("Contacts");
                 });
@@ -82,6 +68,9 @@ namespace FreshlyBackendNew.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<Guid?>("AddressId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("ContactId")
                         .HasColumnType("char(36)");
 
                     b.Property<string>("Email")
@@ -155,6 +144,9 @@ namespace FreshlyBackendNew.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<Guid?>("AddressId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("ContactId")
                         .HasColumnType("char(36)");
 
                     b.Property<string>("Email")
@@ -298,6 +290,9 @@ namespace FreshlyBackendNew.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<Guid?>("AddressId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("ContactId")
                         .HasColumnType("char(36)");
 
                     b.Property<string>("Email")
@@ -447,26 +442,23 @@ namespace FreshlyBackendNew.Migrations
 
             modelBuilder.Entity("FreshlyBackendNew.Models.Contact", b =>
                 {
-                    b.HasOne("FreshlyBackendNew.Models.Customer", "Customer")
+                    b.HasOne("FreshlyBackendNew.Models.Customer", null)
                         .WithMany("Contacts")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("ContactId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("FreshlyBackendNew.Models.Laundry", "Laundry")
+                    b.HasOne("FreshlyBackendNew.Models.Laundry", null)
                         .WithMany("Contacts")
-                        .HasForeignKey("LaundryId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("ContactId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("FreshlyBackendNew.Models.Owner", "Owner")
+                    b.HasOne("FreshlyBackendNew.Models.Owner", null)
                         .WithMany("Contacts")
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("Laundry");
-
-                    b.Navigation("Owner");
+                        .HasForeignKey("ContactId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("FreshlyBackendNew.Models.Customer", b =>

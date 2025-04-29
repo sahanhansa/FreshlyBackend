@@ -6,31 +6,24 @@ namespace FreshlyBackendNew.Models
     {
         public Payment()
         {
-            PaymentId = Guid.NewGuid();
+            PaymentId = Guid.NewGuid(); 
         }
 
+        // Primary Key
         [Key]
         public Guid PaymentId { get; set; }
 
-        [Required]
-        public required DateTime Date { get; set; }
+        // Payment Details
+        public DateTime? Date { get; set; }
+        public DateTime? Time { get; set; }
+        public decimal? Amount { get; set; }
+        public string? Method { get; set; }
+        public string? Status { get; set; }
 
-        [Required]
-        public required string Time { get; set; }
+        // Foreign Key
+        public Guid? OrderId { get; set; }
 
-        [Required]
-        public required decimal Amount { get; set; }
-
-        [Required]
-        public required string Method { get; set; }
-
-        [Required]
-        public required string Status { get; set; }
-
-        // Foreign key for Order
-        public Guid OrderId { get; set; }
-
-        // Navigation property for the related Order
-        public Order Order { get; set; }
+        // Navigation Property
+        public Order? Order { get; set; }
     }
 }

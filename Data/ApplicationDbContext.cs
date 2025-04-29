@@ -93,31 +93,26 @@ namespace FreshlyBackendNew.Data
                 .HasOne(o => o.Payment)
                 .WithOne(p => p.Order)
                 .HasForeignKey<Payment>(p => p.OrderId);
-
-            // Configure composite primary key for Contact
+            
+            // Configure one-to-many relationships between Contact and others
             modelBuilder.Entity<Contact>()
-                .HasKey(c => new { c.ContactId, c.ContactNumber });
-
-            // Configure one-to-many relationship between Customer and Contact
-            modelBuilder.Entity<Customer>()
-                .HasMany(cu => cu.Contacts)
-                .WithOne()
-                .HasForeignKey(c => c.ContactId)
+                .HasOne(c => c.Customer)
+                .WithMany(cu => cu.Contacts)
+                .HasForeignKey(c => c.CustomerId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Configure one-to-many relationship between Laundry and Contact
-            modelBuilder.Entity<Laundry>()
-                .HasMany(l => l.Contacts)
-                .WithOne()
-                .HasForeignKey(c => c.ContactId)
+            modelBuilder.Entity<Contact>()
+                .HasOne(c => c.Owner)
+                .WithMany(o => o.Contacts)
+                .HasForeignKey(c => c.OwnerId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Configure one-to-many relationship between Owner and Contact
-            modelBuilder.Entity<Owner>()
-                .HasMany(o => o.Contacts)
-                .WithOne()
-                .HasForeignKey(c => c.ContactId)
+            modelBuilder.Entity<Contact>()
+                .HasOne(c => c.Laundry)
+                .WithMany(l => l.Contacts)
+                .HasForeignKey(c => c.LaundryId)
                 .OnDelete(DeleteBehavior.Cascade);
+
 
             // Configure one-to-many relationship between Laundry and Feedback
             modelBuilder.Entity<Feedback>()

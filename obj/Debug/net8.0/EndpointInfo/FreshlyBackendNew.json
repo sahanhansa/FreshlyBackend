@@ -2505,12 +2505,6 @@
   "components": {
     "schemas": {
       "Address": {
-        "required": [
-          "city",
-          "houseNo",
-          "postalCode",
-          "street"
-        ],
         "type": "object",
         "properties": {
           "addressId": {
@@ -2518,20 +2512,20 @@
             "format": "uuid"
           },
           "houseNo": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "street": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "city": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "postalCode": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "customer": {
             "$ref": "#/components/schemas/Customer"
@@ -2546,9 +2540,6 @@
         "additionalProperties": false
       },
       "Contact": {
-        "required": [
-          "contactNumber"
-        ],
         "type": "object",
         "properties": {
           "contactId": {
@@ -2556,20 +2547,37 @@
             "format": "uuid"
           },
           "contactNumber": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
+          },
+          "customerId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "ownerId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "laundryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "customer": {
+            "$ref": "#/components/schemas/Customer"
+          },
+          "owner": {
+            "$ref": "#/components/schemas/Owner"
+          },
+          "laundry": {
+            "$ref": "#/components/schemas/Laundry"
           }
         },
         "additionalProperties": false
       },
       "Customer": {
-        "required": [
-          "email",
-          "firstName",
-          "lastName",
-          "password",
-          "username"
-        ],
         "type": "object",
         "properties": {
           "customerId": {
@@ -2577,47 +2585,44 @@
             "format": "uuid"
           },
           "firstName": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "lastName": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "username": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "password": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "email": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "orders": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Order"
-            },
+            "type": "string",
             "nullable": true
           },
           "addressId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "address": {
             "$ref": "#/components/schemas/Address"
-          },
-          "contactId": {
-            "type": "string",
-            "format": "uuid"
           },
           "contacts": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Contact"
+            },
+            "nullable": true
+          },
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Order"
             },
             "nullable": true
           },
@@ -2632,10 +2637,6 @@
         "additionalProperties": false
       },
       "Feedback": {
-        "required": [
-          "description",
-          "rating"
-        ],
         "type": "object",
         "properties": {
           "feedbackId": {
@@ -2643,23 +2644,26 @@
             "format": "uuid"
           },
           "description": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "rating": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "laundryId": {
             "type": "string",
-            "format": "uuid"
-          },
-          "laundry": {
-            "$ref": "#/components/schemas/Laundry"
+            "format": "uuid",
+            "nullable": true
           },
           "customerId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
+          },
+          "laundry": {
+            "$ref": "#/components/schemas/Laundry"
           },
           "customer": {
             "$ref": "#/components/schemas/Customer"
@@ -2668,9 +2672,6 @@
         "additionalProperties": false
       },
       "Item": {
-        "required": [
-          "name"
-        ],
         "type": "object",
         "properties": {
           "itemId": {
@@ -2678,8 +2679,8 @@
             "format": "uuid"
           },
           "name": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "orderDetails": {
             "type": "array",
@@ -2721,11 +2722,6 @@
             "type": "string",
             "nullable": true
           },
-          "contactId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
           "addressId": {
             "type": "string",
             "format": "uuid",
@@ -2735,6 +2731,12 @@
             "type": "string",
             "format": "uuid",
             "nullable": true
+          },
+          "owner": {
+            "$ref": "#/components/schemas/Owner"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
           },
           "orders": {
             "type": "array",
@@ -2763,37 +2765,32 @@
               "$ref": "#/components/schemas/LaundryItemService"
             },
             "nullable": true
-          },
-          "owner": {
-            "$ref": "#/components/schemas/Owner"
-          },
-          "address": {
-            "$ref": "#/components/schemas/Address"
           }
         },
         "additionalProperties": false
       },
       "LaundryItemService": {
-        "required": [
-          "price"
-        ],
         "type": "object",
         "properties": {
           "laundryId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "itemId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "serviceId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "price": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "laundry": {
             "$ref": "#/components/schemas/Laundry"
@@ -2808,12 +2805,6 @@
         "additionalProperties": false
       },
       "Order": {
-        "required": [
-          "pickupDate",
-          "pickupTime",
-          "placedDate",
-          "placedTime"
-        ],
         "type": "object",
         "properties": {
           "orderId": {
@@ -2822,51 +2813,60 @@
           },
           "placedDate": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "placedTime": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           },
           "pickupDate": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           },
           "pickupTime": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "laundryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "customerId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "typeId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
           },
           "statusId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
           },
           "status": {
             "$ref": "#/components/schemas/Status"
           },
-          "typeId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "orderType": {
             "$ref": "#/components/schemas/OrderType"
-          },
-          "userId": {
-            "type": "string",
-            "format": "uuid"
           },
           "user": {
             "$ref": "#/components/schemas/User"
           },
-          "laundryId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "laundry": {
             "$ref": "#/components/schemas/Laundry"
-          },
-          "customerId": {
-            "type": "string",
-            "format": "uuid"
           },
           "customer": {
             "$ref": "#/components/schemas/Customer"
@@ -2885,26 +2885,27 @@
         "additionalProperties": false
       },
       "OrderDetails": {
-        "required": [
-          "quantity"
-        ],
         "type": "object",
         "properties": {
           "orderId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "itemId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "serviceId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "quantity": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "order": {
             "$ref": "#/components/schemas/Order"
@@ -2919,9 +2920,6 @@
         "additionalProperties": false
       },
       "OrderType": {
-        "required": [
-          "typeName"
-        ],
         "type": "object",
         "properties": {
           "typeId": {
@@ -2929,8 +2927,8 @@
             "format": "uuid"
           },
           "typeName": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "orders": {
             "type": "array",
@@ -2943,11 +2941,6 @@
         "additionalProperties": false
       },
       "Owner": {
-        "required": [
-          "email",
-          "firstName",
-          "lastName"
-        ],
         "type": "object",
         "properties": {
           "ownerId": {
@@ -2955,30 +2948,27 @@
             "format": "uuid"
           },
           "firstName": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "lastName": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "email": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "laundry": {
-            "$ref": "#/components/schemas/Laundry"
+            "type": "string",
+            "nullable": true
           },
           "addressId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "address": {
             "$ref": "#/components/schemas/Address"
           },
-          "contactId": {
-            "type": "string",
-            "format": "uuid"
+          "laundry": {
+            "$ref": "#/components/schemas/Laundry"
           },
           "contacts": {
             "type": "array",
@@ -2991,13 +2981,6 @@
         "additionalProperties": false
       },
       "Payment": {
-        "required": [
-          "amount",
-          "date",
-          "method",
-          "status",
-          "time"
-        ],
         "type": "object",
         "properties": {
           "paymentId": {
@@ -3006,27 +2989,31 @@
           },
           "date": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "time": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           },
           "amount": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "method": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "status": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "orderId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "order": {
             "$ref": "#/components/schemas/Order"
@@ -3035,9 +3022,6 @@
         "additionalProperties": false
       },
       "Privilege": {
-        "required": [
-          "privilegeName"
-        ],
         "type": "object",
         "properties": {
           "privilegeId": {
@@ -3045,8 +3029,8 @@
             "format": "uuid"
           },
           "privilegeName": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "privilegeUserGroups": {
             "type": "array",
@@ -3063,14 +3047,16 @@
         "properties": {
           "privilegeId": {
             "type": "string",
-            "format": "uuid"
-          },
-          "privilege": {
-            "$ref": "#/components/schemas/Privilege"
+            "format": "uuid",
+            "nullable": true
           },
           "userGroupId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
+          },
+          "privilege": {
+            "$ref": "#/components/schemas/Privilege"
           },
           "userGroup": {
             "$ref": "#/components/schemas/UserGroup"
@@ -3079,9 +3065,6 @@
         "additionalProperties": false
       },
       "Service": {
-        "required": [
-          "name"
-        ],
         "type": "object",
         "properties": {
           "serviceId": {
@@ -3089,8 +3072,8 @@
             "format": "uuid"
           },
           "name": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "orderDetails": {
             "type": "array",
@@ -3110,9 +3093,6 @@
         "additionalProperties": false
       },
       "Status": {
-        "required": [
-          "statusName"
-        ],
         "type": "object",
         "properties": {
           "statusID": {
@@ -3120,8 +3100,8 @@
             "format": "uuid"
           },
           "statusName": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "orders": {
             "type": "array",
@@ -3134,11 +3114,6 @@
         "additionalProperties": false
       },
       "User": {
-        "required": [
-          "email",
-          "password",
-          "username"
-        ],
         "type": "object",
         "properties": {
           "userId": {
@@ -3146,20 +3121,21 @@
             "format": "uuid"
           },
           "username": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "password": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "email": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "userGroupId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "userGroup": {
             "$ref": "#/components/schemas/UserGroup"
@@ -3175,9 +3151,6 @@
         "additionalProperties": false
       },
       "UserGroup": {
-        "required": [
-          "userGroupName"
-        ],
         "type": "object",
         "properties": {
           "userGroupId": {
@@ -3185,8 +3158,8 @@
             "format": "uuid"
           },
           "userGroupName": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "privilegeUserGroups": {
             "type": "array",
