@@ -6,28 +6,28 @@ namespace FreshlyBackendNew.Models
     {
         public Owner()
         {
-            OwnerId = Guid.NewGuid(); // Auto-generate ID
+            OwnerId = Guid.NewGuid(); 
+            Contacts = new List<Contact>();
         }
 
+        // Primary Key
         [Key]
         public Guid OwnerId { get; set; }
 
-        [Required]
-        public required string FirstName { get; set; }
+        // Basic Information
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? Email { get; set; }
 
-        [Required]
-        public required string LastName { get; set; }
+        // Foreign Keys
+        public Guid? AddressId { get; set; }
 
-       [Required]
-        public required string Email { get; set; }
-
-        // Navigation property for the related Laundry
-        public Laundry Laundry { get; set; }
-
-        // Foreign key for Address
-        public Guid AddressId { get; set; }
-
-        // Navigation property for the related Address
-        public Address Address { get; set; }
+        // Navigation Properties
+        public Address? Address { get; set; }
+        public Laundry? Laundry { get; set; }
+        public ICollection<Contact>? Contacts { get; set; }
+        
     }
 }
+
+

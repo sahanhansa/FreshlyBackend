@@ -1,24 +1,27 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FreshlyBackendNew.Models
 {
     public class Contact
     {
+        public Contact()
+        {
+            ContactId = Guid.NewGuid(); 
+        }
+
+        [Key]
         public Guid ContactId { get; set; }
+        public string ContactNumber { get; set; }
 
-        [Required]
-        public required string ContactNumber { get; set; }
+        // Foreign keys
+        public Guid? CustomerId { get; set; }
+        public Guid? OwnerId { get; set; }
+        public Guid? LaundryId { get; set; }
 
-        // Foreign key for Customer
-        public Guid CustomerId { get; set; }
-
-        // Navigation property for the related Customer
-        public Customer Customer { get; set; }
-
-        // Foreign key for Laundry
-        public Guid LaundryId { get; set; }
-
-        // Navigation property for the related Laundry
-        public Laundry Laundry { get; set; }
+        // Navigation properties
+        public Customer? Customer { get; set; }
+        public Owner? Owner { get; set; }
+        public Laundry? Laundry { get; set; }
     }
 }

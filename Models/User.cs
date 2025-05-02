@@ -6,32 +6,24 @@ namespace FreshlyBackendNew.Models
     {
         public User()
         {
-            UserId = Guid.NewGuid();
-           
+            UserId = Guid.NewGuid(); 
+            Orders = new List<Order>();
         }
 
+        // Primary Key
         [Key]
         public Guid UserId { get; set; }
 
-        [Required]
-        public required string Username { get; set; }
+        // User Details
+        public string? Username { get; set; }
+        public string? Password { get; set; }
+        public string? Email { get; set; }
 
-        [Required]
-        public required string Password { get; set; }
+        // Foreign Key
+        public Guid? UserGroupId { get; set; }
 
-        [Required]
-        public required string Email { get; set; }
-
-        // Foreign key for UserGroup
-        public Guid UserGroupId { get; set; }
-
-        // Navigation property for the related UserGroup
-        public UserGroup UserGroup { get; set; }
-
-
-        // Navigation property for one-to-many relationship
-        public ICollection<Order> Orders { get; set; }
-
-
+        // Navigation Properties
+        public UserGroup? UserGroup { get; set; }
+        public ICollection<Order>? Orders { get; set; }
     }
 }

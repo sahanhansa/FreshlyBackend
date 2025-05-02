@@ -6,21 +6,21 @@ namespace FreshlyBackendNew.Models
     {
         public UserGroup()
         {
-            UserGroupId = Guid.NewGuid();
+            UserGroupId = Guid.NewGuid(); 
+            PrivilegeUserGroups = new List<PrivilegeUserGroup>();
+            Users = new List<User>();
         }
 
+        // Primary Key
         [Key]
         public Guid UserGroupId { get; set; }
 
-        [Required]
-        public required string UserGroupName { get; set; }
+        // User Group Details
+        public string? UserGroupName { get; set; }
 
-        // Navigation property for many-to-many relationship
-        public ICollection<PrivilegeUserGroup> PrivilegeUserGroups { get; set; }
-
-        // Navigation property for one-to-many relationship
-        public ICollection<User> Users { get; set; }
-
+        // Navigation Properties
+        public ICollection<PrivilegeUserGroup>? PrivilegeUserGroups { get; set; }
+        public ICollection<User>? Users { get; set; }
     }
 }
 

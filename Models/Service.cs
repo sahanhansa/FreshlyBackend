@@ -7,22 +7,20 @@ namespace FreshlyBackendNew.Models
         public Service()
         {
             ServiceId = Guid.NewGuid();
-            
+            OrderDetails = new List<OrderDetails>();
+            LaundryItemServices = new List<LaundryItemService>();
         }
 
+        // Primary Key
         [Key]
         public Guid ServiceId { get; set; }
 
-        [Required]
-        public required string Name { get; set; }
+        // Service Details
+        public string? Name { get; set; }
 
-        // Navigation property for OrderDetails
-        public ICollection<OrderDetails> OrderDetails { get; set; }
-
-        // Navigation property for LaundryItemService
-        public ICollection<LaundryItemService> LaundryItemServices { get; set; }
-
-
+        // Navigation Properties
+        public ICollection<OrderDetails>? OrderDetails { get; set; }
+        public ICollection<LaundryItemService>? LaundryItemServices { get; set; }
     }
 }
 

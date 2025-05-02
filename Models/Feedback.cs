@@ -6,28 +6,23 @@ namespace FreshlyBackendNew.Models
     {
         public Feedback()
         {
-            FeedbackId = Guid.NewGuid();
+            FeedbackId = Guid.NewGuid(); 
         }
 
+        // Primary Key
         [Key]
         public Guid FeedbackId { get; set; }
 
-        [Required]
-        public required string Description { get; set; }
+        // Feedback Details
+        public string? Description { get; set; }
+        public int? Rating { get; set; }
 
-        [Required]
-        public required int Rating { get; set; }
+        // Foreign Keys
+        public Guid? LaundryId { get; set; }
+        public Guid? CustomerId { get; set; }
 
-        // Foreign key for Laundry
-        public Guid LaundryId { get; set; }
-
-        // Navigation property for the related Laundry
-        public Laundry Laundry { get; set; }
-
-        // Foreign key for Customer
-        public Guid CustomerId { get; set; }
-
-        // Navigation property for the related Customer
-        public Customer Customer { get; set; }
+        // Navigation Properties
+        public Laundry? Laundry { get; set; }
+        public Customer? Customer { get; set; }
     }
 }
