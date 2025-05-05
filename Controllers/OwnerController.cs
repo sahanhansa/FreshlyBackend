@@ -16,7 +16,7 @@ namespace FreshlyBackendNew.Controllers
             _context = context;
         }
 
-        // 🔹 Create Owner (POST)
+        // Create Owner (POST)
         [HttpPost]
         public async Task<IActionResult> CreateOwner([FromBody] Owner owner)
         {
@@ -31,7 +31,7 @@ namespace FreshlyBackendNew.Controllers
             return CreatedAtAction(nameof(GetOwner), new { id = owner.OwnerId }, owner);
         }
 
-        // 🔹 Get All Owners (GET)
+        // Get All Owners (GET)
         [HttpGet]
         public async Task<IActionResult> GetOwners()
         {
@@ -39,7 +39,7 @@ namespace FreshlyBackendNew.Controllers
             return Ok(owners);
         }
 
-        // 🔹 Get Single Owner (GET by ID)
+        // Get Single Owner (GET by ID)
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOwner(Guid id)
         {
@@ -52,7 +52,7 @@ namespace FreshlyBackendNew.Controllers
             return Ok(owner);
         }
 
-        // 🔹 Update Owner (PUT)
+        // Update Owner (PUT)
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateOwner(Guid id, [FromBody] Owner updatedOwner)
         {
@@ -71,7 +71,7 @@ namespace FreshlyBackendNew.Controllers
             return Ok(owner);
         }
 
-        // 🔹 Delete Owner (DELETE)
+        // Delete Owner (DELETE)
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOwner(Guid id)
         {
