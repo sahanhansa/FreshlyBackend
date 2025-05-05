@@ -10,8 +10,19 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     )
 );
 
-// Add services to the container.
+// Add CORS services
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularApp",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200") // Your Angular app's URL
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
 
+// Add services to the container.
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -27,6 +38,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Use CORS middleware (must be before UseAuthorization and after UseHttpsRedirection)
+app.UseCors("AllowAngularApp");
 
 app.UseAuthorization();
 

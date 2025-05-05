@@ -531,81 +531,12 @@
   },
   {
     "ContainingType": "FreshlyBackendNew.Controllers.LaundryController",
-    "Method": "CreateLaundry",
-    "RelativePath": "api/Laundry",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "laundry",
-        "Type": "FreshlyBackendNew.Models.Laundry",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "FreshlyBackendNew.Controllers.LaundryController",
     "Method": "GetLaundries",
     "RelativePath": "api/Laundry",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "FreshlyBackendNew.Controllers.LaundryController",
-    "Method": "GetLaundry",
-    "RelativePath": "api/Laundry/{id}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Guid",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "FreshlyBackendNew.Controllers.LaundryController",
-    "Method": "UpdateLaundry",
-    "RelativePath": "api/Laundry/{id}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Guid",
-        "IsRequired": true
-      },
-      {
-        "Name": "updatedLaundry",
-        "Type": "FreshlyBackendNew.Models.Laundry",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "FreshlyBackendNew.Controllers.LaundryController",
-    "Method": "DeleteLaundry",
-    "RelativePath": "api/Laundry/{id}",
-    "HttpMethod": "DELETE",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Guid",
-        "IsRequired": true
-      }
-    ],
     "ReturnTypes": []
   },
   {
