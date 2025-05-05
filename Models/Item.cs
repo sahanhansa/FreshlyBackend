@@ -18,7 +18,11 @@ namespace FreshlyBackendNew.Models
         // Item Details
         public string? Name { get; set; }
 
+        // Foreign Key
+        public int CategoryId { get; set; }
+
         // Navigation Properties
+        public ItemCategory Category { get; set; }
         public ICollection<OrderDetails>? OrderDetails { get; set; }
         public ICollection<LaundryItemService>? LaundryItemServices { get; set; }
     }

@@ -530,9 +530,167 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "FreshlyBackendNew.Controllers.ItemCategoryController",
+    "Method": "CreateCategory",
+    "RelativePath": "api/ItemCategory",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "category",
+        "Type": "FreshlyBackendNew.Models.ItemCategory",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.ItemCategoryController",
+    "Method": "GetCategories",
+    "RelativePath": "api/ItemCategory",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.ItemCategoryController",
+    "Method": "GetCategory",
+    "RelativePath": "api/ItemCategory/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.ItemCategoryController",
+    "Method": "UpdateCategory",
+    "RelativePath": "api/ItemCategory/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "updatedCategory",
+        "Type": "FreshlyBackendNew.Models.ItemCategory",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.ItemCategoryController",
+    "Method": "DeleteCategory",
+    "RelativePath": "api/ItemCategory/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.LaundryController",
+    "Method": "CreateLaundry",
+    "RelativePath": "api/Laundry",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "laundry",
+        "Type": "FreshlyBackendNew.Models.Laundry",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "FreshlyBackendNew.Controllers.LaundryController",
     "Method": "GetLaundries",
     "RelativePath": "api/Laundry",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.LaundryController",
+    "Method": "GetLaundry",
+    "RelativePath": "api/Laundry/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Guid",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.LaundryController",
+    "Method": "UpdateLaundry",
+    "RelativePath": "api/Laundry/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Guid",
+        "IsRequired": true
+      },
+      {
+        "Name": "updatedLaundry",
+        "Type": "FreshlyBackendNew.Models.Laundry",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.LaundryController",
+    "Method": "DeleteLaundry",
+    "RelativePath": "api/Laundry/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Guid",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.LaundryController",
+    "Method": "GetLaundriesForCustomer",
+    "RelativePath": "api/Laundry/laundry-list-for-customer",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,

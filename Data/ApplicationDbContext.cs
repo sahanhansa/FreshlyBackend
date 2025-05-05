@@ -23,6 +23,7 @@ namespace FreshlyBackendNew.Data
         public DbSet<Status> Statuses { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserGroup> UserGroups { get; set; }
+        public DbSet<ItemCategory> ItemCategories { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
@@ -191,6 +192,15 @@ namespace FreshlyBackendNew.Data
                 .HasOne(lis => lis.Service)
                 .WithMany(s => s.LaundryItemServices)
                 .HasForeignKey(lis => lis.ServiceId);
+
+            // Configure one-to-many relationship between ItemCategory and Item
+            modelBuilder.Entity<Item>()
+                .HasOne(i => i.Category)
+                .WithMany(c => c.Items)
+                .HasForeignKey(i => i.CategoryId);
+
+            base.OnModelCreating(modelBuilder);
+
         }
     }
 }
