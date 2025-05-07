@@ -23,7 +23,7 @@ namespace FreshlyBackendNew.Data
         public DbSet<Status> Statuses { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserGroup> UserGroups { get; set; }
-
+        public DbSet<Auth>Auth{ get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
 
@@ -76,17 +76,17 @@ namespace FreshlyBackendNew.Data
                 .HasForeignKey(o => o.UserId);
 
             // Configure one-to-many relationship between Laundry and Order
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.Laundry)
-                .WithMany(l => l.Orders)
-                .HasForeignKey(o => o.LaundryId);
+            //modelBuilder.Entity<Order>()
+            //    .HasOne(o => o.Laundry)
+            //    .WithMany(l => l.Orders)
+            //    .HasForeignKey(o => o.LaundryId);
 
 
             // Configure one-to-many relationship between Customer and Order
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.Customer)
-                .WithMany(c => c.Orders)
-                .HasForeignKey(o => o.CustomerId);
+            //modelBuilder.Entity<Order>()
+            //    .HasOne(o => o.Customer)
+            //    .WithMany(c => c.Orders)
+            //    .HasForeignKey(o => o.CustomerId);
 
             //Configure one-to-one relationship between Payment and Order
             modelBuilder.Entity<Order>()
@@ -95,11 +95,11 @@ namespace FreshlyBackendNew.Data
                 .HasForeignKey<Payment>(p => p.OrderId);
             
             // Configure one-to-many relationships between Contact and others
-            modelBuilder.Entity<Contact>()
-                .HasOne(c => c.Customer)
-                .WithMany(cu => cu.Contacts)
-                .HasForeignKey(c => c.CustomerId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //modelBuilder.Entity<Contact>()
+            //    .HasOne(c => c.Customer)
+            //    .WithMany(cu => cu.Contacts)
+            //    .HasForeignKey(c => c.CustomerId)
+            //    .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Contact>()
                 .HasOne(c => c.Owner)
@@ -107,44 +107,44 @@ namespace FreshlyBackendNew.Data
                 .HasForeignKey(c => c.OwnerId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Contact>()
-                .HasOne(c => c.Laundry)
-                .WithMany(l => l.Contacts)
-                .HasForeignKey(c => c.LaundryId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //modelBuilder.Entity<Contact>()
+            //    .HasOne(c => c.Laundry)
+            //    .WithMany(l => l.Contacts)
+            //    .HasForeignKey(c => c.LaundryId)
+            //    .OnDelete(DeleteBehavior.Cascade);
 
 
             // Configure one-to-many relationship between Laundry and Feedback
-            modelBuilder.Entity<Feedback>()
-                .HasOne(f => f.Laundry)
-                .WithMany(l => l.Feedbacks)
-                .HasForeignKey(f => f.LaundryId);
+            //modelBuilder.Entity<Feedback>()
+            //    .HasOne(f => f.Laundry)
+            //    .WithMany(l => l.Feedbacks)
+            //    .HasForeignKey(f => f.LaundryId);
 
             // Configure one-to-many relationship between Customer and Feedback
-            modelBuilder.Entity<Feedback>()
-                .HasOne(f => f.Customer)
-                .WithMany(c => c.Feedbacks)
-                .HasForeignKey(f => f.CustomerId);
+            //modelBuilder.Entity<Feedback>()
+            //    .HasOne(f => f.Customer)
+            //    .WithMany(c => c.Feedbacks)
+            //    .HasForeignKey(f => f.CustomerId);
 
             // Configure Customer-Address relationship
-            modelBuilder.Entity<Customer>()
-                .HasOne(c => c.Address)
-                .WithOne(a => a.Customer)
-                .HasForeignKey<Customer>(c => c.AddressId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //modelBuilder.Entity<Customer>()
+            //    .HasOne(c => c.Address)
+            //    .WithOne(a => a.Customer)
+            //    .HasForeignKey<Customer>(c => c.AddressId)
+            //    .OnDelete(DeleteBehavior.Cascade);
 
             // Configure Laundry-Address relationship
-            modelBuilder.Entity<Laundry>()
-                .HasOne(l => l.Address)
-                .WithOne(a => a.Laundry)
-                .HasForeignKey<Laundry>(l => l.AddressId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //modelBuilder.Entity<Laundry>()
+            //    .HasOne(l => l.Address)
+            //    .WithOne(a => a.Laundry)
+            //    .HasForeignKey<Laundry>(l => l.AddressId)
+            //    .OnDelete(DeleteBehavior.Cascade);
 
-            // Configure one-to-one relationship between Owner and Laundry
-            modelBuilder.Entity<Laundry>()
-                .HasOne(l => l.Owner)
-                .WithOne(o => o.Laundry)
-                .HasForeignKey<Laundry>(l => l.OwnerId);
+            //// Configure one-to-one relationship between Owner and Laundry
+            //modelBuilder.Entity<Laundry>()
+            //    .HasOne(l => l.Owner)
+            //    .WithOne(o => o.Laundry)
+            //    .HasForeignKey<Laundry>(l => l.OwnerId);
 
             // Configure one-to-one relationship between Address and Owner
             modelBuilder.Entity<Owner>()
@@ -177,10 +177,10 @@ namespace FreshlyBackendNew.Data
                 .HasKey(lis => new { lis.LaundryId, lis.ItemId, lis.ServiceId });
 
             // Configure relationships
-            modelBuilder.Entity<LaundryItemService>()
-                .HasOne(lis => lis.Laundry)
-                .WithMany(l => l.LaundryItemServices)
-                .HasForeignKey(lis => lis.LaundryId);
+            //modelBuilder.Entity<LaundryItemService>()
+            //    .HasOne(lis => lis.Laundry)
+            //    .WithMany(l => l.LaundryItemServices)
+            //    .HasForeignKey(lis => lis.LaundryId);
 
             modelBuilder.Entity<LaundryItemService>()
                 .HasOne(lis => lis.Item)
