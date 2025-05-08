@@ -16,7 +16,7 @@ namespace FreshlyBackendNew.Controllers
             _context = context;
         }
 
-        // Create
+        // Create (POST)
         [HttpPost]
         public async Task<IActionResult> CreatePayment([FromBody] Payment payment)
         {
@@ -25,7 +25,7 @@ namespace FreshlyBackendNew.Controllers
             return CreatedAtAction(nameof(GetPayment), new { id = payment.PaymentId }, payment);
         }
 
-        // Read All
+        // Read All (GET)
         [HttpGet]
         public async Task<IActionResult> GetPayments()
         {
@@ -33,7 +33,7 @@ namespace FreshlyBackendNew.Controllers
             return Ok(payments);
         }
 
-        // Read One
+        // Read One (GET by ID)
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPayment(Guid id)
         {
@@ -43,7 +43,7 @@ namespace FreshlyBackendNew.Controllers
             return Ok(payment);
         }
 
-        // Update
+        // Update (PUT)
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePayment(Guid id, [FromBody] Payment updatedPayment)
         {
@@ -61,7 +61,7 @@ namespace FreshlyBackendNew.Controllers
             return Ok(payment);
         }
 
-        // Delete
+        // Delete (DELETE)
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePayment(Guid id)
         {

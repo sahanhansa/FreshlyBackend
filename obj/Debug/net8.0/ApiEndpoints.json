@@ -530,6 +530,22 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "FreshlyBackendNew.Controllers.ItemController",
+    "Method": "GetItemsByLaundryId",
+    "RelativePath": "api/Item/GetItemsByLaundryId/{laundryId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "laundryId",
+        "Type": "System.Guid",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "FreshlyBackendNew.Controllers.ItemCategoryController",
     "Method": "CreateCategory",
     "RelativePath": "api/ItemCategory",
@@ -565,7 +581,7 @@
     "Parameters": [
       {
         "Name": "id",
-        "Type": "System.Int32",
+        "Type": "System.Guid",
         "IsRequired": true
       }
     ],
@@ -581,7 +597,7 @@
     "Parameters": [
       {
         "Name": "id",
-        "Type": "System.Int32",
+        "Type": "System.Guid",
         "IsRequired": true
       },
       {
@@ -596,85 +612,6 @@
     "ContainingType": "FreshlyBackendNew.Controllers.ItemCategoryController",
     "Method": "DeleteCategory",
     "RelativePath": "api/ItemCategory/{id}",
-    "HttpMethod": "DELETE",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "FreshlyBackendNew.Controllers.LaundryController",
-    "Method": "CreateLaundry",
-    "RelativePath": "api/Laundry",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "laundry",
-        "Type": "FreshlyBackendNew.Models.Laundry",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "FreshlyBackendNew.Controllers.LaundryController",
-    "Method": "GetLaundries",
-    "RelativePath": "api/Laundry",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "FreshlyBackendNew.Controllers.LaundryController",
-    "Method": "GetLaundry",
-    "RelativePath": "api/Laundry/{id}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Guid",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "FreshlyBackendNew.Controllers.LaundryController",
-    "Method": "UpdateLaundry",
-    "RelativePath": "api/Laundry/{id}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Guid",
-        "IsRequired": true
-      },
-      {
-        "Name": "updatedLaundry",
-        "Type": "FreshlyBackendNew.Models.Laundry",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "FreshlyBackendNew.Controllers.LaundryController",
-    "Method": "DeleteLaundry",
-    "RelativePath": "api/Laundry/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
@@ -1369,6 +1306,32 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.TemporyBasketController",
+    "Method": "GetItemsByLaundryId",
+    "RelativePath": "api/TemporyBasket/GetItemsByLaundryId/{laundryId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "laundryId",
+        "Type": "System.Guid",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[FreshlyBackendNew.DTOs.ItemWithServicesDTO, FreshlyBackendNew, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "FreshlyBackendNew.Controllers.UserController",

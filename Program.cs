@@ -1,8 +1,13 @@
 using FreshlyBackendNew.Data;
+using FreshlyBackendNew.Services.Implementations;
+using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container.
+
+// Configure EF Core with MySQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("MySQLConnection"),
@@ -22,15 +27,21 @@ builder.Services.AddCors(options =>
         });
 });
 
-// Add services to the container.
+// Register application services
+builder.Services.AddScoped<ILaundryService, LaundryService>();
+builder.Services.AddScoped<IItemService, ItemService>();
+
+// Add controller services
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+// Add Swagger services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -39,7 +50,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Use CORS middleware (must be before UseAuthorization and after UseHttpsRedirection)
+// Use CORS middleware
 app.UseCors("AllowAngularApp");
 
 app.UseAuthorization();

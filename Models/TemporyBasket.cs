@@ -1,16 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace FreshlyBackendNew.Models
+﻿namespace FreshlyBackendNew.Models
 {
-    public class OrderDetails
+    public class TemporyBasket
     {
-        public OrderDetails()
+        public TemporyBasket()
         {
             Quantity = null; // Initialize Quantity as null
         }
 
         // Composite Primary Key
-        public Guid? OrderId { get; set; }
+        public Guid? TemporyOrderId { get; set; }
         public Guid? ItemId { get; set; }
         public Guid? ServiceId { get; set; }
 
