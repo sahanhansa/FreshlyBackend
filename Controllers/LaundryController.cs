@@ -1,9 +1,5 @@
-﻿using FreshlyBackendNew.Data;
-using FreshlyBackendNew.DTOs;
-using FreshlyBackendNew.Models;
-using FreshlyBackendNew.Services.Interfaces;
+﻿using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace FreshlyBackendNew.Controllers
 {
@@ -24,11 +20,13 @@ namespace FreshlyBackendNew.Controllers
         {
             try
             {
+                // Fetch the list of laundries using the service
                 var dtoList = await _laundryService.GetLaundriesForCustomerAsync();
                 return Ok(dtoList);
             }
             catch (Exception ex)
             {
+                // Log the exception and return an error response
                 Console.WriteLine($"Error in GetLaundriesForCustomer: {ex.Message}");
                 return StatusCode(500, new { error = "An error occurred while retrieving laundries", details = ex.Message });
             }

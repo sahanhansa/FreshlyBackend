@@ -4,7 +4,7 @@
     {
         public Guid ItemId { get; set; }
         public string? ItemName { get; set; }
-        public string? CategoryName { get; set; } // Add this property for the category
+        public string? CategoryName { get; set; }
         public List<ServiceWithPriceDTO> Services { get; set; } = new List<ServiceWithPriceDTO>();
     }
 

@@ -16,15 +16,18 @@ namespace FreshlyBackendNew.Services.Implementations
 
         public async Task<List<ItemWithServicesDTO>> GetItemsByLaundryIdAsync(Guid laundryId)
         {
+            // Fetch Item IDs for the Laundry
             var laundryItems = await _context.LaundryItemServices
                 .Where(lis => lis.LaundryId == laundryId)
                 .Select(lis => lis.ItemId)
                 .Distinct()
                 .ToListAsync();
 
+            // Return empty list if no items found
             if (!laundryItems.Any())
-                return new List<ItemWithServicesDTO>(); // Return empty list if no items found
+                return new List<ItemWithServicesDTO>();
 
+            //Fetch Items and Related Data
             var itemsWithServices = await _context.Items
                 .Where(i => laundryItems.Contains(i.ItemId))
                 .Include(i => i.Category)
@@ -32,11 +35,12 @@ namespace FreshlyBackendNew.Services.Implementations
                     .ThenInclude(lis => lis.Service)
                 .ToListAsync();
 
+            //Map Data to DTOs
             var result = itemsWithServices.Select(i => new ItemWithServicesDTO
             {
                 ItemId = i.ItemId,
                 ItemName = i.Name,
-                CategoryName = i.Category?.CategoryName ?? "Other", // Default to "Other" if null
+                CategoryName = i.Category?.CategoryName ?? "Other", 
                 Services = i.LaundryItemServices?
                     .Where(lis => lis.LaundryId == laundryId && lis.Service != null && lis.ServiceId.HasValue)
                     .Select(lis => new ServiceWithPriceDTO

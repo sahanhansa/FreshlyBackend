@@ -422,115 +422,6 @@
   },
   {
     "ContainingType": "FreshlyBackendNew.Controllers.ItemController",
-    "Method": "GetItems",
-    "RelativePath": "api/Item",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[FreshlyBackendNew.Models.Item, FreshlyBackendNew, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "FreshlyBackendNew.Controllers.ItemController",
-    "Method": "CreateItem",
-    "RelativePath": "api/Item",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "item",
-        "Type": "FreshlyBackendNew.Models.Item",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "FreshlyBackendNew.Models.Item",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "FreshlyBackendNew.Controllers.ItemController",
-    "Method": "GetItem",
-    "RelativePath": "api/Item/{id}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Guid",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "FreshlyBackendNew.Models.Item",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "FreshlyBackendNew.Controllers.ItemController",
-    "Method": "UpdateItem",
-    "RelativePath": "api/Item/{id}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Guid",
-        "IsRequired": true
-      },
-      {
-        "Name": "item",
-        "Type": "FreshlyBackendNew.Models.Item",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "FreshlyBackendNew.Controllers.ItemController",
-    "Method": "DeleteItem",
-    "RelativePath": "api/Item/{id}",
-    "HttpMethod": "DELETE",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Guid",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "FreshlyBackendNew.Controllers.ItemController",
     "Method": "GetItemsByLaundryId",
     "RelativePath": "api/Item/GetItemsByLaundryId/{laundryId}",
     "HttpMethod": "GET",
@@ -1309,29 +1200,67 @@
   },
   {
     "ContainingType": "FreshlyBackendNew.Controllers.TemporyBasketController",
-    "Method": "GetItemsByLaundryId",
-    "RelativePath": "api/TemporyBasket/GetItemsByLaundryId/{laundryId}",
+    "Method": "AddToBasket",
+    "RelativePath": "api/TemporyBasket/AddToBasket",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "basketRequest",
+        "Type": "FreshlyBackendNew.DTOs.TemporyBasketRequestDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.TemporyBasketController",
+    "Method": "GetBasket",
+    "RelativePath": "api/TemporyBasket/GetBasket/{temporyOrderId}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "laundryId",
+        "Name": "temporyOrderId",
         "Type": "System.Guid",
         "IsRequired": true
       }
     ],
-    "ReturnTypes": [
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.TemporyBasketController",
+    "Method": "RemoveFromBasket",
+    "RelativePath": "api/TemporyBasket/RemoveFromBasket",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[FreshlyBackendNew.DTOs.ItemWithServicesDTO, FreshlyBackendNew, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
+        "Name": "basketRequest",
+        "Type": "FreshlyBackendNew.DTOs.TemporyBasketRequestDTO",
+        "IsRequired": true
       }
-    ]
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.TemporyBasketController",
+    "Method": "UpdateBasketItem",
+    "RelativePath": "api/TemporyBasket/UpdateBasketItem",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "basketRequest",
+        "Type": "FreshlyBackendNew.DTOs.TemporyBasketRequestDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "FreshlyBackendNew.Controllers.UserController",
