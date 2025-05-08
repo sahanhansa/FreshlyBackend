@@ -1,7 +1,5 @@
-﻿using FreshlyBackendNew.Data;
-using FreshlyBackendNew.Models;
+﻿using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace FreshlyBackendNew.Controllers
 {
@@ -9,77 +7,26 @@ namespace FreshlyBackendNew.Controllers
     [ApiController]
     public class ItemController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-
-        public ItemController(ApplicationDbContext context)
+        ////Lasini- GET request to get items list according to the laundry
+        private readonly IItemService _itemService;
+        public ItemController(IItemService itemService)
         {
-            _context = context;
+            _itemService = itemService;
         }
 
-        // GET: api/Item
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Item>>> GetItems()
+        [HttpGet("GetItemsByLaundryId/{laundryId}")]
+        public async Task<IActionResult> GetItemsByLaundryId(Guid laundryId)
         {
-            return await _context.Items.ToListAsync();
-        }
-
-        // GET: api/Item/{id}
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Item>> GetItem(Guid id)
-        {
-            var item = await _context.Items.FindAsync(id);
-            if (item == null)
-                return NotFound();
-
-            return item;
-        }
-
-        // POST: api/Item
-        [HttpPost]
-        public async Task<ActionResult<Item>> CreateItem(Item item)
-        {
-            _context.Items.Add(item);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetItem), new { id = item.ItemId }, item);
-        }
-
-        // PUT: api/Item/{id}
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateItem(Guid id, Item item)
-        {
-            if (id != item.ItemId)
-                return BadRequest();
-
-            _context.Entry(item).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                var result = await _itemService.GetItemsByLaundryIdAsync(laundryId);
+                return Ok(result);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!_context.Items.Any(e => e.ItemId == id))
-                    return NotFound();
-                else
-                    throw;
+                Console.WriteLine($"Error in GetItemsByLaundryId: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while retrieving items for this laundry", details = ex.Message });
             }
-
-            return NoContent();
-        }
-
-        // DELETE: api/Item/{id}
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteItem(Guid id)
-        {
-            var item = await _context.Items.FindAsync(id);
-            if (item == null)
-                return NotFound();
-
-            _context.Items.Remove(item);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
     }
 }
