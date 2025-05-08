@@ -1,6 +1,5 @@
 ﻿using FreshlyBackendNew.Data;
 using FreshlyBackendNew.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +16,7 @@ namespace FreshlyBackendNew.Controllers
             _context = context;
         }
 
-        // 🔹 Create (POST)
+        // Create (POST)
         [HttpPost]
         public async Task<IActionResult> CreateCategory([FromBody] ItemCategory category)
         {
@@ -32,7 +31,7 @@ namespace FreshlyBackendNew.Controllers
             return CreatedAtAction(nameof(GetCategory), new { id = category.CategoryId }, category);
         }
 
-        // 🔹 Read All (GET)
+        // Read All (GET)
         [HttpGet]
         public async Task<IActionResult> GetCategories()
         {
@@ -42,13 +41,14 @@ namespace FreshlyBackendNew.Controllers
             return Ok(categories);
         }
 
-        // 🔹 Read One (GET by ID)
+        // Read One (GET by ID)
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetCategory(int id)
+        public async Task<IActionResult> GetCategory(Guid id) // Change parameter type to Guid
         {
             var category = await _context.ItemCategories
                 .Include(c => c.Items) // Include related items
-                .FirstOrDefaultAsync(c => c.CategoryId == id);
+                .FirstOrDefaultAsync(c => c.CategoryId == id); // No change needed here as both are now Guid
+
 
             if (category == null)
             {
@@ -58,11 +58,11 @@ namespace FreshlyBackendNew.Controllers
             return Ok(category);
         }
 
-        // 🔹 Update (PUT)
+        // Update (PUT)
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCategory(int id, [FromBody] ItemCategory updatedCategory)
+        public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] ItemCategory updatedCategory) // Change parameter type to Guid
         {
-            var category = await _context.ItemCategories.FindAsync(id);
+            var category = await _context.ItemCategories.FindAsync(id); // No change needed here as both are now Guid
             if (category == null)
             {
                 return NotFound();
@@ -75,11 +75,11 @@ namespace FreshlyBackendNew.Controllers
             return Ok(category);
         }
 
-        // 🔹 Delete (DELETE)
+        // Delete (DELETE)
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        public async Task<IActionResult> DeleteCategory(Guid id) // Change parameter type to Guid
         {
-            var category = await _context.ItemCategories.FindAsync(id);
+            var category = await _context.ItemCategories.FindAsync(id); // No change needed here as both are now Guid
             if (category == null)
             {
                 return NotFound();

@@ -6,8 +6,8 @@ namespace FreshlyBackendNew.Models
     public class ItemCategory
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // Auto-incremented ID
-        public int CategoryId { get; set; }
+       
+        public Guid CategoryId { get; set; }
 
         [Required]
         public string CategoryName { get; set; }
