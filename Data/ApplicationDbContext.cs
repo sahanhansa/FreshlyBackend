@@ -39,6 +39,7 @@ namespace FreshlyBackendNew.Data
             modelBuilder.Entity<LaundryItemService>()
                 .HasKey(lis => new { lis.LaundryId, lis.ItemId, lis.ServiceId });
 
+
             // Define composite primary key for OrderDetail
             modelBuilder.Entity<OrderDetail>()
                 .HasKey(od => new { od.OrderId, od.ItemId, od.ServiceId });
@@ -49,6 +50,7 @@ namespace FreshlyBackendNew.Data
 
 
             base.OnModelCreating(modelBuilder);
+
 
         }
     }
