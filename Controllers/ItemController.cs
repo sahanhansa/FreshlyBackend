@@ -7,13 +7,13 @@ namespace FreshlyBackendNew.Controllers
     [ApiController]
     public class ItemController : ControllerBase
     {
-        //Lasini- GET request to get items list according to the laundry
         private readonly IItemService _itemService;
         public ItemController(IItemService itemService)
         {
             _itemService = itemService;
         }
 
+        //Lasini- GET request to get items list according to the laundry
         [HttpGet("GetItemsByLaundryId/{laundryId}")]
         public async Task<IActionResult> GetItemsByLaundryId(Guid laundryId)
         {

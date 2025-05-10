@@ -3,32 +3,31 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FreshlyBackendNew.Models
 {
-    public class Laundry
+    public class Driver
     {
-        public Laundry()
+        public Driver()
         {
-            LaundryId = Guid.NewGuid(); 
+            DriverId = Guid.NewGuid();
         }
 
         // Primary Key
         [Key]
-        public Guid LaundryId { get; set; }
+        public Guid DriverId { get; set; }
 
         // Basic Information
-        public string? LaundryName { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
         public string? Email { get; set; }
+        public string? LicensNo { get; set; }
 
         // Foreign Keys
         public Guid? AddressId { get; set; }
-        public Guid? OwnerId { get; set; }
 
         // Navigation Properties
         [ForeignKey("AddressId")]
         public Address? Address { get; set; }
 
-        [ForeignKey("OwnerId")]
-        public Owner? Owner { get; set; }
     }
 }

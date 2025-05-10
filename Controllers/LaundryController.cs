@@ -7,7 +7,6 @@ namespace FreshlyBackendNew.Controllers
     [ApiController]
     public class LaundryController : ControllerBase
     {
-        //Lasini- GET request to get laundry list
         private readonly ILaundryService _laundryService;
 
         public LaundryController(ILaundryService laundryService)
@@ -15,6 +14,7 @@ namespace FreshlyBackendNew.Controllers
             _laundryService = laundryService;
         }
 
+        //Lasini- GET request to get laundry list
         [HttpGet("laundry-list-for-customer")]
         public async Task<IActionResult> GetLaundriesForCustomer()
         {

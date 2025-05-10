@@ -16,43 +16,48 @@ namespace FreshlyBackendNew.Services.Implementations
 
         public async Task<List<ItemWithServicesDTO>> GetItemsByLaundryIdAsync(Guid laundryId)
         {
-            // Fetch Item IDs for the Laundry
-            var laundryItems = await _context.LaundryItemServices
-                .Where(lis => lis.LaundryId == laundryId)
-                .Select(lis => lis.ItemId)
-                .Distinct()
-                .ToListAsync();
+            // Fetch Items and Related Data using explicit joins
+            var itemsWithServices = await (from item in _context.Items
+                                           join laundryItemService in _context.LaundryItemServices
+                                           on item.ItemId equals laundryItemService.ItemId
+                                           join service in _context.Services
+                                           on laundryItemService.ServiceId equals service.ServiceId into serviceGroup
+                                           from service in serviceGroup.DefaultIfEmpty()
+                                           join category in _context.ItemCategories
+                                           on item.CategoryId equals category.CategoryId into categoryGroup
+                                           from category in categoryGroup.DefaultIfEmpty()
+                                           where laundryItemService.LaundryId == laundryId
+                                           select new
+                                           {
+                                               Item = item,
+                                               CategoryName = category != null ? category.CategoryName : "Other", // Replace null-propagating operator
+                                               Service = service,
+                                               Price = laundryItemService.Price
+                                           }).ToListAsync();
 
-            // Return empty list if no items found
-            if (!laundryItems.Any())
-                return new List<ItemWithServicesDTO>();
-
-            //Fetch Items and Related Data
-            var itemsWithServices = await _context.Items
-                .Where(i => laundryItems.Contains(i.ItemId))
-                .Include(i => i.Category)
-                .Include(i => i.LaundryItemServices)
-                    .ThenInclude(lis => lis.Service)
-                .ToListAsync();
-
-            //Map Data to DTOs
-            var result = itemsWithServices.Select(i => new ItemWithServicesDTO
-            {
-                ItemId = i.ItemId,
-                ItemName = i.Name,
-                CategoryName = i.Category?.CategoryName ?? "Other", 
-                Services = i.LaundryItemServices?
-                    .Where(lis => lis.LaundryId == laundryId && lis.Service != null && lis.ServiceId.HasValue)
-                    .Select(lis => new ServiceWithPriceDTO
-                    {
-                        ServiceId = lis.ServiceId.Value,
-                        ServiceName = lis.Service.Name,
-                        Price = lis.Price
-                    })
-                    .ToList() ?? new List<ServiceWithPriceDTO>()
-            }).ToList();
+            // Map Data to DTOs
+            var result = itemsWithServices
+                .GroupBy(i => i.Item.ItemId)
+                .Select(group => new ItemWithServicesDTO
+                {
+                    ItemId = group.Key,
+                    ItemName = group.First().Item.Name,
+                    CategoryName = group.First().CategoryName,
+                    Services = group
+                        .Where(g => g.Service != null)
+                        .Select(g => new ServiceWithPriceDTO
+                        {
+                            ServiceId = g.Service.ServiceId,
+                            ServiceName = g.Service.ServiceName,
+                            Price = g.Price ?? 0 // Handle null Price
+                        })
+                        .ToList()
+                })
+                .ToList();
 
             return result;
         }
+
+
     }
 }

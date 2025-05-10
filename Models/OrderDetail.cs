@@ -1,21 +1,27 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FreshlyBackendNew.Models
 {
-    public class LaundryItemService
+    public class OrderDetail
     {
+        public OrderDetail()
+        {
+            Quantity = null;
+        }
+
         // Composite Primary Key
-        public Guid? LaundryId { get; set; }
+        public Guid? OrderId { get; set; }
         public Guid? ItemId { get; set; }
         public Guid? ServiceId { get; set; }
 
-        // Service Details
-        public decimal? Price { get; set; }
+        // Order Details
+        public int? Quantity { get; set; }
 
         // Navigation Properties
-        [ForeignKey("LaundryId")]
-        public Laundry? Laundry { get; set; } 
+        [ForeignKey("OrderId")]
+        public Order? Order { get; set; } 
 
         [ForeignKey("ItemId")]
         public Item? Item { get; set; } 

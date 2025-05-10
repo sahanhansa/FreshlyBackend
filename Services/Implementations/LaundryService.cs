@@ -17,27 +17,31 @@ namespace FreshlyBackendNew.Services.Implementations
 
         public async Task<List<LaundryWithAddressDTO>> GetLaundriesForCustomerAsync()
         {
-            // Fetch laundries from the database, including their addresses and feedbacks
-            var laundriesWithRatings = await _context.Laundries
-                .Include(l => l.Address) 
-                .Include(l => l.Feedbacks) 
-                .Select(l => new
-                {
-                    Laundry = l,
-                    AverageRating = l.Feedbacks.Any() ? l.Feedbacks.Average(f => f.Rating) : 0
-                })
-                .ToListAsync();
+            // Fetch laundries with their addresses and feedbacks using the Order table
+            var laundriesWithRatings = await (from laundry in _context.Laundries
+                                              join address in _context.Addresses on laundry.AddressId equals address.AddressId into addressGroup
+                                              from address in addressGroup.DefaultIfEmpty() // Handle null Address
+                                              join order in _context.Orders on laundry.LaundryId equals order.LaundryId
+                                              join feedback in _context.Feedbacks on order.OrderId equals feedback.OrderId into feedbackGroup
+                                              select new
+                                              {
+                                                  Laundry = laundry,
+                                                  Address = address,
+                                                  AverageRating = feedbackGroup.Any() ? feedbackGroup.Average(f => f.Rating) : 0
+                                              }).ToListAsync();
 
             // Map the data to a list of LaundryWithAddressDTO objects
             var dtoList = laundriesWithRatings.Select(l => new LaundryWithAddressDTO
             {
                 LaundryId = l.Laundry.LaundryId.ToString(),
                 LaundryName = l.Laundry.LaundryName,
-                City = l.Laundry.Address.City,
-                AverageRating = Math.Round(l.AverageRating ?? 0, 1) 
+                City = l.Address?.City, 
+                AverageRating = Math.Round((double)l.AverageRating, 1) // Round the average rating
             }).ToList();
 
             return dtoList;
         }
+
+
     }
 }

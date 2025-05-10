@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FreshlyBackendNew.Models
 {
@@ -9,18 +10,28 @@ namespace FreshlyBackendNew.Models
             ContactId = Guid.NewGuid(); 
         }
 
+        // Primary Key
         [Key]
         public Guid ContactId { get; set; }
+
+        // Address Details
         public string ContactNumber { get; set; }
 
         // Foreign keys
-        public Guid? CustomerId { get; set; }
-        public Guid? OwnerId { get; set; }
-        public Guid? LaundryId { get; set; }
+        public Guid? UserId { get; set; } // this include relavant customerid/laundryid/ownerid/driverids
 
         // Navigation properties
+        [ForeignKey("UserId")]
         public Customer? Customer { get; set; }
-        public Owner? Owner { get; set; }
+
+        [ForeignKey("UserId")]
         public Laundry? Laundry { get; set; }
+
+        [ForeignKey("UserId")]
+        public Owner? Owner { get; set; }
+
+        [ForeignKey("UserId")]
+        public Driver? Driver { get; set; }
+
     }
 }

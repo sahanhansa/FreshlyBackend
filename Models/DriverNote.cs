@@ -3,25 +3,28 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FreshlyBackendNew.Models
 {
-    public class Feedback
+    public class DriverNote
     {
-        public Feedback()
+        public DriverNote()
         {
-            FeedbackId = Guid.NewGuid();
+            NoteId = Guid.NewGuid();
         }
 
         // Primary Key
         [Key]
-        public Guid FeedbackId { get; set; }
+        public Guid NoteId { get; set; }
 
-        // Feedback Details
-        public string? Description { get; set; }
-        public int? Rating { get; set; }
+        // Basic Information
+        public string? Note { get; set; } 
 
-        // Foreign Keys
+        //Foerign keys
+        public Guid? DriverId { get; set; } 
         public Guid? OrderId { get; set; }
 
         // Navigation Properties
+        [ForeignKey("DriverId")]
+        public Driver? Driver { get; set; } 
+
         [ForeignKey("OrderId")]
         public Order? Order { get; set; }
 

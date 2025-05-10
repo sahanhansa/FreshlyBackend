@@ -30,7 +30,6 @@ builder.Services.AddCors(options =>
 // Register application services
 builder.Services.AddScoped<ILaundryService, LaundryService>();
 builder.Services.AddScoped<IItemService, ItemService>();
-builder.Services.AddScoped<ITemporyBasketService, TemporyBasketService>();
 
 // Add controller services
 builder.Services.AddControllers();

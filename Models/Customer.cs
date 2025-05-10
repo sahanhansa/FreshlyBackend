@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FreshlyBackendNew.Models
 {
@@ -7,9 +8,6 @@ namespace FreshlyBackendNew.Models
         public Customer()
         {
             CustomerId = Guid.NewGuid(); 
-            Orders = new List<Order>();
-            Contacts = new List<Contact>();
-            Feedbacks = new List<Feedback>();
         }
 
         // Primary Key
@@ -19,17 +17,17 @@ namespace FreshlyBackendNew.Models
         // Basic Information
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
-        public string? Username { get; set; }
-        public string? Password { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
         public string? Email { get; set; }
 
         // Foreign Keys
         public Guid? AddressId { get; set; }
-        
+
         // Navigation Properties
+        [ForeignKey("AddressId")]
         public Address? Address { get; set; }
-        public ICollection<Contact>? Contacts { get; set; }
-        public ICollection<Order>? Orders { get; set; }
-        public ICollection<Feedback>? Feedbacks { get; set; }
+
+
     }
 }

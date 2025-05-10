@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FreshlyBackendNew.Models
 {
@@ -6,9 +7,7 @@ namespace FreshlyBackendNew.Models
     {
         public Item()
         {
-            ItemId = Guid.NewGuid(); 
-            OrderDetails = new List<OrderDetails>();
-            LaundryItemServices = new List<LaundryItemService>();
+            ItemId = Guid.NewGuid();
         }
 
         // Primary Key
@@ -21,9 +20,8 @@ namespace FreshlyBackendNew.Models
         // Foreign Key
         public Guid CategoryId { get; set; }
 
-        // Navigation Properties
+        // Navigation Property
+        [ForeignKey("CategoryId")]
         public ItemCategory? Category { get; set; }
-        public ICollection<OrderDetails>? OrderDetails { get; set; }
-        public ICollection<LaundryItemService>? LaundryItemServices { get; set; }
     }
 }

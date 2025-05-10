@@ -16,66 +16,6 @@ namespace FreshlyBackendNew.Controllers
             _context = context;
         }
 
-        // Create (POST)
-        [HttpPost]
-        public async Task<IActionResult> CreateOrder([FromBody] Order order)
-        {
-            if (order == null)
-                return BadRequest("Invalid data.");
-
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetOrder), new { id = order.OrderId }, order);
-        }
-
-        // Read all (GET)
-        [HttpGet]
-        public async Task<IActionResult> GetOrders()
-        {
-            var orders = await _context.Orders.ToListAsync();
-            return Ok(orders);
-        }
-
-        // Read one (GET by ID)
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetOrder(Guid id)
-        {
-            var order = await _context.Orders.FindAsync(id);
-            if (order == null)
-                return NotFound();
-
-            return Ok(order);
-        }
-
-        // Update (PUT)
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateOrder(Guid id, [FromBody] Order updatedOrder)
-        {
-            var order = await _context.Orders.FindAsync(id);
-            if (order == null)
-                return NotFound();
-
-            order.PickupDate = updatedOrder.PickupDate;
-            order.PickupTime = updatedOrder.PickupTime;
-            order.PlacedDate = updatedOrder.PlacedDate;
-            order.PlacedTime = updatedOrder.PlacedTime;
-
-            await _context.SaveChangesAsync();
-            return Ok(order);
-        }
-
-        // Delete (DELETE)
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOrder(Guid id)
-        {
-            var order = await _context.Orders.FindAsync(id);
-            if (order == null)
-                return NotFound();
-
-            _context.Orders.Remove(order);
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
+        
     }
 }

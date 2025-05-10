@@ -4,14 +4,23 @@ namespace FreshlyBackendNew.Models
 {
     public class ItemCategory
     {
+        public ItemCategory()
+        {
+            CategoryId = Guid.NewGuid();
+        }
+
+        // Primary Key
         [Key]
-       
         public Guid CategoryId { get; set; }
 
-        [Required]
+        // Category Details
         public string CategoryName { get; set; }
 
-        // Navigation Property
-        public ICollection<Item> Items { get; set; } = new List<Item>();
+        //Followings are the finalized item categories:
+            //-Ladies
+            //-Gents
+            //-Kids
+            //-Other
+
     }
 }
