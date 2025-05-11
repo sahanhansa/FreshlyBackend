@@ -17,7 +17,11 @@ obj/
 
 # Rider
 .idea/
-
+.vs/
+obj/
+bin/
+*.user
+*.suo
 # ASP.NET Core
 appsettings*.json
 

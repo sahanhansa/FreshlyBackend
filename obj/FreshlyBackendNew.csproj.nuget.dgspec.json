@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Logic loom\\Backend\\FreshlyBackendNew\\FreshlyBackendNew\\FreshlyBackendNew.csproj": {}
+    "C:\\Users\\User\\Desktop\\FreshlyNew\\FreshlyBackend\\FreshlyBackendNew.csproj": {}
   },
   "projects": {
-    "D:\\Logic loom\\Backend\\FreshlyBackendNew\\FreshlyBackendNew\\FreshlyBackendNew.csproj": {
+    "C:\\Users\\User\\Desktop\\FreshlyNew\\FreshlyBackend\\FreshlyBackendNew.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Logic loom\\Backend\\FreshlyBackendNew\\FreshlyBackendNew\\FreshlyBackendNew.csproj",
+        "projectUniqueName": "C:\\Users\\User\\Desktop\\FreshlyNew\\FreshlyBackend\\FreshlyBackendNew.csproj",
         "projectName": "FreshlyBackendNew",
-        "projectPath": "D:\\Logic loom\\Backend\\FreshlyBackendNew\\FreshlyBackendNew\\FreshlyBackendNew.csproj",
-        "packagesPath": "C:\\Users\\D E L L\\.nuget\\packages\\",
-        "outputPath": "D:\\Logic loom\\Backend\\FreshlyBackendNew\\FreshlyBackendNew\\obj\\",
+        "projectPath": "C:\\Users\\User\\Desktop\\FreshlyNew\\FreshlyBackend\\FreshlyBackendNew.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\User\\Desktop\\FreshlyNew\\FreshlyBackend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\D E L L\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -43,16 +43,17 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.200"
+        }
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
-            "Microsoft.EntityFrameworkCore": {
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
               "target": "Package",
-              "version": "[8.0.1, )"
+              "version": "[8.0.4, )"
             },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
@@ -66,7 +67,7 @@
             },
             "Pomelo.EntityFrameworkCore.MySql": {
               "target": "Package",
-              "version": "[8.0.1, )"
+              "version": "[8.0.3, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
@@ -92,7 +93,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.407/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
