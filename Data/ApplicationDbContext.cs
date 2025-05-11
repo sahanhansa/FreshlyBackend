@@ -29,7 +29,7 @@ namespace FreshlyBackendNew.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder); 
+            base.OnModelCreating(modelBuilder);
 
             // Ensures a new Guid is generated when adding a record
             modelBuilder.Entity<Customer>()
@@ -81,7 +81,6 @@ namespace FreshlyBackendNew.Data
                 .WithMany(l => l.Orders)
                 .HasForeignKey(o => o.LaundryId);
 
-
             // Configure one-to-many relationship between Customer and Order
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.Customer)
@@ -93,7 +92,7 @@ namespace FreshlyBackendNew.Data
                 .HasOne(o => o.Payment)
                 .WithOne(p => p.Order)
                 .HasForeignKey<Payment>(p => p.OrderId);
-            
+
             // Configure one-to-many relationships between Contact and others
             modelBuilder.Entity<Contact>()
                 .HasOne(c => c.Customer)
@@ -112,7 +111,6 @@ namespace FreshlyBackendNew.Data
                 .WithMany(l => l.Contacts)
                 .HasForeignKey(c => c.LaundryId)
                 .OnDelete(DeleteBehavior.Cascade);
-
 
             // Configure one-to-many relationship between Laundry and Feedback
             modelBuilder.Entity<Feedback>()

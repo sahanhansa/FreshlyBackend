@@ -1,7 +1,9 @@
-﻿using FreshlyBackendNew.Data;
-using FreshlyBackendNew.Models;
+﻿using FreshlyBackendNew.DTOs;
+using FreshlyBackendNew.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FreshlyBackendNew.Controllers
 {
@@ -9,62 +11,60 @@ namespace FreshlyBackendNew.Controllers
     [ApiController]
     public class FeedbackController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IFeedbackService _feedbackService;
 
-        public FeedbackController(ApplicationDbContext context)
+        public FeedbackController(IFeedbackService feedbackService)
         {
-            _context = context;
+            _feedbackService = feedbackService;
         }
 
         // GET: api/Feedback
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Feedback>>> GetFeedbacks()
+        public async Task<ActionResult<IEnumerable<FeedbackDTO>>> GetFeedbacks()
         {
-            return await _context.Feedbacks.ToListAsync();
+            var feedbacks = await _feedbackService.GetAllFeedbacksAsync();
+            return Ok(feedbacks);
         }
 
         // GET: api/Feedback/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Feedback>> GetFeedback(Guid id)
+        public async Task<ActionResult<FeedbackDTO>> GetFeedback(Guid id)
         {
-            var feedback = await _context.Feedbacks.FindAsync(id);
+            var feedback = await _feedbackService.GetFeedbackByIdAsync(id);
             if (feedback == null)
+            {
                 return NotFound();
-
-            return feedback;
+            }
+            return Ok(feedback);
         }
 
         // POST: api/Feedback
         [HttpPost]
-        public async Task<ActionResult<Feedback>> CreateFeedback(Feedback feedback)
+        public async Task<ActionResult<FeedbackDTO>> CreateFeedback([FromBody] FeedbackDTO feedbackDto)
         {
-            _context.Feedbacks.Add(feedback);
-            await _context.SaveChangesAsync();
+            if (feedbackDto == null || (feedbackDto.Rating.HasValue && (feedbackDto.Rating < 1 || feedbackDto.Rating > 5)))
+            {
+                return BadRequest("Invalid feedback data.");
+            }
 
-            return CreatedAtAction(nameof(GetFeedback), new { id = feedback.FeedbackId }, feedback);
+            var createdFeedback = await _feedbackService.CreateFeedbackAsync(feedbackDto);
+            return CreatedAtAction(nameof(GetFeedback), new { id = createdFeedback.FeedbackId }, createdFeedback);
         }
 
         // PUT: api/Feedback/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateFeedback(Guid id, Feedback feedback)
+        public async Task<IActionResult> UpdateFeedback(Guid id, [FromBody] FeedbackDTO feedbackDto)
         {
-            if (id != feedback.FeedbackId)
-                return BadRequest();
-
-            _context.Entry(feedback).State = EntityState.Modified;
-
-            try
+            if (feedbackDto == null || id != feedbackDto.FeedbackId || (feedbackDto.Rating.HasValue && (feedbackDto.Rating < 1 || feedbackDto.Rating > 5)))
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Feedbacks.Any(f => f.FeedbackId == id))
-                    return NotFound();
-                else
-                    throw;
+                return BadRequest("Invalid feedback data.");
             }
 
+            var success = await _feedbackService.UpdateFeedbackAsync(id, feedbackDto);
+            if (!success)
+            {
+                return NotFound();
+            }
             return NoContent();
         }
 
@@ -72,13 +72,11 @@ namespace FreshlyBackendNew.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFeedback(Guid id)
         {
-            var feedback = await _context.Feedbacks.FindAsync(id);
-            if (feedback == null)
+            var success = await _feedbackService.DeleteFeedbackAsync(id);
+            if (!success)
+            {
                 return NotFound();
-
-            _context.Feedbacks.Remove(feedback);
-            await _context.SaveChangesAsync();
-
+            }
             return NoContent();
         }
     }

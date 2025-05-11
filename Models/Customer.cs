@@ -6,7 +6,7 @@ namespace FreshlyBackendNew.Models
     {
         public Customer()
         {
-            CustomerId = Guid.NewGuid(); 
+            CustomerId = Guid.NewGuid();
             Orders = new List<Order>();
             Contacts = new List<Contact>();
             Feedbacks = new List<Feedback>();
@@ -25,7 +25,7 @@ namespace FreshlyBackendNew.Models
 
         // Foreign Keys
         public Guid? AddressId { get; set; }
-        
+
         // Navigation Properties
         public Address? Address { get; set; }
         public ICollection<Contact>? Contacts { get; set; }

@@ -1,7 +1,9 @@
-﻿using FreshlyBackendNew.Data;
-using FreshlyBackendNew.Models;
+﻿using FreshlyBackendNew.DTOs;
+using FreshlyBackendNew.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FreshlyBackendNew.Controllers
 {
@@ -9,72 +11,80 @@ namespace FreshlyBackendNew.Controllers
     [ApiController]
     public class OrderController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IOrderService _orderService;
 
-        public OrderController(ApplicationDbContext context)
+        public OrderController(IOrderService orderService)
         {
-            _context = context;
+            _orderService = orderService;
         }
 
-        // Create
-        [HttpPost]
-        public async Task<IActionResult> CreateOrder([FromBody] Order order)
-        {
-            if (order == null)
-                return BadRequest("Invalid data.");
-
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetOrder), new { id = order.OrderId }, order);
-        }
-
-        // Read all
+        // GET: api/Order
         [HttpGet]
-        public async Task<IActionResult> GetOrders()
+        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrders()
         {
-            var orders = await _context.Orders.ToListAsync();
+            var orders = await _orderService.GetAllOrdersAsync();
             return Ok(orders);
         }
 
-        // Read one
+        // GET: api/Order/details
+        [HttpGet("details")]
+        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrderDetails()
+        {
+            var orders = await _orderService.GetOrderDetailsAsync();
+            return Ok(orders);
+        }
+
+        // GET: api/Order/{id}
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetOrder(Guid id)
+        public async Task<ActionResult<OrderDTO>> GetOrder(Guid id)
         {
-            var order = await _context.Orders.FindAsync(id);
+            var order = await _orderService.GetOrderByIdAsync(id);
             if (order == null)
+            {
                 return NotFound();
-
+            }
             return Ok(order);
         }
 
-        // Update
+        // POST: api/Order
+        [HttpPost]
+        public async Task<ActionResult<OrderDTO>> CreateOrder([FromBody] OrderDTO orderDto)
+        {
+            if (orderDto == null)
+            {
+                return BadRequest("Invalid order data.");
+            }
+
+            var createdOrder = await _orderService.CreateOrderAsync(orderDto);
+            return CreatedAtAction(nameof(GetOrder), new { id = createdOrder.OrderId }, createdOrder);
+        }
+
+        // PUT: api/Order/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateOrder(Guid id, [FromBody] Order updatedOrder)
+        public async Task<IActionResult> UpdateOrder(Guid id, [FromBody] OrderDTO orderDto)
         {
-            var order = await _context.Orders.FindAsync(id);
-            if (order == null)
+            if (orderDto == null || id != orderDto.OrderId)
+            {
+                return BadRequest("Invalid order data.");
+            }
+
+            var success = await _orderService.UpdateOrderAsync(id, orderDto);
+            if (!success)
+            {
                 return NotFound();
-
-            order.PickupDate = updatedOrder.PickupDate;
-            order.PickupTime = updatedOrder.PickupTime;
-            order.PlacedDate = updatedOrder.PlacedDate;
-            order.PlacedTime = updatedOrder.PlacedTime;
-
-            await _context.SaveChangesAsync();
-            return Ok(order);
+            }
+            return NoContent();
         }
 
-        // Delete
+        // DELETE: api/Order/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrder(Guid id)
         {
-            var order = await _context.Orders.FindAsync(id);
-            if (order == null)
+            var success = await _orderService.DeleteOrderAsync(id);
+            if (!success)
+            {
                 return NotFound();
-
-            _context.Orders.Remove(order);
-            await _context.SaveChangesAsync();
+            }
             return NoContent();
         }
     }
