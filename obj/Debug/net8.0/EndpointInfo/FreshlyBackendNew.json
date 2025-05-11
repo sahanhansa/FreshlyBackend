@@ -397,6 +397,16 @@
       }
     },
     "/api/Customer": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
       "post": {
         "tags": [
           "Customer"
@@ -405,31 +415,21 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Customer"
+                "$ref": "#/components/schemas/CustomerDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/Customer"
+                "$ref": "#/components/schemas/CustomerDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/Customer"
+                "$ref": "#/components/schemas/CustomerDto"
               }
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "Customer"
-        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -478,17 +478,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Customer"
+                "$ref": "#/components/schemas/CustomerDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/Customer"
+                "$ref": "#/components/schemas/CustomerDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/Customer"
+                "$ref": "#/components/schemas/CustomerDto"
               }
             }
           }
@@ -534,7 +534,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Feedback"
+                    "$ref": "#/components/schemas/FeedbackDTO"
                   }
                 }
               },
@@ -542,7 +542,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Feedback"
+                    "$ref": "#/components/schemas/FeedbackDTO"
                   }
                 }
               },
@@ -550,7 +550,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Feedback"
+                    "$ref": "#/components/schemas/FeedbackDTO"
                   }
                 }
               }
@@ -566,17 +566,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Feedback"
+                "$ref": "#/components/schemas/FeedbackDTO"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/Feedback"
+                "$ref": "#/components/schemas/FeedbackDTO"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/Feedback"
+                "$ref": "#/components/schemas/FeedbackDTO"
               }
             }
           }
@@ -587,17 +587,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/Feedback"
+                  "$ref": "#/components/schemas/FeedbackDTO"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Feedback"
+                  "$ref": "#/components/schemas/FeedbackDTO"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Feedback"
+                  "$ref": "#/components/schemas/FeedbackDTO"
                 }
               }
             }
@@ -627,17 +627,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/Feedback"
+                  "$ref": "#/components/schemas/FeedbackDTO"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Feedback"
+                  "$ref": "#/components/schemas/FeedbackDTO"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Feedback"
+                  "$ref": "#/components/schemas/FeedbackDTO"
                 }
               }
             }
@@ -663,17 +663,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Feedback"
+                "$ref": "#/components/schemas/FeedbackDTO"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/Feedback"
+                "$ref": "#/components/schemas/FeedbackDTO"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/Feedback"
+                "$ref": "#/components/schemas/FeedbackDTO"
               }
             }
           }
@@ -1017,6 +1017,42 @@
       }
     },
     "/api/Order": {
+      "get": {
+        "tags": [
+          "Order"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "tags": [
           "Order"
@@ -1025,34 +1061,79 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Order"
+                "$ref": "#/components/schemas/OrderDTO"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/Order"
+                "$ref": "#/components/schemas/OrderDTO"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/Order"
+                "$ref": "#/components/schemas/OrderDTO"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderDTO"
+                }
+              }
+            }
           }
         }
-      },
+      }
+    },
+    "/api/Order/details": {
       "get": {
         "tags": [
           "Order"
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderDTO"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1075,7 +1156,24 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderDTO"
+                }
+              }
+            }
           }
         }
       },
@@ -1098,17 +1196,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Order"
+                "$ref": "#/components/schemas/OrderDTO"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/Order"
+                "$ref": "#/components/schemas/OrderDTO"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/Order"
+                "$ref": "#/components/schemas/OrderDTO"
               }
             }
           }
@@ -2539,6 +2637,32 @@
         },
         "additionalProperties": false
       },
+      "AddressDTO": {
+        "type": "object",
+        "properties": {
+          "houseNo": {
+            "type": "string",
+            "nullable": true
+          },
+          "street": {
+            "type": "string",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          },
+          "postalCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "fullAddress": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "Contact": {
         "type": "object",
         "properties": {
@@ -2636,6 +2760,77 @@
         },
         "additionalProperties": false
       },
+      "CustomerDTO": {
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "$ref": "#/components/schemas/AddressDTO"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerDto": {
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "addressId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "contacts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "Feedback": {
         "type": "object",
         "properties": {
@@ -2667,6 +2862,43 @@
           },
           "customer": {
             "$ref": "#/components/schemas/Customer"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FeedbackDTO": {
+        "type": "object",
+        "properties": {
+          "feedbackId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "rating": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "customerId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "customerName": {
+            "type": "string",
+            "nullable": true
+          },
+          "laundryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "laundryName": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -2764,6 +2996,20 @@
             "items": {
               "$ref": "#/components/schemas/LaundryItemService"
             },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LaundryDTO": {
+        "type": "object",
+        "properties": {
+          "laundryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "laundryName": {
+            "type": "string",
             "nullable": true
           }
         },
@@ -2884,6 +3130,47 @@
         },
         "additionalProperties": false
       },
+      "OrderDTO": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "placedDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "placedTime": {
+            "type": "string",
+            "nullable": true
+          },
+          "pickupDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "pickupTime": {
+            "type": "string",
+            "nullable": true
+          },
+          "customer": {
+            "$ref": "#/components/schemas/CustomerDTO"
+          },
+          "laundry": {
+            "$ref": "#/components/schemas/LaundryDTO"
+          },
+          "status": {
+            "$ref": "#/components/schemas/StatusDTO"
+          },
+          "orderType": {
+            "$ref": "#/components/schemas/OrderTypeDTO"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserDTO"
+          }
+        },
+        "additionalProperties": false
+      },
       "OrderDetails": {
         "type": "object",
         "properties": {
@@ -2935,6 +3222,20 @@
             "items": {
               "$ref": "#/components/schemas/Order"
             },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "OrderTypeDTO": {
+        "type": "object",
+        "properties": {
+          "typeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "typeName": {
+            "type": "string",
             "nullable": true
           }
         },
@@ -3113,6 +3414,20 @@
         },
         "additionalProperties": false
       },
+      "StatusDTO": {
+        "type": "object",
+        "properties": {
+          "statusID": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "statusName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "User": {
         "type": "object",
         "properties": {
@@ -3145,6 +3460,20 @@
             "items": {
               "$ref": "#/components/schemas/Order"
             },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserDTO": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string",
             "nullable": true
           }
         },

@@ -1,0 +1,70 @@
+﻿# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# .NET build artifacts
+obj/
+bin/
+*.csproj.user
+*.suo
+*.cache
+*.user
+*.userosscache
+*.sln.docstates
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.code-workspace
+
+# Build output (if applicable)
+dist/
+build/
+
+# NuGet packages
+*.nupkg
+packages/
+
+# Rider IDE files
+.idea/
+*.sln.iml
+
+# Visual Studio specific
+.vs/
+*.tsscache
+*.TestResults/
+
+# Resharper files
+_ReSharper*/
+*.DotSettings.user
+
+# Azure Pipelines
+*.coverage
+*.coveragexml
+*.testlog
+
+# Additional .NET files
+project.lock.json
+project.fragment.lock.json
+artifacts/

@@ -234,6 +234,16 @@
   },
   {
     "ContainingType": "FreshlyBackendNew.Controllers.CustomerController",
+    "Method": "GetCustomers",
+    "RelativePath": "api/Customer",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.CustomerController",
     "Method": "CreateCustomer",
     "RelativePath": "api/Customer",
     "HttpMethod": "POST",
@@ -241,21 +251,11 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "customer",
-        "Type": "FreshlyBackendNew.Models.Customer",
+        "Name": "customerDto",
+        "Type": "FreshlyBackendNew.DTOs.CustomerDto",
         "IsRequired": true
       }
     ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "FreshlyBackendNew.Controllers.CustomerController",
-    "Method": "GetCustomers",
-    "RelativePath": "api/Customer",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
     "ReturnTypes": []
   },
   {
@@ -288,8 +288,8 @@
         "IsRequired": true
       },
       {
-        "Name": "updatedCustomer",
-        "Type": "FreshlyBackendNew.Models.Customer",
+        "Name": "customerDto",
+        "Type": "FreshlyBackendNew.DTOs.CustomerDto",
         "IsRequired": true
       }
     ],
@@ -321,7 +321,7 @@
     "Parameters": [],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[FreshlyBackendNew.Models.Feedback, FreshlyBackendNew, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[FreshlyBackendNew.DTOs.FeedbackDTO, FreshlyBackendNew, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -340,14 +340,14 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "feedback",
-        "Type": "FreshlyBackendNew.Models.Feedback",
+        "Name": "feedbackDto",
+        "Type": "FreshlyBackendNew.DTOs.FeedbackDTO",
         "IsRequired": true
       }
     ],
     "ReturnTypes": [
       {
-        "Type": "FreshlyBackendNew.Models.Feedback",
+        "Type": "FreshlyBackendNew.DTOs.FeedbackDTO",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -373,7 +373,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "FreshlyBackendNew.Models.Feedback",
+        "Type": "FreshlyBackendNew.DTOs.FeedbackDTO",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -397,8 +397,8 @@
         "IsRequired": true
       },
       {
-        "Name": "feedback",
-        "Type": "FreshlyBackendNew.Models.Feedback",
+        "Name": "feedbackDto",
+        "Type": "FreshlyBackendNew.DTOs.FeedbackDTO",
         "IsRequired": true
       }
     ],
@@ -610,6 +610,26 @@
   },
   {
     "ContainingType": "FreshlyBackendNew.Controllers.OrderController",
+    "Method": "GetOrders",
+    "RelativePath": "api/Order",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[FreshlyBackendNew.DTOs.OrderDTO, FreshlyBackendNew, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.OrderController",
     "Method": "CreateOrder",
     "RelativePath": "api/Order",
     "HttpMethod": "POST",
@@ -617,22 +637,22 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "order",
-        "Type": "FreshlyBackendNew.Models.Order",
+        "Name": "orderDto",
+        "Type": "FreshlyBackendNew.DTOs.OrderDTO",
         "IsRequired": true
       }
     ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "FreshlyBackendNew.Controllers.OrderController",
-    "Method": "GetOrders",
-    "RelativePath": "api/Order",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
+    "ReturnTypes": [
+      {
+        "Type": "FreshlyBackendNew.DTOs.OrderDTO",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "FreshlyBackendNew.Controllers.OrderController",
@@ -648,7 +668,17 @@
         "IsRequired": true
       }
     ],
-    "ReturnTypes": []
+    "ReturnTypes": [
+      {
+        "Type": "FreshlyBackendNew.DTOs.OrderDTO",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "FreshlyBackendNew.Controllers.OrderController",
@@ -664,8 +694,8 @@
         "IsRequired": true
       },
       {
-        "Name": "updatedOrder",
-        "Type": "FreshlyBackendNew.Models.Order",
+        "Name": "orderDto",
+        "Type": "FreshlyBackendNew.DTOs.OrderDTO",
         "IsRequired": true
       }
     ],
@@ -686,6 +716,26 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.OrderController",
+    "Method": "GetOrderDetails",
+    "RelativePath": "api/Order/details",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[FreshlyBackendNew.DTOs.OrderDTO, FreshlyBackendNew, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "FreshlyBackendNew.Controllers.OrderTypeController",
