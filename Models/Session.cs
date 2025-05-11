@@ -20,7 +20,7 @@ namespace FreshlyBackendNew.Models
         public string? SessionToken { get; set; }
 
         // Foreign Keys
-        public string? UserId { get; set; } // Id of customer/laundry/driver/owner
+        public Guid? UserId { get; set; } // Id of customer/laundry/driver/owner
 
         // Navigation Properties
         [ForeignKey("UserId")]
