@@ -1,0 +1,7 @@
+@FreshlyBackendNew_HostAddress = https://localhost:7276
+
+GET {{FreshlyBackendNew_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
