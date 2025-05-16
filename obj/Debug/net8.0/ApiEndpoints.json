@@ -8,14 +8,9 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "Username",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "Password",
-        "Type": "System.String",
-        "IsRequired": false
+        "Name": "data",
+        "Type": "FreshlyBackendNew.DTOs.LoginData",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
@@ -29,14 +24,41 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "Username",
-        "Type": "System.String",
-        "IsRequired": false
-      },
+        "Name": "data",
+        "Type": "FreshlyBackendNew.DTOs.LoginData",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.AuthController",
+    "Method": "DriverLogin",
+    "RelativePath": "api/Auth/driver/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
       {
-        "Name": "Password",
-        "Type": "System.String",
-        "IsRequired": false
+        "Name": "data",
+        "Type": "FreshlyBackendNew.DTOs.LoginData",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.AuthController",
+    "Method": "LaundryLogin",
+    "RelativePath": "api/Auth/laundry/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "data",
+        "Type": "FreshlyBackendNew.DTOs.LoginData",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []

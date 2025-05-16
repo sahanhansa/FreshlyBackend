@@ -15,7 +15,7 @@ namespace FreshlyBackendNew.Controllers
         }
 
         [HttpPost("customer/login")]
-        public async Task<IActionResult> CustomerLogin([FromForm] LoginData data)
+        public async Task<IActionResult> CustomerLogin([FromBody] LoginData data)
         {
             try
             {
@@ -32,7 +32,8 @@ namespace FreshlyBackendNew.Controllers
             {
                 return BadRequest(new
                 {
-                    Error = ex.Message
+                    Error = ex.Message,
+                    Recieved_Data = data.ToString()
                 });
             }
             
@@ -40,7 +41,7 @@ namespace FreshlyBackendNew.Controllers
 
 
         [HttpPost("admin/login")]
-        public async Task<IActionResult> AdminLogin([FromForm] LoginData data)
+        public async Task<IActionResult> AdminLogin([FromBody] LoginData data)
         {
             try
             {
@@ -65,7 +66,7 @@ namespace FreshlyBackendNew.Controllers
 
 
         [HttpPost("laundry/login")]
-        public async Task<IActionResult> LaundryLogin([FromForm] LoginData data)
+        public async Task<IActionResult> LaundryLogin([FromBody] LoginData data)
         {
             try
             {
@@ -89,7 +90,7 @@ namespace FreshlyBackendNew.Controllers
         }
 
         [HttpPost("driver/login")]
-        public async Task<IActionResult> DriverLogin([FromForm] LoginData data)
+        public async Task<IActionResult> DriverLogin([FromBody] LoginData data)
         {
             try
             {
