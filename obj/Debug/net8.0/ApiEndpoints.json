@@ -24,5 +24,57 @@
     "Order": 0,
     "Parameters": [],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.OrderController",
+    "Method": "GetAllDeliveries",
+    "RelativePath": "api/Order/GetAllDeliveries",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.OrderController",
+    "Method": "GetDeliveryDetails",
+    "RelativePath": "api/Order/GetAllDeliveries/{orderId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "orderId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.OrderController",
+    "Method": "GetAllPickups",
+    "RelativePath": "api/Order/GetAllPickups",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.OrderController",
+    "Method": "GetPickupDetails",
+    "RelativePath": "api/Order/GetAllPickups/{orderId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "orderId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   }
 ]

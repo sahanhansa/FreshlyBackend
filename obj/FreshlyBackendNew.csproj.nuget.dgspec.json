@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Logic loom\\Backend\\FreshlyBackendNew\\FreshlyBackendNew\\FreshlyBackendNew.csproj": {}
+    "D:\\Software project backend\\FreshlyBackend\\FreshlyBackendNew.csproj": {}
   },
   "projects": {
-    "D:\\Logic loom\\Backend\\FreshlyBackendNew\\FreshlyBackendNew\\FreshlyBackendNew.csproj": {
+    "D:\\Software project backend\\FreshlyBackend\\FreshlyBackendNew.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Logic loom\\Backend\\FreshlyBackendNew\\FreshlyBackendNew\\FreshlyBackendNew.csproj",
+        "projectUniqueName": "D:\\Software project backend\\FreshlyBackend\\FreshlyBackendNew.csproj",
         "projectName": "FreshlyBackendNew",
-        "projectPath": "D:\\Logic loom\\Backend\\FreshlyBackendNew\\FreshlyBackendNew\\FreshlyBackendNew.csproj",
-        "packagesPath": "C:\\Users\\D E L L\\.nuget\\packages\\",
-        "outputPath": "D:\\Logic loom\\Backend\\FreshlyBackendNew\\FreshlyBackendNew\\obj\\",
+        "projectPath": "D:\\Software project backend\\FreshlyBackend\\FreshlyBackendNew.csproj",
+        "packagesPath": "C:\\Users\\ASUS\\.nuget\\packages\\",
+        "outputPath": "D:\\Software Project Backend\\FreshlyBackend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\D E L L\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\ASUS\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
