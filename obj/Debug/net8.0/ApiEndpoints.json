@@ -1,5 +1,69 @@
 [
   {
+    "ContainingType": "FreshlyBackendNew.Controllers.AuthController",
+    "Method": "AdminLogin",
+    "RelativePath": "api/Auth/admin/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "data",
+        "Type": "FreshlyBackendNew.DTOs.LoginData",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.AuthController",
+    "Method": "CustomerLogin",
+    "RelativePath": "api/Auth/customer/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "data",
+        "Type": "FreshlyBackendNew.DTOs.LoginData",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.AuthController",
+    "Method": "DriverLogin",
+    "RelativePath": "api/Auth/driver/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "data",
+        "Type": "FreshlyBackendNew.DTOs.LoginData",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FreshlyBackendNew.Controllers.AuthController",
+    "Method": "LaundryLogin",
+    "RelativePath": "api/Auth/laundry/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "data",
+        "Type": "FreshlyBackendNew.DTOs.LoginData",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "FreshlyBackendNew.Controllers.ItemController",
     "Method": "GetItemsByLaundryId",
     "RelativePath": "api/Item/GetItemsByLaundryId/{laundryId}",
