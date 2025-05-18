@@ -140,3 +140,4 @@ D:\Logic loom\Backend\FreshlyBackendNew\FreshlyBackendNew\obj\Debug\net8.0\Fresh
 D:\Logic loom\Backend\FreshlyBackendNew\FreshlyBackendNew\obj\Debug\net8.0\FreshlyBackendNew.genruntimeconfig.cache
 D:\Logic loom\Backend\FreshlyBackendNew\FreshlyBackendNew\obj\Debug\net8.0\ref\FreshlyBackendNew.dll
 D:\Logic loom\Backend\FreshlyBackendNew\FreshlyBackendNew\obj\Debug\net8.0\FreshlyBackendNew.sourcelink.json
+D:\Logic loom\Backend\FreshlyBackendNew\FreshlyBackendNew\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
