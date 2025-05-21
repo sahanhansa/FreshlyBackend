@@ -278,6 +278,12 @@ D:/Logic loom/Backend/FreshlyBackendNew/FreshlyBackendNew/obj/Debug/net8.0/Fresh
 /Users/rohansi/Desktop/laundry-backend/FreshlyBackend/obj/Debug/net8.0/FreshlyBackendNew.pdb
 /Users/rohansi/Desktop/laundry-backend/FreshlyBackend/obj/Debug/net8.0/FreshlyBackendNew.genruntimeconfig.cache
 /Users/rohansi/Desktop/laundry-backend/FreshlyBackend/obj/Debug/net8.0/ref/FreshlyBackendNew.dll
+/Users/rohansi/Desktop/laundry-backend/FreshlyBackend/bin/Debug/net8.0/Microsoft.Extensions.Caching.Memory.dll
+/Users/rohansi/Desktop/laundry-backend/FreshlyBackend/bin/Debug/net8.0/Microsoft.Extensions.DependencyInjection.dll
+/Users/rohansi/Desktop/laundry-backend/FreshlyBackend/bin/Debug/net8.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll
+/Users/rohansi/Desktop/laundry-backend/FreshlyBackend/bin/Debug/net8.0/Microsoft.Extensions.Logging.dll
+/Users/rohansi/Desktop/laundry-backend/FreshlyBackend/bin/Debug/net8.0/Microsoft.Extensions.Logging.Abstractions.dll
+/Users/rohansi/Desktop/laundry-backend/FreshlyBackend/bin/Debug/net8.0/Microsoft.Extensions.Options.dll
 /Users/rohansi/Desktop/laundry-backend/FreshlyBackend/bin/Debug/net8.0/FreshlyBackendNew.staticwebassets.endpoints.json
 /Users/rohansi/Desktop/laundry-backend/FreshlyBackend/obj/Debug/net8.0/staticwebassets.build.endpoints.json
 /Users/rohansi/Desktop/laundry-backend/FreshlyBackend/obj/Debug/net8.0/staticwebassets/msbuild.FreshlyBackendNew.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
