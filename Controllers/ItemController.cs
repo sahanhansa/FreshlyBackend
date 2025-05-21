@@ -8,6 +8,7 @@ namespace FreshlyBackendNew.Controllers
     public class ItemController : ControllerBase
     {
         private readonly IItemService _itemService;
+
         public ItemController(IItemService itemService)
         {
             _itemService = itemService;
@@ -27,8 +28,32 @@ namespace FreshlyBackendNew.Controllers
             {
                 // Log the exception and return an error response
                 Console.WriteLine($"Error in GetItemsByLaundryId: {ex.Message}");
-                return StatusCode(500, new { error = "An error occurred while retrieving items for this laundry", details = ex.Message });
+                return StatusCode(500,
+                    new { error = "An error occurred while retrieving items for this laundry", details = ex.Message });
             }
         }
+
+        //Rohansi-Add new item to a list
+        //Rohansi-Edit item details
+        //Rohansi-Delete an item from list
+            
+         [HttpDelete("delete-item/{itemId}")]
+            public async Task<IActionResult> DeleteItem(Guid itemId)
+            {
+                try
+                {
+                    var result = await _itemService.DeleteItemAsync(itemId);
+                    if (!result)
+                        return NotFound($"Item with ID {itemId} not found.");
+
+                    return NoContent(); // 204
+                }
+                catch (Exception ex)
+                {
+                    // Log the error if needed
+                    return StatusCode(500, $"Internal server error: {ex.Message}");
+                }
+            }
+        }
+
     }
-}
