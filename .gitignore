@@ -1,4 +1,4 @@
-# Ignore build outputs
+# Build outputs
 bin/
 obj/
 
@@ -9,20 +9,19 @@ obj/
 *.userosscache
 *.sln.docstates
 
+# IDE settings
+.vscode/
+.idea/
+.vs/
+
 # Logs
 *.log
-
-# Visual Studio Code
-.vscode/
-
-# Rider
-.idea/
 
 # ASP.NET Core
 appsettings*.json
 
-# Entity Framework migrations
-Migrations/
+# Entity Framework migrations (uncomment if you want to ignore migrations)
+# Migrations/
 
 # Dependency directories
 node_modules/
@@ -34,3 +33,14 @@ Thumbs.db
 
 # Environment variables
 .env
+
+# Optional additions
+TestResults/
+coverage/
+*.db
+*.bak
+*.tmp
+*.temp
+*.vspscc
+*.vssscc
+*.ncrunch*
