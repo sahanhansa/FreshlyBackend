@@ -86,8 +86,7 @@
               "RelativeToolTip": "Services\\Implementations\\LaundryService.cs",
               "ViewState": "AgIAABUAAAAAAAAAAAAYwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-31T13:24:35.521Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-31T13:24:35.521Z"
             },
             {
               "$type": "Document",
@@ -263,9 +262,9 @@
               "Title": "OrderController.cs",
               "DocumentMoniker": "D:\\Software Project Backend\\FreshlyBackend\\Controllers\\OrderController.cs",
               "RelativeDocumentMoniker": "Controllers\\OrderController.cs",
-              "ToolTip": "D:\\Software Project Backend\\FreshlyBackend\\Controllers\\OrderController.cs*",
-              "RelativeToolTip": "Controllers\\OrderController.cs*",
-              "ViewState": "AgIAACYAAAAAAAAAAAAiwIwAAAAAAAAAAAAAAA==",
+              "ToolTip": "D:\\Software Project Backend\\FreshlyBackend\\Controllers\\OrderController.cs",
+              "RelativeToolTip": "Controllers\\OrderController.cs",
+              "ViewState": "AgIAAF0AAAAAAAAAAAAqwIwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-11T09:32:08.311Z",
               "EditorCaption": ""
