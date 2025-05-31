@@ -18,22 +18,23 @@ namespace FreshlyBackendNew.Services.Implementations
         {
             // Fetch Items and Related Data using explicit joins
             var itemsWithServices = await (from item in _context.Items
-                                           join laundryItemService in _context.LaundryItemServices
-                                           on item.ItemId equals laundryItemService.ItemId
-                                           join service in _context.Services
-                                           on laundryItemService.ServiceId equals service.ServiceId into serviceGroup
-                                           from service in serviceGroup.DefaultIfEmpty()
-                                           join category in _context.ItemCategories
-                                           on item.CategoryId equals category.CategoryId into categoryGroup
-                                           from category in categoryGroup.DefaultIfEmpty()
-                                           where laundryItemService.LaundryId == laundryId
-                                           select new
-                                           {
-                                               Item = item,
-                                               CategoryName = category != null ? category.CategoryName : "Other", // Replace null-propagating operator
-                                               Service = service,
-                                               Price = laundryItemService.Price
-                                           }).ToListAsync();
+                join laundryItemService in _context.LaundryItemServices
+                    on item.ItemId equals laundryItemService.ItemId
+                join service in _context.Services
+                    on laundryItemService.ServiceId equals service.ServiceId into serviceGroup
+                from service in serviceGroup.DefaultIfEmpty()
+                join category in _context.ItemCategories
+                    on item.CategoryId equals category.CategoryId into categoryGroup
+                from category in categoryGroup.DefaultIfEmpty()
+                where laundryItemService.LaundryId == laundryId
+                select new
+                {
+                    Item = item,
+                    CategoryName =
+                        category != null ? category.CategoryName : "Other", // Replace null-propagating operator
+                    Service = service,
+                    Price = laundryItemService.Price
+                }).ToListAsync();
 
             // Map Data to DTOs
             var result = itemsWithServices
@@ -57,7 +58,17 @@ namespace FreshlyBackendNew.Services.Implementations
 
             return result;
         }
+         public async Task<bool> DeleteItemAsync(Guid id)
+            {
+                var item = await _context.Items.FindAsync(id);
+                if (item == null)
+                    return false;
 
+                _context.Items.Remove(item);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+        }
 
     }
-}
+

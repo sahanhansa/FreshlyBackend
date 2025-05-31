@@ -21,7 +21,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAngularApp",
         policy =>
         {
-            policy.WithOrigins("http://localhost:4200") // Your Angular app's URL
+            policy.WithOrigins("http://localhost:4200") //  Angular app's URL
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
@@ -30,6 +30,9 @@ builder.Services.AddCors(options =>
 // Register application services
 builder.Services.AddScoped<ILaundryService, LaundryService>();
 builder.Services.AddScoped<IItemService, ItemService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+
 
 // Add controller services
 builder.Services.AddControllers();
