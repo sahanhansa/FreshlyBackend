@@ -12,27 +12,30 @@ obj/
 # Logs
 *.log
 
-# Visual Studio
+# Visual Studio & IDE cache
 .vs/
 .vscode/
 .idea/
 *.vsidx
-*.dbmdl
+*.v2
+*.bin
 *.tmp
 *.bak
+*.dbmdl
 
-# Specific Visual Studio cache paths
-.vs/FreshlyBackendNew/DesignTimeBuild/.dtbcache.v2
-.vs/FreshlyBackendNew/FileContentIndex/
-.vs/FreshlyBackendNew/v17/
+# Specific VS cache folders and files
+.vs/FreshlyBackendNew/
+.vs/ProjectEvaluation/
+.vs/**/*.json
+.vs/**/*.config
 
-# ASP.NET Core settings (keep if you use appsettings.Development.json locally)
+# ASP.NET Core
 appsettings*.json
 
-# Entity Framework migrations
+# EF Core migrations
 Migrations/
 
-# Frontend dependency directories
+# Frontend dependencies
 node_modules/
 wwwroot/lib/
 
