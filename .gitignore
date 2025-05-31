@@ -1,4 +1,4 @@
-# Ignore build outputs
+# Build outputs
 bin/
 obj/
 
@@ -12,23 +12,27 @@ obj/
 # Logs
 *.log
 
-# Visual Studio Code
-.vscode/
-
-# Rider
-.idea/
+# Visual Studio
 .vs/
-obj/
-bin/
-*.user
-*.suo
-# ASP.NET Core
+.vscode/
+.idea/
+*.vsidx
+*.dbmdl
+*.tmp
+*.bak
+
+# Specific Visual Studio cache paths
+.vs/FreshlyBackendNew/DesignTimeBuild/.dtbcache.v2
+.vs/FreshlyBackendNew/FileContentIndex/
+.vs/FreshlyBackendNew/v17/
+
+# ASP.NET Core settings (keep if you use appsettings.Development.json locally)
 appsettings*.json
 
 # Entity Framework migrations
 Migrations/
 
-# Dependency directories
+# Frontend dependency directories
 node_modules/
 wwwroot/lib/
 
