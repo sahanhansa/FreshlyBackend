@@ -1,42 +1,57 @@
 # Build outputs
-bin/
-obj/
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
 
 # User-specific files
 *.user
+*.userprefs
 *.rsuser
 *.suo
 *.userosscache
 *.sln.docstates
 
-# Logs
-*.log
-
-# IDE settings
+# IDE files
 .vscode/
 .idea/
 
-# Ignore all Visual Studio temporary, cache, and hidden files
+# Visual Studio files
 .vs/
 *.vsidx
+*.vsdx
+*.vsp
+*.vssscc
+*.vspcc
+*.vspx
+*.vspscc
 *.v2
 *.bin
 *.bak
 *.tmp
 *.dbmdl
+*.cache
+*.pdb
+*.pss
+*.pidb
+*.ncb
+*.opensdf
+*.sdf
 
-# Ignore specific folders and contents inside .vs/
-.vs/FreshlyBackendNew/
-.vs/ProjectEvaluation/
-.vs/**/DesignTimeBuild/
-.vs/**/FileContentIndex/
-.vs/**/config/
-.vs/**/v17/
-.vs/**/*.json
-.vs/**/*.config
-
-# ASP.NET Core config
+# ASP.NET Core
 appsettings*.json
+*.db
+*.pubxml
 
 # EF Core Migrations
 Migrations/
@@ -44,10 +59,45 @@ Migrations/
 # Frontend dependencies
 node_modules/
 wwwroot/lib/
+jspm_packages/
 
 # OS-specific
 .DS_Store
-Thumbs.db
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+[Tt]humbs.db
+desktop.ini
 
 # Env files
 .env
+*.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+
+# NuGet
+[Nn]u[Gg]et/
+*.nupkg
+packages/
+
+# Other
+*.swp
+*.swo
+*~
+~$*
+*.orig
+*.pyc
+*.pyo
+*.pdb
+*.idb
+*.ilk
+*.meta
