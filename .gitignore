@@ -12,36 +12,42 @@ obj/
 # Logs
 *.log
 
-# Visual Studio & IDE cache
-.vs/
+# IDE settings
 .vscode/
 .idea/
+
+# Ignore all Visual Studio temporary, cache, and hidden files
+.vs/
 *.vsidx
 *.v2
 *.bin
-*.tmp
 *.bak
+*.tmp
 *.dbmdl
 
-# Specific VS cache folders and files
+# Ignore specific folders and contents inside .vs/
 .vs/FreshlyBackendNew/
 .vs/ProjectEvaluation/
+.vs/**/DesignTimeBuild/
+.vs/**/FileContentIndex/
+.vs/**/config/
+.vs/**/v17/
 .vs/**/*.json
 .vs/**/*.config
 
-# ASP.NET Core
+# ASP.NET Core config
 appsettings*.json
 
-# EF Core migrations
+# EF Core Migrations
 Migrations/
 
 # Frontend dependencies
 node_modules/
 wwwroot/lib/
 
-# OS-specific files
+# OS-specific
 .DS_Store
 Thumbs.db
 
-# Environment variables
+# Env files
 .env
