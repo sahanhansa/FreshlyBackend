@@ -20,8 +20,9 @@ namespace FreshlyBackendNew.Services.Implementations
             // Fetch laundries with their addresses and feedbacks using the Order table
             var laundriesWithRatings = await (from laundry in _context.Laundries
                                               join address in _context.Addresses on laundry.AddressId equals address.AddressId into addressGroup
-                                              from address in addressGroup.DefaultIfEmpty() // Handle null Address
-                                              join order in _context.Orders on laundry.LaundryId equals order.LaundryId
+                                              from address in addressGroup.DefaultIfEmpty()
+                                              join order in _context.Orders on laundry.LaundryId equals order.LaundryId into orderGroup
+                                              from order in orderGroup.DefaultIfEmpty()
                                               join feedback in _context.Feedbacks on order.OrderId equals feedback.OrderId into feedbackGroup
                                               select new
                                               {
@@ -29,6 +30,7 @@ namespace FreshlyBackendNew.Services.Implementations
                                                   Address = address,
                                                   AverageRating = feedbackGroup.Any() ? feedbackGroup.Average(f => f.Rating) : 0
                                               }).ToListAsync();
+
 
             // Map the data to a list of LaundryWithAddressDTO objects
             var dtoList = laundriesWithRatings.Select(l => new LaundryWithAddressDTO
