@@ -31,4 +31,27 @@ public class TemporaryOrderController : ControllerBase
         var summaries = await _temporaryOrderService.GetCustomerTemporaryOrderSummariesAsync(customerId);
         return Ok(summaries);
     }
+
+    // lasini-delete item from a temporary order (order summary)
+    [HttpDelete("{temporaryOrderId}/item/{itemId}/service/{serviceId}")]
+    public async Task<IActionResult> DeleteItemFromOrder(Guid temporaryOrderId, Guid itemId, Guid serviceId)
+    {
+        var result = await _temporaryOrderService.DeleteItemFromTemporaryOrderAsync(temporaryOrderId, itemId, serviceId);
+        if (!result)
+            return NotFound("Item not found in the order.");
+        return NoContent();
+    }
+
+    // lasini-delete a complete temporary order
+    [HttpDelete("{temporaryOrderId}/delete")]
+    public async Task<IActionResult> DeleteTemporaryOrder(Guid temporaryOrderId)
+    {
+        var result = await _temporaryOrderService.DeleteTemporaryOrderAsync(temporaryOrderId);
+        if (!result)
+            return NotFound("Order not found.");
+        return NoContent();
+    }
+
+
+
 }

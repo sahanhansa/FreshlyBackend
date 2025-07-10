@@ -97,6 +97,7 @@ namespace FreshlyBackendNew.Services.Implementations
                         ItemName = d.Item?.Name ?? "Item", // Replace with actual property if available
                         ItemImageUrl = null, // Add if you have image URLs
                         //CategoryName = d.Item?.Category?.CategoryName,
+                        ServiceId = d.ServiceId,
                         ServiceName = d.Service?.ServiceName ?? "",
                         Price = price,
                         Quantity = d.Quantity ?? 0
@@ -119,6 +120,43 @@ namespace FreshlyBackendNew.Services.Implementations
             }
 
             return summaries;
+        }
+
+        public async Task<bool> DeleteItemFromTemporaryOrderAsync(Guid temporaryOrderId, Guid itemId, Guid serviceId)
+        {
+            var detail = await _context.TemporaryOrderDetails
+                .FirstOrDefaultAsync(d =>
+                    d.TemporaryOrderId == temporaryOrderId &&
+                    d.ItemId == itemId &&
+                    d.ServiceId == serviceId);
+
+            if (detail == null)
+                return false;
+
+            _context.TemporaryOrderDetails.Remove(detail);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteTemporaryOrderAsync(Guid temporaryOrderId)
+        {
+            // Load the order and its details
+            var tempOrder = await _context.TemporaryOrders.FirstOrDefaultAsync(o => o.TemporaryOrderId == temporaryOrderId);
+
+
+            if (tempOrder == null)
+                return false;
+
+            // Remove all related details first
+            var details = await _context.TemporaryOrderDetails
+                .Where(d => d.TemporaryOrderId == temporaryOrderId)
+                .ToListAsync();
+
+            _context.TemporaryOrderDetails.RemoveRange(details);
+            _context.TemporaryOrders.Remove(tempOrder);
+
+            await _context.SaveChangesAsync();
+            return true;
         }
 
 
