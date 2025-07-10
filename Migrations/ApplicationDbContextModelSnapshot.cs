@@ -55,22 +55,13 @@ namespace FreshlyBackendNew.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid?>("CustomerId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid?>("LaundryId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid?>("OwnerId")
-                        .HasColumnType("char(36)");
+                    b.Property<string>("UserType")
+                        .HasColumnType("longtext");
 
                     b.HasKey("ContactId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("LaundryId");
-
-                    b.HasIndex("OwnerId");
 
                     b.ToTable("Contacts");
                 });
@@ -101,10 +92,67 @@ namespace FreshlyBackendNew.Migrations
 
                     b.HasKey("CustomerId");
 
-                    b.HasIndex("AddressId")
-                        .IsUnique();
+                    b.HasIndex("AddressId");
 
                     b.ToTable("Customers");
+                });
+
+            modelBuilder.Entity("FreshlyBackendNew.Models.Driver", b =>
+                {
+                    b.Property<Guid>("DriverId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("AddressId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("LicensNo")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Password")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("DriverId");
+
+                    b.HasIndex("AddressId");
+
+                    b.ToTable("Drivers");
+                });
+
+            modelBuilder.Entity("FreshlyBackendNew.Models.DriverNote", b =>
+                {
+                    b.Property<Guid>("NoteId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("DriverId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid?>("OrderId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("NoteId");
+
+                    b.HasIndex("DriverId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("DriverNotes");
                 });
 
             modelBuilder.Entity("FreshlyBackendNew.Models.Feedback", b =>
@@ -113,13 +161,10 @@ namespace FreshlyBackendNew.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid?>("CustomerId")
-                        .HasColumnType("char(36)");
-
                     b.Property<string>("Description")
                         .HasColumnType("longtext");
 
-                    b.Property<Guid?>("LaundryId")
+                    b.Property<Guid?>("OrderId")
                         .HasColumnType("char(36)");
 
                     b.Property<int?>("Rating")
@@ -127,9 +172,7 @@ namespace FreshlyBackendNew.Migrations
 
                     b.HasKey("FeedbackId");
 
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("LaundryId");
+                    b.HasIndex("OrderId");
 
                     b.ToTable("Feedbacks");
                 });
@@ -140,12 +183,32 @@ namespace FreshlyBackendNew.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("char(36)");
+
                     b.Property<string>("Name")
                         .HasColumnType("longtext");
 
                     b.HasKey("ItemId");
 
+                    b.HasIndex("CategoryId");
+
                     b.ToTable("Items");
+                });
+
+            modelBuilder.Entity("FreshlyBackendNew.Models.ItemCategory", b =>
+                {
+                    b.Property<Guid>("CategoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("CategoryName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("CategoryId");
+
+                    b.ToTable("ItemCategories");
                 });
 
             modelBuilder.Entity("FreshlyBackendNew.Models.Laundry", b =>
@@ -174,11 +237,9 @@ namespace FreshlyBackendNew.Migrations
 
                     b.HasKey("LaundryId");
 
-                    b.HasIndex("AddressId")
-                        .IsUnique();
+                    b.HasIndex("AddressId");
 
-                    b.HasIndex("OwnerId")
-                        .IsUnique();
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Laundries");
                 });
@@ -218,25 +279,13 @@ namespace FreshlyBackendNew.Migrations
                     b.Property<Guid?>("LaundryId")
                         .HasColumnType("char(36)");
 
-                    b.Property<DateTime?>("PickupDate")
+                    b.Property<DateTime?>("PickupAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateTime?>("PickupTime")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime?>("PlacedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime?>("PlacedTime")
+                    b.Property<DateTime?>("PlacedAt")
                         .HasColumnType("datetime(6)");
 
                     b.Property<Guid?>("StatusId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid?>("TypeId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid?>("UserId")
                         .HasColumnType("char(36)");
 
                     b.HasKey("OrderId");
@@ -247,14 +296,10 @@ namespace FreshlyBackendNew.Migrations
 
                     b.HasIndex("StatusId");
 
-                    b.HasIndex("TypeId");
-
-                    b.HasIndex("UserId");
-
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("FreshlyBackendNew.Models.OrderDetails", b =>
+            modelBuilder.Entity("FreshlyBackendNew.Models.OrderDetail", b =>
                 {
                     b.Property<Guid?>("OrderId")
                         .HasColumnType("char(36)");
@@ -277,20 +322,6 @@ namespace FreshlyBackendNew.Migrations
                     b.ToTable("OrderDetails");
                 });
 
-            modelBuilder.Entity("FreshlyBackendNew.Models.OrderType", b =>
-                {
-                    b.Property<Guid>("TypeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("TypeName")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("TypeId");
-
-                    b.ToTable("OrderTypes");
-                });
-
             modelBuilder.Entity("FreshlyBackendNew.Models.Owner", b =>
                 {
                     b.Property<Guid>("OwnerId")
@@ -311,71 +342,9 @@ namespace FreshlyBackendNew.Migrations
 
                     b.HasKey("OwnerId");
 
-                    b.HasIndex("AddressId")
-                        .IsUnique();
+                    b.HasIndex("AddressId");
 
                     b.ToTable("Owners");
-                });
-
-            modelBuilder.Entity("FreshlyBackendNew.Models.Payment", b =>
-                {
-                    b.Property<Guid>("PaymentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<decimal?>("Amount")
-                        .HasColumnType("decimal(65,30)");
-
-                    b.Property<DateTime?>("Date")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Method")
-                        .HasColumnType("longtext");
-
-                    b.Property<Guid?>("OrderId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime?>("Time")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("PaymentId");
-
-                    b.HasIndex("OrderId")
-                        .IsUnique();
-
-                    b.ToTable("Payments");
-                });
-
-            modelBuilder.Entity("FreshlyBackendNew.Models.Privilege", b =>
-                {
-                    b.Property<Guid>("PrivilegeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("PrivilegeName")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("PrivilegeId");
-
-                    b.ToTable("Privileges");
-                });
-
-            modelBuilder.Entity("FreshlyBackendNew.Models.PrivilegeUserGroup", b =>
-                {
-                    b.Property<Guid?>("PrivilegeId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid?>("UserGroupId")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("PrivilegeId", "UserGroupId");
-
-                    b.HasIndex("UserGroupId");
-
-                    b.ToTable("PrivilegeUserGroups");
                 });
 
             modelBuilder.Entity("FreshlyBackendNew.Models.Service", b =>
@@ -384,12 +353,37 @@ namespace FreshlyBackendNew.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("ServiceName")
                         .HasColumnType("longtext");
 
                     b.HasKey("ServiceId");
 
                     b.ToTable("Services");
+                });
+
+            modelBuilder.Entity("FreshlyBackendNew.Models.Session", b =>
+                {
+                    b.Property<Guid>("SessionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("ExpiredAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("SessionToken")
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("SessionId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Sessions");
                 });
 
             modelBuilder.Entity("FreshlyBackendNew.Models.Status", b =>
@@ -406,104 +400,123 @@ namespace FreshlyBackendNew.Migrations
                     b.ToTable("Statuses");
                 });
 
-            modelBuilder.Entity("FreshlyBackendNew.Models.User", b =>
+            modelBuilder.Entity("FreshlyBackendNew.Models.TemporaryOrder", b =>
                 {
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("TemporaryOrderId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("Email")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Password")
-                        .HasColumnType("longtext");
-
-                    b.Property<Guid?>("UserGroupId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("Username")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("UserId");
-
-                    b.HasIndex("UserGroupId");
-
-                    b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("FreshlyBackendNew.Models.UserGroup", b =>
-                {
-                    b.Property<Guid>("UserGroupId")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid?>("LaundryId")
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("UserGroupName")
-                        .HasColumnType("longtext");
+                    b.Property<DateTime?>("PickupAt")
+                        .HasColumnType("datetime(6)");
 
-                    b.HasKey("UserGroupId");
+                    b.Property<DateTime?>("PlacedAt")
+                        .HasColumnType("datetime(6)");
 
-                    b.ToTable("UserGroups");
+                    b.Property<Guid?>("StatusId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("TemporaryOrderId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("LaundryId");
+
+                    b.HasIndex("StatusId");
+
+                    b.ToTable("TemporaryOrders");
                 });
 
-            modelBuilder.Entity("FreshlyBackendNew.Models.Contact", b =>
+            modelBuilder.Entity("FreshlyBackendNew.Models.TemporaryOrderDetail", b =>
                 {
-                    b.HasOne("FreshlyBackendNew.Models.Customer", "Customer")
-                        .WithMany("Contacts")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                    b.Property<Guid?>("TemporaryOrderId")
+                        .HasColumnType("char(36)");
 
-                    b.HasOne("FreshlyBackendNew.Models.Laundry", "Laundry")
-                        .WithMany("Contacts")
-                        .HasForeignKey("LaundryId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                    b.Property<Guid?>("ItemId")
+                        .HasColumnType("char(36)");
 
-                    b.HasOne("FreshlyBackendNew.Models.Owner", "Owner")
-                        .WithMany("Contacts")
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                    b.Property<Guid?>("ServiceId")
+                        .HasColumnType("char(36)");
 
-                    b.Navigation("Customer");
+                    b.Property<int?>("Quantity")
+                        .HasColumnType("int");
 
-                    b.Navigation("Laundry");
+                    b.HasKey("TemporaryOrderId", "ItemId", "ServiceId");
 
-                    b.Navigation("Owner");
+                    b.HasIndex("ItemId");
+
+                    b.HasIndex("ServiceId");
+
+                    b.ToTable("TemporaryOrderDetails");
                 });
 
             modelBuilder.Entity("FreshlyBackendNew.Models.Customer", b =>
                 {
                     b.HasOne("FreshlyBackendNew.Models.Address", "Address")
-                        .WithOne("Customer")
-                        .HasForeignKey("FreshlyBackendNew.Models.Customer", "AddressId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .WithMany()
+                        .HasForeignKey("AddressId");
 
                     b.Navigation("Address");
                 });
 
+            modelBuilder.Entity("FreshlyBackendNew.Models.Driver", b =>
+                {
+                    b.HasOne("FreshlyBackendNew.Models.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId");
+
+                    b.Navigation("Address");
+                });
+
+            modelBuilder.Entity("FreshlyBackendNew.Models.DriverNote", b =>
+                {
+                    b.HasOne("FreshlyBackendNew.Models.Driver", "Driver")
+                        .WithMany()
+                        .HasForeignKey("DriverId");
+
+                    b.HasOne("FreshlyBackendNew.Models.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId");
+
+                    b.Navigation("Driver");
+
+                    b.Navigation("Order");
+                });
+
             modelBuilder.Entity("FreshlyBackendNew.Models.Feedback", b =>
                 {
-                    b.HasOne("FreshlyBackendNew.Models.Customer", "Customer")
-                        .WithMany("Feedbacks")
-                        .HasForeignKey("CustomerId");
+                    b.HasOne("FreshlyBackendNew.Models.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId");
 
-                    b.HasOne("FreshlyBackendNew.Models.Laundry", "Laundry")
-                        .WithMany("Feedbacks")
-                        .HasForeignKey("LaundryId");
+                    b.Navigation("Order");
+                });
 
-                    b.Navigation("Customer");
+            modelBuilder.Entity("FreshlyBackendNew.Models.Item", b =>
+                {
+                    b.HasOne("FreshlyBackendNew.Models.ItemCategory", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Laundry");
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("FreshlyBackendNew.Models.Laundry", b =>
                 {
                     b.HasOne("FreshlyBackendNew.Models.Address", "Address")
-                        .WithOne("Laundry")
-                        .HasForeignKey("FreshlyBackendNew.Models.Laundry", "AddressId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .WithMany()
+                        .HasForeignKey("AddressId");
 
                     b.HasOne("FreshlyBackendNew.Models.Owner", "Owner")
-                        .WithOne("Laundry")
-                        .HasForeignKey("FreshlyBackendNew.Models.Laundry", "OwnerId");
+                        .WithMany()
+                        .HasForeignKey("OwnerId");
 
                     b.Navigation("Address");
 
@@ -513,19 +526,19 @@ namespace FreshlyBackendNew.Migrations
             modelBuilder.Entity("FreshlyBackendNew.Models.LaundryItemService", b =>
                 {
                     b.HasOne("FreshlyBackendNew.Models.Item", "Item")
-                        .WithMany("LaundryItemServices")
+                        .WithMany()
                         .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FreshlyBackendNew.Models.Laundry", "Laundry")
-                        .WithMany("LaundryItemServices")
+                        .WithMany()
                         .HasForeignKey("LaundryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FreshlyBackendNew.Models.Service", "Service")
-                        .WithMany("LaundryItemServices")
+                        .WithMany()
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -540,52 +553,40 @@ namespace FreshlyBackendNew.Migrations
             modelBuilder.Entity("FreshlyBackendNew.Models.Order", b =>
                 {
                     b.HasOne("FreshlyBackendNew.Models.Customer", "Customer")
-                        .WithMany("Orders")
+                        .WithMany()
                         .HasForeignKey("CustomerId");
 
                     b.HasOne("FreshlyBackendNew.Models.Laundry", "Laundry")
-                        .WithMany("Orders")
+                        .WithMany()
                         .HasForeignKey("LaundryId");
 
                     b.HasOne("FreshlyBackendNew.Models.Status", "Status")
-                        .WithMany("Orders")
+                        .WithMany()
                         .HasForeignKey("StatusId");
-
-                    b.HasOne("FreshlyBackendNew.Models.OrderType", "OrderType")
-                        .WithMany("Orders")
-                        .HasForeignKey("TypeId");
-
-                    b.HasOne("FreshlyBackendNew.Models.User", "User")
-                        .WithMany("Orders")
-                        .HasForeignKey("UserId");
 
                     b.Navigation("Customer");
 
                     b.Navigation("Laundry");
 
-                    b.Navigation("OrderType");
-
                     b.Navigation("Status");
-
-                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("FreshlyBackendNew.Models.OrderDetails", b =>
+            modelBuilder.Entity("FreshlyBackendNew.Models.OrderDetail", b =>
                 {
                     b.HasOne("FreshlyBackendNew.Models.Item", "Item")
-                        .WithMany("OrderDetails")
+                        .WithMany()
                         .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FreshlyBackendNew.Models.Order", "Order")
-                        .WithMany("OrderDetails")
+                        .WithMany()
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FreshlyBackendNew.Models.Service", "Service")
-                        .WithMany("OrderDetails")
+                        .WithMany()
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -600,131 +601,85 @@ namespace FreshlyBackendNew.Migrations
             modelBuilder.Entity("FreshlyBackendNew.Models.Owner", b =>
                 {
                     b.HasOne("FreshlyBackendNew.Models.Address", "Address")
-                        .WithOne("Owner")
-                        .HasForeignKey("FreshlyBackendNew.Models.Owner", "AddressId");
+                        .WithMany()
+                        .HasForeignKey("AddressId");
 
                     b.Navigation("Address");
                 });
 
-            modelBuilder.Entity("FreshlyBackendNew.Models.Payment", b =>
+            modelBuilder.Entity("FreshlyBackendNew.Models.Session", b =>
                 {
-                    b.HasOne("FreshlyBackendNew.Models.Order", "Order")
-                        .WithOne("Payment")
-                        .HasForeignKey("FreshlyBackendNew.Models.Payment", "OrderId");
+                    b.HasOne("FreshlyBackendNew.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("UserId");
 
-                    b.Navigation("Order");
-                });
+                    b.HasOne("FreshlyBackendNew.Models.Driver", "Driver")
+                        .WithMany()
+                        .HasForeignKey("UserId");
 
-            modelBuilder.Entity("FreshlyBackendNew.Models.PrivilegeUserGroup", b =>
-                {
-                    b.HasOne("FreshlyBackendNew.Models.Privilege", "Privilege")
-                        .WithMany("PrivilegeUserGroups")
-                        .HasForeignKey("PrivilegeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("FreshlyBackendNew.Models.Laundry", "Laundry")
+                        .WithMany()
+                        .HasForeignKey("UserId");
 
-                    b.HasOne("FreshlyBackendNew.Models.UserGroup", "UserGroup")
-                        .WithMany("PrivilegeUserGroups")
-                        .HasForeignKey("UserGroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("FreshlyBackendNew.Models.Owner", "Owner")
+                        .WithMany()
+                        .HasForeignKey("UserId");
 
-                    b.Navigation("Privilege");
-
-                    b.Navigation("UserGroup");
-                });
-
-            modelBuilder.Entity("FreshlyBackendNew.Models.User", b =>
-                {
-                    b.HasOne("FreshlyBackendNew.Models.UserGroup", "UserGroup")
-                        .WithMany("Users")
-                        .HasForeignKey("UserGroupId");
-
-                    b.Navigation("UserGroup");
-                });
-
-            modelBuilder.Entity("FreshlyBackendNew.Models.Address", b =>
-                {
                     b.Navigation("Customer");
+
+                    b.Navigation("Driver");
 
                     b.Navigation("Laundry");
 
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("FreshlyBackendNew.Models.Customer", b =>
+            modelBuilder.Entity("FreshlyBackendNew.Models.TemporaryOrder", b =>
                 {
-                    b.Navigation("Contacts");
+                    b.HasOne("FreshlyBackendNew.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId");
 
-                    b.Navigation("Feedbacks");
+                    b.HasOne("FreshlyBackendNew.Models.Laundry", "Laundry")
+                        .WithMany()
+                        .HasForeignKey("LaundryId");
 
-                    b.Navigation("Orders");
-                });
+                    b.HasOne("FreshlyBackendNew.Models.Status", "Status")
+                        .WithMany()
+                        .HasForeignKey("StatusId");
 
-            modelBuilder.Entity("FreshlyBackendNew.Models.Item", b =>
-                {
-                    b.Navigation("LaundryItemServices");
-
-                    b.Navigation("OrderDetails");
-                });
-
-            modelBuilder.Entity("FreshlyBackendNew.Models.Laundry", b =>
-                {
-                    b.Navigation("Contacts");
-
-                    b.Navigation("Feedbacks");
-
-                    b.Navigation("LaundryItemServices");
-
-                    b.Navigation("Orders");
-                });
-
-            modelBuilder.Entity("FreshlyBackendNew.Models.Order", b =>
-                {
-                    b.Navigation("OrderDetails");
-
-                    b.Navigation("Payment");
-                });
-
-            modelBuilder.Entity("FreshlyBackendNew.Models.OrderType", b =>
-                {
-                    b.Navigation("Orders");
-                });
-
-            modelBuilder.Entity("FreshlyBackendNew.Models.Owner", b =>
-                {
-                    b.Navigation("Contacts");
+                    b.Navigation("Customer");
 
                     b.Navigation("Laundry");
+
+                    b.Navigation("Status");
                 });
 
-            modelBuilder.Entity("FreshlyBackendNew.Models.Privilege", b =>
+            modelBuilder.Entity("FreshlyBackendNew.Models.TemporaryOrderDetail", b =>
                 {
-                    b.Navigation("PrivilegeUserGroups");
-                });
+                    b.HasOne("FreshlyBackendNew.Models.Item", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-            modelBuilder.Entity("FreshlyBackendNew.Models.Service", b =>
-                {
-                    b.Navigation("LaundryItemServices");
+                    b.HasOne("FreshlyBackendNew.Models.Service", "Service")
+                        .WithMany()
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("OrderDetails");
-                });
+                    b.HasOne("FreshlyBackendNew.Models.TemporaryOrder", "TemporaryOrder")
+                        .WithMany()
+                        .HasForeignKey("TemporaryOrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-            modelBuilder.Entity("FreshlyBackendNew.Models.Status", b =>
-                {
-                    b.Navigation("Orders");
-                });
+                    b.Navigation("Item");
 
-            modelBuilder.Entity("FreshlyBackendNew.Models.User", b =>
-                {
-                    b.Navigation("Orders");
-                });
+                    b.Navigation("Service");
 
-            modelBuilder.Entity("FreshlyBackendNew.Models.UserGroup", b =>
-                {
-                    b.Navigation("PrivilegeUserGroups");
-
-                    b.Navigation("Users");
+                    b.Navigation("TemporaryOrder");
                 });
 #pragma warning restore 612, 618
         }

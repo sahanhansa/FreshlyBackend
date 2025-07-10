@@ -1,7 +1,6 @@
-﻿using FreshlyBackendNew.Data;
-using FreshlyBackendNew.Models;
+﻿using FreshlyBackendNew.DTOs;
+using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace FreshlyBackendNew.Controllers
 {
@@ -9,81 +8,102 @@ namespace FreshlyBackendNew.Controllers
     [ApiController]
     public class LaundryController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ILaundryService _laundryService;
 
-        public LaundryController(ApplicationDbContext context)
+        public LaundryController(ILaundryService laundryService)
         {
-            _context = context;
+            _laundryService = laundryService;
         }
 
-        // 🔹 Create (POST)
-        [HttpPost]
-        public async Task<IActionResult> CreateLaundry([FromBody] Laundry laundry)
-        {
-            if (laundry == null)
-            {
-                return BadRequest("Invalid laundry data.");
-            }
-
-            _context.Laundries.Add(laundry);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetLaundry), new { id = laundry.LaundryId }, laundry);
-        }
-
-        // 🔹 Read All (GET)
         [HttpGet]
-        public async Task<IActionResult> GetLaundries()
+        public async Task<IActionResult> GetAllLaundries()
         {
-            var laundries = await _context.Laundries.ToListAsync();
-            return Ok(laundries);
+            try
+            {
+                // By default, return the customer-focused list when no specific endpoint is provided
+                var dtoList = await _laundryService.GetLaundriesForCustomerAsync();
+                return Ok(dtoList);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetAllLaundries: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while retrieving laundries", details = ex.Message });
+            }
         }
 
-        // 🔹 Read One (GET by ID)
+        [HttpGet("laundry-list-for-customer")]
+        public async Task<IActionResult> GetLaundriesForCustomer()
+        {
+            try
+            {
+                var dtoList = await _laundryService.GetLaundriesForCustomerAsync();
+                return Ok(dtoList);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetLaundriesForCustomer: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while retrieving laundries", details = ex.Message });
+            }
+        }
+
+        [HttpGet("laundry-list-for-admin")]
+        public async Task<IActionResult> GetLaundriesForAdmin()
+        {
+            try
+            {
+                var dtoList = await _laundryService.GetLaundriesForAdminAsync();
+                return Ok(dtoList);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetLaundriesForAdmin: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while retrieving laundries for admin", details = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateLaundry([FromBody] LaundryAdminDTO laundryDto)
+        {
+            try
+            {
+                if (laundryDto == null)
+                {
+                    return BadRequest("Laundry data is required.");
+                }
+                var createdLaundry = await _laundryService.CreateLaundryAsync(laundryDto);
+                
+                // Add null check before parsing
+                if (string.IsNullOrEmpty(createdLaundry.LaundryId))
+                {
+                    return StatusCode(500, new { error = "Created laundry ID is missing" });
+                }
+                
+                return CreatedAtAction(nameof(GetLaundryById), new { id = Guid.Parse(createdLaundry.LaundryId) }, createdLaundry);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in CreateLaundry: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while creating the laundry", details = ex.Message });
+            }
+        }
+
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetLaundry(Guid id)
+        public async Task<IActionResult> GetLaundryById(Guid id)
         {
-            var laundry = await _context.Laundries.FindAsync(id);
-            if (laundry == null)
+            try
             {
-                return NotFound();
+                var laundry = await _laundryService.GetLaundryByIdAsync(id);
+                if (laundry == null)
+                {
+                    return NotFound();
+                }
+                return Ok(laundry);
             }
-            return Ok(laundry);
-        }
-
-        // 🔹 Update (PUT)
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateLaundry(Guid id, [FromBody] Laundry updatedLaundry)
-        {
-            var laundry = await _context.Laundries.FindAsync(id);
-            if (laundry == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                Console.WriteLine($"Error in GetLaundryById: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while retrieving the laundry", details = ex.Message });
             }
-
-            // Update fields
-            laundry.LaundryName = updatedLaundry.LaundryName;
-            laundry.Username = updatedLaundry.Username;
-            laundry.Password = updatedLaundry.Password;
-            laundry.Email = updatedLaundry.Email;
-           
-            await _context.SaveChangesAsync();
-            return Ok(laundry);
-        }
-
-        // 🔹 Delete (DELETE)
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteLaundry(Guid id)
-        {
-            var laundry = await _context.Laundries.FindAsync(id);
-            if (laundry == null)
-            {
-                return NotFound();
-            }
-
-            _context.Laundries.Remove(laundry);
-            await _context.SaveChangesAsync();
-            return NoContent();
         }
     }
 }

@@ -7,7 +7,6 @@ namespace FreshlyBackendNew.Models
         public Status()
         {
             StatusID = Guid.NewGuid(); 
-            Orders = new List<Order>();
         }
 
         // Primary Key
@@ -17,7 +16,13 @@ namespace FreshlyBackendNew.Models
         // Status Details
         public string? StatusName { get; set; }
 
-        // Navigation Properties
-        public ICollection<Order>? Orders { get; set; }
+        //Followings are the finalized order statuses:
+        //-Order placed
+        //-Order pickup scheduled
+        //-Picked up
+        //-Processing in laundry
+        //-Finished processing
+        //-Out for delivery
+        //-Completed
     }
 }

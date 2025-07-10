@@ -7,11 +7,11 @@ namespace FreshlyBackendNew.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OwnerController : ControllerBase
+    public class ItemCategoryController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public OwnerController(ApplicationDbContext context)
+        public ItemCategoryController(ApplicationDbContext context)
         {
             _context = context;
         }

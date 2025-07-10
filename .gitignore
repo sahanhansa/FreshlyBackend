@@ -11,6 +11,8 @@ bin/
 *.suo
 *.cache
 *.user
+*.rsuser
+*.suo
 *.userosscache
 *.sln.docstates
 

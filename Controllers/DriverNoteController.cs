@@ -1,21 +1,18 @@
 ﻿using FreshlyBackendNew.Data;
-using FreshlyBackendNew.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace FreshlyBackendNew.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OwnerController : ControllerBase
+    public class DriverNoteController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public OwnerController(ApplicationDbContext context)
+        public DriverNoteController(ApplicationDbContext context)
         {
             _context = context;
         }
-
-        
     }
 }

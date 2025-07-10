@@ -10,18 +10,18 @@ namespace FreshlyBackendNew.Models
             ContactId = Guid.NewGuid(); 
         }
 
+        // Primary Key
         [Key]
         public Guid ContactId { get; set; }
+
+        // Address Details
         public string ContactNumber { get; set; }
 
         // Foreign keys
-        public Guid? CustomerId { get; set; }
-        public Guid? OwnerId { get; set; }
-        public Guid? LaundryId { get; set; }
+        public Guid? UserId { get; set; } // this include relavant id- customerid/laundryid/ownerid/driverids
 
-        // Navigation properties
-        public Customer? Customer { get; set; }
-        public Owner? Owner { get; set; }
-        public Laundry? Laundry { get; set; }
+        // Discriminator for foreign key
+        public string? UserType { get; set; } // Indicates the type of user- customer/laundry/owner/driver
+
     }
 }

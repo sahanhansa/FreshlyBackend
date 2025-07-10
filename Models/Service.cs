@@ -7,8 +7,6 @@ namespace FreshlyBackendNew.Models
         public Service()
         {
             ServiceId = Guid.NewGuid();
-            OrderDetails = new List<OrderDetails>();
-            LaundryItemServices = new List<LaundryItemService>();
         }
 
         // Primary Key
@@ -16,11 +14,14 @@ namespace FreshlyBackendNew.Models
         public Guid ServiceId { get; set; }
 
         // Service Details
-        public string? Name { get; set; }
+        public string? ServiceName { get; set; }
 
-        // Navigation Properties
-        public ICollection<OrderDetails>? OrderDetails { get; set; }
-        public ICollection<LaundryItemService>? LaundryItemServices { get; set; }
+        //Followings are the finalized services of laundries:
+        //-Regular Wash
+        //-Dry Clean
+        //-Hand wash
+        //-Press Only
+        
     }
 }
 

@@ -18,17 +18,19 @@ namespace FreshlyBackendNew.Services
             _context = context;
         }
 
-        // Get all orders with basic details
+        // Fix for CS1061: Replace 'PlacedDate' and 'PlacedTime' with 'PlacedAt' and adjust the logic accordingly.
+        // Similarly, replace 'PickupDate' and 'PickupTime' with 'PickupAt' and adjust the logic.
+
         public async Task<List<OrderDTO>> GetAllOrdersAsync()
         {
             return await _context.Orders
                 .Select(o => new OrderDTO
                 {
                     OrderId = o.OrderId,
-                    PlacedDate = o.PlacedDate.HasValue ? o.PlacedDate.Value.ToString("yyyy-MM-dd") : null,
-                    PlacedTime = o.PlacedTime.HasValue ? o.PlacedTime.Value.ToString("HH:mm:ss") : null,
-                    PickupDate = o.PickupDate.HasValue ? o.PickupDate.Value.ToString("yyyy-MM-dd") : null,
-                    PickupTime = o.PickupTime.HasValue ? o.PickupTime.Value.ToString("HH:mm:ss") : null
+                    PlacedDate = o.PlacedAt.HasValue ? o.PlacedAt.Value.ToString("yyyy-MM-dd") : null,
+                    PlacedTime = o.PlacedAt.HasValue ? o.PlacedAt.Value.ToString("HH:mm:ss") : null,
+                    PickupDate = o.PickupAt.HasValue ? o.PickupAt.Value.ToString("yyyy-MM-dd") : null,
+                    PickupTime = o.PickupAt.HasValue ? o.PickupAt.Value.ToString("HH:mm:ss") : null
                 })
                 .ToListAsync();
         }
@@ -45,10 +47,10 @@ namespace FreshlyBackendNew.Services
                 .Select(o => new OrderDTO
                 {
                     OrderId = o.OrderId,
-                    PlacedDate = o.PlacedDate.HasValue ? o.PlacedDate.Value.ToString("yyyy-MM-dd") : null,
-                    PlacedTime = o.PlacedTime.HasValue ? o.PlacedTime.Value.ToString("HH:mm:ss") : null,
-                    PickupDate = o.PickupDate.HasValue ? o.PickupDate.Value.ToString("yyyy-MM-dd") : null,
-                    PickupTime = o.PickupTime.HasValue ? o.PickupTime.Value.ToString("HH:mm:ss") : null,
+                    PlacedDate = o.PlacedAt.HasValue ? o.PlacedAt.Value.ToString("yyyy-MM-dd") : null,
+                    PlacedTime = o.PlacedAt.HasValue ? o.PlacedAt.Value.ToString("HH:mm:ss") : null,
+                    PickupDate = o.PickupAt.HasValue ? o.PickupAt.Value.ToString("yyyy-MM-dd") : null,
+                    PickupTime = o.PickupAt.HasValue ? o.PickupAt.Value.ToString("HH:mm:ss") : null,
                     Customer = o.Customer != null ? new CustomerDTO
                     {
                         CustomerId = o.Customer.CustomerId,
@@ -110,10 +112,10 @@ namespace FreshlyBackendNew.Services
             return new OrderDTO
             {
                 OrderId = order.OrderId,
-                PlacedDate = order.PlacedDate.HasValue ? order.PlacedDate.Value.ToString("yyyy-MM-dd") : null,
-                PlacedTime = order.PlacedTime.HasValue ? order.PlacedTime.Value.ToString("HH:mm:ss") : null,
-                PickupDate = order.PickupDate.HasValue ? order.PickupDate.Value.ToString("yyyy-MM-dd") : null,
-                PickupTime = order.PickupTime.HasValue ? order.PickupTime.Value.ToString("HH:mm:ss") : null,
+                PlacedDate = order.PlacedAt.HasValue ? order.PlacedAt.Value.ToString("yyyy-MM-dd") : null,
+                PlacedTime = order.PlacedAt.HasValue ? order.PlacedAt.Value.ToString("HH:mm:ss") : null,
+                PickupDate = order.PickupAt.HasValue ? order.PickupAt.Value.ToString("yyyy-MM-dd") : null,
+                PickupTime = order.PickupAt.HasValue ? order.PickupAt.Value.ToString("HH:mm:ss") : null,
                 Customer = order.Customer != null ? new CustomerDTO
                 {
                     CustomerId = order.Customer.CustomerId,

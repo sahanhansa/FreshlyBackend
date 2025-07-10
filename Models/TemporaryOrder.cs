@@ -3,16 +3,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FreshlyBackendNew.Models
 {
-    public class Order
+    public class TemporaryOrder
     {
-        public Order()
+        public TemporaryOrder()
         {
-            OrderId = Guid.NewGuid();
+            TemporaryOrderId = Guid.NewGuid();
         }
 
         // Primary Key
         [Key]
-        public Guid OrderId { get; set; }
+        public Guid TemporaryOrderId { get; set; }
 
         // Order Details
         public DateTime? PlacedAt { get; set; }
