@@ -23,4 +23,12 @@ public class TemporaryOrderController : ControllerBase
         var tempOrderId = await _temporaryOrderService.AddToBasketAsync(dto);
         return Ok(new { TemporaryOrderId = tempOrderId });
     }
+
+    // lasini- get all temporary order summaries for a customer, grouped by laundry
+    [HttpGet("customer/{customerId}/summaries")]
+    public async Task<IActionResult> GetCustomerOrderSummaries(Guid customerId)
+    {
+        var summaries = await _temporaryOrderService.GetCustomerTemporaryOrderSummariesAsync(customerId);
+        return Ok(summaries);
+    }
 }

@@ -62,6 +62,66 @@ namespace FreshlyBackendNew.Services.Implementations
             await _context.SaveChangesAsync();
             return tempOrder.TemporaryOrderId;
         }
+
+        public async Task<List<TemporaryOrderSummaryDTO>> GetCustomerTemporaryOrderSummariesAsync(Guid customerId)
+        {
+            var tempOrders = await _context.TemporaryOrders
+                .Include(o => o.Laundry)
+                .Where(o => o.CustomerId == customerId)
+                .ToListAsync();
+
+            var summaries = new List<TemporaryOrderSummaryDTO>();
+
+            foreach (var tempOrder in tempOrders)
+            {
+                var details = await _context.TemporaryOrderDetails
+                    .Where(d => d.TemporaryOrderId == tempOrder.TemporaryOrderId)
+                    .Include(d => d.Item)
+                        //.ThenInclude(item => item.Category)
+                    .Include(d => d.Service)
+                    .ToListAsync();
+
+                var items = new List<TemporaryOrderItemDTO>();
+                decimal total = 0;
+
+                foreach (var d in details)
+                {
+                    var price = await _context.LaundryItemServices
+                        .Where(lis => lis.LaundryId == tempOrder.LaundryId && lis.ItemId == d.ItemId && lis.ServiceId == d.ServiceId)
+                        .Select(lis => lis.Price ?? 0)
+                        .FirstOrDefaultAsync();
+
+                    var itemDto = new TemporaryOrderItemDTO
+                    {
+                        ItemId = d.ItemId ?? Guid.Empty,
+                        ItemName = d.Item?.Name ?? "Item", // Replace with actual property if available
+                        ItemImageUrl = null, // Add if you have image URLs
+                        //CategoryName = d.Item?.Category?.CategoryName,
+                        ServiceName = d.Service?.ServiceName ?? "",
+                        Price = price,
+                        Quantity = d.Quantity ?? 0
+                    };
+                    total += itemDto.SubTotal;
+                    items.Add(itemDto);
+                }
+
+                summaries.Add(new TemporaryOrderSummaryDTO
+                {
+                    TemporaryOrderId = tempOrder.TemporaryOrderId,
+                    LaundryId = tempOrder.LaundryId, // Add this line
+                    LaundryName = tempOrder.Laundry?.LaundryName ?? "",
+                    LaundryAddress = tempOrder.Laundry != null
+                        ? $"{tempOrder.Laundry.LaundryName}, {tempOrder.Laundry.Address}" // Replace with actual address if available
+                        : "",
+                    Items = items,
+                    TotalAmount = total
+                });
+            }
+
+            return summaries;
+        }
+
+
     }
 
 }
