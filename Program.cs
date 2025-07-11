@@ -33,7 +33,7 @@ builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ITemporaryOrderService, TemporaryOrderService>();
-
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 
 // Add controller services
