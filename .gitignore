@@ -13,6 +13,8 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+bin/
+obj/
 
 # User-specific files
 *.user
@@ -22,7 +24,8 @@ bld/
 *.userosscache
 *.sln.docstates
 
-# IDE files
+
+# IDE settings
 .vscode/
 .idea/
 
@@ -47,14 +50,19 @@ bld/
 *.ncb
 *.opensdf
 *.sdf
+# Logs
+*.log
 
 # ASP.NET Core
 appsettings*.json
 *.db
 *.pubxml
 
+
 # EF Core Migrations
 Migrations/
+# Entity Framework migrations (uncomment if you want to ignore migrations)
+# Migrations/
 
 # Frontend dependencies
 node_modules/
@@ -101,3 +109,16 @@ packages/
 *.idb
 *.ilk
 *.meta
+
+
+# Optional additions
+TestResults/
+coverage/
+*.db
+*.bak
+*.tmp
+*.temp
+*.vspscc
+*.vssscc
+*.ncrunch*
+
