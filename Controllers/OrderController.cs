@@ -1,4 +1,7 @@
-﻿using FreshlyBackendNew.DTOs;
+using FreshlyBackendNew.Data;
+using FreshlyBackendNew.DTOs;
+using FreshlyBackendNew.Models;
+using FreshlyBackendNew.Services;
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,14 +11,78 @@ namespace FreshlyBackendNew.Controllers
     [Route("api/[controller]")]
     public class OrdersController : ControllerBase
     {
+        private readonly IAllPickupService _pickupService;
+        private readonly IAllDeliveryService _deliveryService;
+        private readonly ApplicationDbContext _context;
         private readonly IOrderService _orderService;
 
-        public OrdersController(IOrderService orderService)
+        // Constructor with dependency injection
+        public OrdersController(ApplicationDbContext context, IAllPickupService pickupService, IAllDeliveryService deliveryService, IOrderService orderService)
         {
+            _context = context;
+            _pickupService = pickupService;
+            _deliveryService = deliveryService;
             _orderService = orderService;
         }
-        
-        //Rohansi-Get new orders
+
+        // --- Pickup Endpoints ---
+
+        [HttpGet("GetAllPickups")]
+        public async Task<IActionResult> GetAllPickups()
+        {
+            var pickups = await _pickupService.GetAllPickups();
+
+            if (pickups == null)
+            {
+                return NotFound("No orders found.");
+            }
+
+            return Ok(pickups);
+        }
+
+        [HttpGet("GetAllPickups/{orderId}")]
+        public async Task<IActionResult> GetPickupDetails(string orderId)
+        {
+            var pickupDetails = await _pickupService.GetPickupDetailsBYId(orderId);
+
+            if (pickupDetails == null)
+            {
+                return NotFound("No orders found.");
+            }
+
+            return Ok(pickupDetails);
+        }
+
+        // --- Delivery Endpoints ---
+
+        [HttpGet("GetAllDeliveries")]
+        public async Task<IActionResult> GetAllDeliveries()
+        {
+            var delivery = await _deliveryService.GetAllDeliveries();
+
+            if (delivery == null)
+            {
+                return NotFound("No orders found.");
+            }
+
+            return Ok(delivery);
+        }
+
+        [HttpGet("GetAllDeliveries/{orderId}")]
+        public async Task<IActionResult> GetDeliveryDetails(string orderId)
+        {
+            var deliveryDetails = await _deliveryService.GetDeliveryDetailsBYId(orderId);
+
+            if (deliveryDetails == null)
+            {
+                return NotFound("No orders found.");
+            }
+
+            return Ok(deliveryDetails);
+        }
+
+        // --- Laundry Order Management (Rohansi) ---
+
         [HttpGet("{laundryId}/new-orders")]
         public async Task<IActionResult> GetNewOrders(Guid laundryId)
         {
@@ -33,8 +100,7 @@ namespace FreshlyBackendNew.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
-        
-        //Rohansi-Get processing orders
+
         [HttpGet("{laundryId}/processing-orders")]
         public async Task<IActionResult> GetProcessingOrders(Guid laundryId)
         {
@@ -53,7 +119,6 @@ namespace FreshlyBackendNew.Controllers
             }
         }
 
-        //Rohansi-Get all orders
         [HttpGet("{laundryId}/all-orders")]
         public async Task<IActionResult> GetAllOrders(Guid laundryId)
         {
