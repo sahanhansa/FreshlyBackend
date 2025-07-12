@@ -2,6 +2,8 @@
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
+namespace FreshlyBackendNew.Controllers
+{
 [Route("api/[controller]")]
 [ApiController]
 public class TemporaryOrderController : ControllerBase
