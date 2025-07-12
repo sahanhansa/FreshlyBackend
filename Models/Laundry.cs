@@ -7,7 +7,8 @@ namespace FreshlyBackendNew.Models
     {
         public Laundry()
         {
-            LaundryId = Guid.NewGuid(); 
+            LaundryId = Guid.NewGuid();
+            Feedbacks = new List<Feedback>();
         }
 
         // Primary Key
@@ -30,5 +31,8 @@ namespace FreshlyBackendNew.Models
 
         [ForeignKey("OwnerId")]
         public Owner? Owner { get; set; }
+        
+        // Collection navigation property for Feedbacks
+        public ICollection<Feedback> Feedbacks { get; set; }
     }
 }

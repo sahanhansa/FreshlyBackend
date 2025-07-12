@@ -11,16 +11,10 @@ namespace FreshlyBackendNew.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CustomerController : ControllerBase
+    public class CustomerController(ICustomerService customerService, ApplicationDbContext context) : ControllerBase
     {
-        private readonly ICustomerService _customerService;
-        private readonly ApplicationDbContext _context;
-
-        public CustomerController(ICustomerService customerService, ApplicationDbContext context)
-        {
-            _customerService = customerService;
-            _context = context;
-        }
+        private readonly ICustomerService _customerService = customerService;
+        private readonly ApplicationDbContext _context = context;
 
         // GET: api/Customer
         [HttpGet]
@@ -49,6 +43,44 @@ namespace FreshlyBackendNew.Controllers
                     return NotFound("Customer not found.");
                 }
                 return Ok(customer);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // GET: api/Customer/deleted
+        [HttpGet("deleted")]
+        public async Task<IActionResult> GetDeletedCustomers()
+        {
+            try
+            {
+                var deletedCustomers = await _customerService.GetDeletedCustomersAsync();
+                return Ok(deletedCustomers);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // POST: api/Customer/restore/{id}
+        [HttpPost("restore/{id}")]
+        public async Task<IActionResult> RestoreCustomer(Guid id)
+        {
+            try
+            {
+                var restoredCustomer = await _customerService.RestoreCustomerAsync(id);
+                if (restoredCustomer == null)
+                {
+                    return NotFound("Deleted customer not found.");
+                }
+                return Ok(restoredCustomer);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
@@ -102,11 +134,11 @@ namespace FreshlyBackendNew.Controllers
 
         // DELETE: api/Customer/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCustomer(Guid id)
+        public async Task<IActionResult> DeleteCustomer(Guid id, [FromQuery] string reason = "Deleted by admin")
         {
             try
             {
-                var deleted = await _customerService.DeleteCustomerAsync(id);
+                var deleted = await _customerService.DeleteCustomerAsync(id, reason);
                 if (!deleted)
                 {
                     return NotFound("Customer not found.");

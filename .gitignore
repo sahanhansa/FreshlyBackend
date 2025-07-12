@@ -1,96 +1,158 @@
-﻿# Node.js dependencies
+﻿# .NET build artifacts
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio files
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.userprefs
+*.usertasks
+*.vspscc
+*.vssscc
+.vshistory/
+*_i.c
+*_p.c
+*_h.h
+*.ilk
+*.meta
+*.obj
+*.iobj
+*.pch
+*.pdb
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*_wpftmp.csproj
+*.log
+*.tlog
+.builds
+*.pidb
+*.svclog
+*.scc
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+*.DotSettings.user
+.run/
+*.csproj.DotSettings
+
+# ReSharper & StyleCop
+_ReSharper*/
+*.[Rr]e[Ss]harper
+StyleCopReport.xml
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+*.nuget.props
+*.nuget.targets
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# .NET Core
+*.swp
+appsettings.Development.json
+appsettings.*.json
+!appsettings.json
+**/Properties/launchSettings.json
+*.pfx
+*.publishsettings
+microsoft-*.html
+
+# User Secrets
+**/[Ss]ecrets.json
+**/secrets.json
+**/[Aa]ppsettings.[Ll]ocal.json
+**/appsettings.[Dd]evelopment.json
+**/appsettings.[Pp]roduction.json
+**/appsettings.[Ss]taging.json
+**/*.secret.json
+**/.secrets
+
+# Entity Framework
+*.db
+*.db-shm
+*.db-wal
+# Migrations/ - Keep migrations in source control for better team collaboration
+
+# Testing
+TestResults/
+[Tt]est[Rr]esult*/
+*.coverage
+*.coveragexml
+*.testlog
+nCrunchTemp_*
+coverage/
+coverage.json
+coverage.cobertura.xml
+
+# Node.js (for front-end components if any)
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+dist/
+.npm
 
-# .NET build artifacts
-obj/
-bin/
-*.csproj.user
-*.suo
-*.cache
-*.user
-*.rsuser
-*.suo
-*.userosscache
-*.sln.docstates
-
-# Environment variables
+# Environment Files
 .env
 .env.local
 .env.development
+.env.test
 .env.production
-# IDE settings
-.vscode/
-.idea/
-.vs/
 
-# Logs
-*.log
-logs/
-
-# Temporary files
-*.tmp
-*.bak
-*.swp
-
-# OS-generated files
+# OS Generated Files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# IDE files
-.vscode/
-.idea/
-*.code-workspace
+# Azure & GitHub
+.azure/
+.github/.DS_Store
 
-# Build output (if applicable)
-dist/
-build/
-
-# NuGet packages
-*.nupkg
-packages/
-
-# Rider IDE files
-.idea/
-*.sln.iml
-# Entity Framework migrations (uncomment if you want to ignore migrations)
-# Migrations/
-
-# Visual Studio specific
-.vs/
-*.tsscache
-*.TestResults/
-# Dependency directories
-node_modules/
+# Client-side libraries
 wwwroot/lib/
 
-# OS-specific files
-.DS_Store
-Thumbs.db
-# Resharper files
-_ReSharper*/
-*.DotSettings.user
+# Build results from MSBuild binary log
+*.binlog
 
-# Azure Pipelines
-*.coverage
-*.coveragexml
-*.testlog
-# Environment variables
-.env
+# Benchmark Results
+BenchmarkDotNet.Artifacts/
 
-# Optional additions
-TestResults/
-coverage/
-*.db
-*.bak
-*.tmp
-*.temp
-*.vspscc
-*.vssscc
-*.ncrunch*
-# Additional .NET files
-project.lock.json
-project.fragment.lock.json
-artifacts/
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# Temporary VS files
+TFSTemp/
+**/[Tt]emp/
+**/[Tt]mp/
