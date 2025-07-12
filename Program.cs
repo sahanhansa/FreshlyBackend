@@ -14,6 +14,8 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 
 // Add services to the container.
 
+// Add services to the container.
+
 // Configure EF Core with MySQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(
@@ -21,6 +23,26 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         new MySqlServerVersion(new Version(8, 0, 21))
     )
 );
+
+// Add CORS services
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularApp",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200") //  Angular app's URL
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
+// Register application services
+builder.Services.AddScoped<ILaundryService, LaundryService>();
+builder.Services.AddScoped<IItemService, ItemService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<ITemporaryOrderService, TemporaryOrderService>();
+
 
 // Add CORS services with more permissive settings
 builder.Services.AddCors(options =>
@@ -48,6 +70,9 @@ builder.Services.AddControllers()
         // Handle circular references
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
+
+// Add controller services
+builder.Services.AddControllers();
 
 // Add Swagger services
 builder.Services.AddEndpointsApiExplorer();

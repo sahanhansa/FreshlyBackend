@@ -1,62 +1,94 @@
-﻿using FreshlyBackendNew.DTOs;
-using FreshlyBackendNew.Services;
+using FreshlyBackendNew.DTOs;
+using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace FreshlyBackendNew.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class OrderController : ControllerBase
+    [Route("api/[controller]")]
+    public class OrderController(IOrderService orderService) : ControllerBase
     {
-        private readonly IOrderService _orderService;
-
-        public OrderController(IOrderService orderService)
+        private readonly IOrderService _orderService = orderService;
+        
+        //Rohansi-Get new orders
+        [HttpGet("{laundryId}/new-orders")]
+        public async Task<IActionResult> GetNewOrders(Guid laundryId)
         {
-            _orderService = orderService;
+            try
+            {
+                var orders = await _orderService.GetNewOrdersAsync(laundryId);
+
+                if (orders == null || orders.Count == 0)
+                    return NotFound($"No 'picked up' orders found for LaundryId: {laundryId}");
+
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+        
+        //Rohansi-Get processing orders
+        [HttpGet("{laundryId}/processing-orders")]
+        public async Task<IActionResult> GetProcessingOrders(Guid laundryId)
+        {
+            try
+            {
+                var orders = await _orderService.GetProcessingOrdersAsync(laundryId);
+
+                if (orders == null || orders.Count == 0)
+                    return NotFound($"No 'Processing' orders found for LaundryId: {laundryId}");
+
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
         }
 
-        // GET: api/Order
+        //Rohansi-Get all orders
+        [HttpGet("{laundryId}/all-orders")]
+        public async Task<IActionResult> GetAllOrders(Guid laundryId)
+        {
+            try
+            {
+                var orders = await _orderService.GetAllOrdersAsync(laundryId);
+
+                if (orders == null || orders.Count == 0)
+                    return NotFound($"No orders found!");
+
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+        // Add a simple GET endpoint without parameters
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrders()
+        public async Task<IActionResult> GetAllOrders()
         {
-            var orders = await _orderService.GetAllOrdersAsync();
-            return Ok(orders);
-        }
-
-        // GET: api/Order/details
-        [HttpGet("details")]
-        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrderDetails()
-        {
-            var orders = await _orderService.GetOrderDetailsAsync();
-            return Ok(orders);
-        }
-
-        // GET: api/Order/{id}
-        [HttpGet("{id}")]
-        public async Task<ActionResult<OrderDTO>> GetOrder(Guid id)
-        {
-            var order = await _orderService.GetOrderByIdAsync(id);
-            if (order == null)
+            try
             {
-                return NotFound();
-            }
-            return Ok(order);
-        }
+                // Use a default GUID (empty) or implement a new method in your service
+                var orders = await _orderService.GetAllOrdersAsync(Guid.Empty);
 
-        // POST: api/Order
-        [HttpPost]
-        public async Task<ActionResult<OrderDTO>> CreateOrder([FromBody] OrderDTO orderDto)
-        {
-            if (orderDto == null)
+                if (orders == null || orders.Count == 0)
+                    return NotFound("No orders found!");
+
+                return Ok(orders);
+            }
+            catch (Exception ex)
             {
-                return BadRequest("Invalid order data.");
+                return StatusCode(500, $"An error occurred: {ex.Message}");
             }
-
-            var createdOrder = await _orderService.CreateOrderAsync(orderDto);
-            return CreatedAtAction(nameof(GetOrder), new { id = createdOrder.OrderId }, createdOrder);
         }
 
         // PUT: api/Order/{id}
@@ -68,24 +100,38 @@ namespace FreshlyBackendNew.Controllers
                 return BadRequest("Invalid order data.");
             }
 
-            var success = await _orderService.UpdateOrderAsync(id, orderDto);
-            if (!success)
+            try
             {
-                return NotFound();
+                var success = await _orderService.UpdateOrderAsync(id, orderDto);
+                if (!success)
+                {
+                    return NotFound($"Order with ID {id} not found.");
+                }
+                return NoContent();
             }
-            return NoContent();
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while updating the order: {ex.Message}");
+            }
         }
 
         // DELETE: api/Order/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrder(Guid id)
         {
-            var success = await _orderService.DeleteOrderAsync(id);
-            if (!success)
+            try
             {
-                return NotFound();
+                var success = await _orderService.DeleteOrderAsync(id);
+                if (!success)
+                {
+                    return NotFound($"Order with ID {id} not found.");
+                }
+                return NoContent();
             }
-            return NoContent();
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while deleting the order: {ex.Message}");
+            }
         }
     }
 }

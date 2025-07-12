@@ -1,5 +1,6 @@
 ﻿using FreshlyBackendNew.Data;
 using FreshlyBackendNew.DTOs;
+using FreshlyBackendNew.Services.Interfaces;
 using FreshlyBackendNew.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -7,185 +8,198 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace FreshlyBackendNew.Services
+namespace FreshlyBackendNew.Services.Implementations
 {
-    public class OrderService : IOrderService
+    public class OrderService(ApplicationDbContext context) : IOrderService
     {
-        private readonly ApplicationDbContext _context;
-
-        public OrderService(ApplicationDbContext context)
+        private readonly ApplicationDbContext _context = context;
+        
+        public async Task<List<OrderDTO>> GetNewOrdersAsync(Guid laundryId)
         {
-            _context = context;
-        }
+            var pickedUpStatus = await _context.Statuses
+                .FirstOrDefaultAsync(s => s.StatusName != null && string.Equals(s.StatusName, "picked up", StringComparison.OrdinalIgnoreCase));
 
-        // Fix for CS1061: Replace 'PlacedDate' and 'PlacedTime' with 'PlacedAt' and adjust the logic accordingly.
-        // Similarly, replace 'PickupDate' and 'PickupTime' with 'PickupAt' and adjust the logic.
+            if (pickedUpStatus == null)
+                return [];
 
-        public async Task<List<OrderDTO>> GetAllOrdersAsync()
-        {
-            return await _context.Orders
-                .Select(o => new OrderDTO
+            var orders = await _context.Orders
+                .Where(o => o.LaundryId == laundryId && o.StatusId == pickedUpStatus.StatusID)
+                .ToListAsync();
+
+            var result = new List<OrderDTO>();
+            foreach (var o in orders)
+            {
+                result.Add(new OrderDTO
                 {
                     OrderId = o.OrderId,
                     PlacedDate = o.PlacedAt.HasValue ? o.PlacedAt.Value.ToString("yyyy-MM-dd") : null,
                     PlacedTime = o.PlacedAt.HasValue ? o.PlacedAt.Value.ToString("HH:mm:ss") : null,
                     PickupDate = o.PickupAt.HasValue ? o.PickupAt.Value.ToString("yyyy-MM-dd") : null,
                     PickupTime = o.PickupAt.HasValue ? o.PickupAt.Value.ToString("HH:mm:ss") : null
-                })
-                .ToListAsync();
+                });
+            }
+
+            return result;
         }
 
-        // Get detailed order information
-        public async Task<List<OrderDTO>> GetOrderDetailsAsync()
+        public async Task<List<OrderDTO>> GetProcessingOrdersAsync(Guid laundryId)
         {
-            return await _context.Orders
-                .Include(o => o.Customer).ThenInclude(c => c.Address)
+            var processingStatus = await _context.Statuses
+                .FirstOrDefaultAsync(s => s.StatusName != null && string.Equals(s.StatusName, "processing in laundry", StringComparison.OrdinalIgnoreCase));
+
+            if (processingStatus == null)
+                return [];
+
+            var orders = await _context.Orders
+                .Where(o => o.LaundryId == laundryId && o.StatusId == processingStatus.StatusID)
+                .Include(o => o.Customer)
+                .ThenInclude(c => c.Address)
                 .Include(o => o.Laundry)
                 .Include(o => o.Status)
-                .Include(o => o.OrderType)
-                .Include(o => o.User)
-                .Select(o => new OrderDTO
+                .ToListAsync();
+
+            var result = new List<OrderDTO>();
+            foreach (var o in orders)
+            {
+                var dto = new OrderDTO
                 {
                     OrderId = o.OrderId,
                     PlacedDate = o.PlacedAt.HasValue ? o.PlacedAt.Value.ToString("yyyy-MM-dd") : null,
                     PlacedTime = o.PlacedAt.HasValue ? o.PlacedAt.Value.ToString("HH:mm:ss") : null,
                     PickupDate = o.PickupAt.HasValue ? o.PickupAt.Value.ToString("yyyy-MM-dd") : null,
-                    PickupTime = o.PickupAt.HasValue ? o.PickupAt.Value.ToString("HH:mm:ss") : null,
-                    Customer = o.Customer != null ? new CustomerDTO
+                    PickupTime = o.PickupAt.HasValue ? o.PickupAt.Value.ToString("HH:mm:ss") : null
+                };
+
+                if (o.Customer != null)
+                {
+                    dto.Customer = new CustomerDTO
                     {
                         CustomerId = o.Customer.CustomerId,
                         FirstName = o.Customer.FirstName,
                         LastName = o.Customer.LastName,
                         Email = o.Customer.Email,
-                        Username = o.Customer.Username,
-                        Address = o.Customer.Address != null ? new AddressDTO
+                        Username = o.Customer.Username
+                    };
+
+                    if (o.Customer.Address != null)
+                    {
+                        dto.Customer.Address = new AddressDTO
                         {
                             HouseNo = o.Customer.Address.HouseNo,
                             Street = o.Customer.Address.Street,
                             City = o.Customer.Address.City,
                             PostalCode = o.Customer.Address.PostalCode,
-                            FullAddress = o.Customer.Address != null
-                                ? $"{o.Customer.Address.HouseNo}, {o.Customer.Address.Street}, {o.Customer.Address.City}, {o.Customer.Address.PostalCode}"
-                                : null
-                        } : null
-                    } : null,
-                    Laundry = o.Laundry != null ? new LaundryDTO
+                            FullAddress = $"{o.Customer.Address.HouseNo ?? ""}, {o.Customer.Address.Street ?? ""}, {o.Customer.Address.City ?? ""}, {o.Customer.Address.PostalCode ?? ""}"
+                        };
+                    }
+                }
+
+                if (o.Laundry != null)
+                {
+                    dto.Laundry = new LaundryDTO
                     {
                         LaundryId = o.Laundry.LaundryId,
                         LaundryName = o.Laundry.LaundryName
-                    } : null,
-                    Status = o.Status != null ? new StatusDTO
+                    };
+                }
+
+                if (o.Status != null)
+                {
+                    dto.Status = new StatusDTO
                     {
                         StatusID = o.Status.StatusID,
                         StatusName = o.Status.StatusName
-                    } : null,
-                    OrderType = o.OrderType != null ? new OrderTypeDTO
-                    {
-                        TypeId = o.OrderType.TypeId,
-                        TypeName = o.OrderType.TypeName
-                    } : null,
-                    User = o.User != null ? new UserDTO
-                    {
-                        UserId = o.User.UserId,
-                        Username = o.User.Username
-                    } : null
-                })
-                .ToListAsync();
+                    };
+                }
+
+                result.Add(dto);
+            }
+
+            return result;
         }
 
-        // Get a specific order by ID
-        public async Task<OrderDTO> GetOrderByIdAsync(Guid id)
+        public async Task<List<OrderDTO>> GetAllOrdersAsync(Guid laundryId)
         {
-            var order = await _context.Orders
-                .Include(o => o.Customer).ThenInclude(c => c.Address)
+            // If an empty GUID is passed, return all orders regardless of laundryId
+            IQueryable<Order> query = _context.Orders;
+            
+            if (laundryId != Guid.Empty)
+            {
+                query = query.Where(o => o.LaundryId == laundryId);
+            }
+
+            var orders = await query
+                .Include(o => o.Customer)
+                .ThenInclude(c => c.Address)
                 .Include(o => o.Laundry)
                 .Include(o => o.Status)
-                .Include(o => o.OrderType)
-                .Include(o => o.User)
-                .FirstOrDefaultAsync(o => o.OrderId == id);
+                .ToListAsync();
 
-            if (order == null)
+            var result = new List<OrderDTO>();
+            foreach (var o in orders)
             {
-                return null;
-            }
-
-            return new OrderDTO
-            {
-                OrderId = order.OrderId,
-                PlacedDate = order.PlacedAt.HasValue ? order.PlacedAt.Value.ToString("yyyy-MM-dd") : null,
-                PlacedTime = order.PlacedAt.HasValue ? order.PlacedAt.Value.ToString("HH:mm:ss") : null,
-                PickupDate = order.PickupAt.HasValue ? order.PickupAt.Value.ToString("yyyy-MM-dd") : null,
-                PickupTime = order.PickupAt.HasValue ? order.PickupAt.Value.ToString("HH:mm:ss") : null,
-                Customer = order.Customer != null ? new CustomerDTO
+                var dto = new OrderDTO
                 {
-                    CustomerId = order.Customer.CustomerId,
-                    FirstName = order.Customer.FirstName,
-                    LastName = order.Customer.LastName,
-                    Email = order.Customer.Email,
-                    Username = order.Customer.Username,
-                    Address = order.Customer.Address != null ? new AddressDTO
+                    OrderId = o.OrderId,
+                    PlacedDate = o.PlacedAt.HasValue ? o.PlacedAt.Value.ToString("yyyy-MM-dd") : null,
+                    PlacedTime = o.PlacedAt.HasValue ? o.PlacedAt.Value.ToString("HH:mm:ss") : null,
+                    PickupDate = o.PickupAt.HasValue ? o.PickupAt.Value.ToString("yyyy-MM-dd") : null,
+                    PickupTime = o.PickupAt.HasValue ? o.PickupAt.Value.ToString("HH:mm:ss") : null
+                };
+
+                if (o.Customer != null)
+                {
+                    dto.CustomerFName = o.Customer.FirstName;
+                    dto.CustomerLName = o.Customer.LastName;
+                    
+                    dto.Customer = new CustomerDTO
                     {
-                        HouseNo = order.Customer.Address.HouseNo,
-                        Street = order.Customer.Address.Street,
-                        City = order.Customer.Address.City,
-                        PostalCode = order.Customer.Address.PostalCode,
-                        FullAddress = order.Customer.Address != null
-                            ? $"{order.Customer.Address.HouseNo}, {order.Customer.Address.Street}, {order.Customer.Address.City}, {order.Customer.Address.PostalCode}"
-                            : null
-                    } : null
-                } : null,
-                Laundry = order.Laundry != null ? new LaundryDTO
-                {
-                    LaundryId = order.Laundry.LaundryId,
-                    LaundryName = order.Laundry.LaundryName
-                } : null,
-                Status = order.Status != null ? new StatusDTO
-                {
-                    StatusID = order.Status.StatusID,
-                    StatusName = order.Status.StatusName
-                } : null,
-                OrderType = order.OrderType != null ? new OrderTypeDTO
-                {
-                    TypeId = order.OrderType.TypeId,
-                    TypeName = order.OrderType.TypeName
-                } : null,
-                User = order.User != null ? new UserDTO
-                {
-                    UserId = order.User.UserId,
-                    Username = order.User.Username
-                } : null
-            };
-        }
+                        CustomerId = o.Customer.CustomerId,
+                        FirstName = o.Customer.FirstName,
+                        LastName = o.Customer.LastName,
+                        Email = o.Customer.Email,
+                        Username = o.Customer.Username
+                    };
 
-        // Create a new order
-        public async Task<OrderDTO> CreateOrderAsync(OrderDTO orderDto)
-        {
-            if (orderDto == null)
-            {
-                throw new ArgumentNullException(nameof(orderDto));
+                    if (o.Customer.Address != null)
+                    {
+                        dto.Customer.Address = new AddressDTO
+                        {
+                            HouseNo = o.Customer.Address.HouseNo,
+                            Street = o.Customer.Address.Street,
+                            City = o.Customer.Address.City,
+                            PostalCode = o.Customer.Address.PostalCode,
+                            FullAddress = $"{o.Customer.Address.HouseNo ?? ""}, {o.Customer.Address.Street ?? ""}, {o.Customer.Address.City ?? ""}, {o.Customer.Address.PostalCode ?? ""}"
+                        };
+                    }
+                }
+
+                if (o.Laundry != null)
+                {
+                    dto.Laundry = new LaundryDTO
+                    {
+                        LaundryId = o.Laundry.LaundryId,
+                        LaundryName = o.Laundry.LaundryName
+                    };
+                }
+
+                if (o.Status != null)
+                {
+                    dto.StatusName = o.Status.StatusName;
+                    
+                    dto.Status = new StatusDTO
+                    {
+                        StatusID = o.Status.StatusID,
+                        StatusName = o.Status.StatusName
+                    };
+                }
+
+                result.Add(dto);
             }
 
-            var order = new Order
-            {
-                OrderId = Guid.NewGuid(),
-                PlacedDate = orderDto.PlacedDate != null ? DateTime.Parse(orderDto.PlacedDate) : null,
-                PlacedTime = orderDto.PlacedTime != null ? DateTime.Parse(orderDto.PlacedTime) : null,
-                PickupDate = orderDto.PickupDate != null ? DateTime.Parse(orderDto.PickupDate) : null,
-                PickupTime = orderDto.PickupTime != null ? DateTime.Parse(orderDto.PickupTime) : null,
-                CustomerId = orderDto.Customer?.CustomerId,
-                LaundryId = orderDto.Laundry?.LaundryId,
-                StatusId = orderDto.Status?.StatusID,
-                TypeId = orderDto.OrderType?.TypeId,
-                UserId = orderDto.User?.UserId
-            };
-
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
-
-            return await GetOrderByIdAsync(order.OrderId);
+            return result;
         }
-
-        // Update an existing order
+        
         public async Task<bool> UpdateOrderAsync(Guid id, OrderDTO orderDto)
         {
             if (orderDto == null || id != orderDto.OrderId)
@@ -199,17 +213,41 @@ namespace FreshlyBackendNew.Services
                 return false;
             }
 
-            order.PlacedDate = orderDto.PlacedDate != null ? DateTime.Parse(orderDto.PlacedDate) : null;
-            order.PlacedTime = orderDto.PlacedTime != null ? DateTime.Parse(orderDto.PlacedTime) : null;
-            order.PickupDate = orderDto.PickupDate != null ? DateTime.Parse(orderDto.PickupDate) : null;
-            order.PickupTime = orderDto.PickupTime != null ? DateTime.Parse(orderDto.PickupTime) : null;
-            order.CustomerId = orderDto.Customer?.CustomerId;
-            order.LaundryId = orderDto.Laundry?.LaundryId;
-            order.StatusId = orderDto.Status?.StatusID;
-            order.TypeId = orderDto.OrderType?.TypeId;
-            order.UserId = orderDto.User?.UserId;
+            // Parse dates if provided
+            if (!string.IsNullOrEmpty(orderDto.PlacedDate) && !string.IsNullOrEmpty(orderDto.PlacedTime))
+            {
+                if (DateTime.TryParse($"{orderDto.PlacedDate} {orderDto.PlacedTime}", out DateTime placedDateTime))
+                {
+                    order.PlacedAt = placedDateTime;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(orderDto.PickupDate) && !string.IsNullOrEmpty(orderDto.PickupTime))
+            {
+                if (DateTime.TryParse($"{orderDto.PickupDate} {orderDto.PickupTime}", out DateTime pickupDateTime))
+                {
+                    order.PickupAt = pickupDateTime;
+                }
+            }
+
+            // Update foreign keys if new values are provided in the DTO
+            if (orderDto.Customer != null && orderDto.Customer.CustomerId != Guid.Empty)
+            {
+                order.CustomerId = orderDto.Customer.CustomerId;
+            }
+
+            if (orderDto.Laundry != null && orderDto.Laundry.LaundryId != Guid.Empty)
+            {
+                order.LaundryId = orderDto.Laundry.LaundryId;
+            }
+
+            if (orderDto.Status != null && orderDto.Status.StatusID != Guid.Empty)
+            {
+                order.StatusId = orderDto.Status.StatusID;
+            }
 
             _context.Entry(order).State = EntityState.Modified;
+            
             try
             {
                 await _context.SaveChangesAsync();
@@ -217,11 +255,10 @@ namespace FreshlyBackendNew.Services
             }
             catch (DbUpdateConcurrencyException)
             {
-                return !await OrderExistsAsync(id);
+                return await OrderExistsAsync(id);
             }
         }
-
-        // Delete an order
+        
         public async Task<bool> DeleteOrderAsync(Guid id)
         {
             var order = await _context.Orders.FindAsync(id);
@@ -230,11 +267,18 @@ namespace FreshlyBackendNew.Services
                 return false;
             }
 
+            // Check if there are any related OrderDetails and delete them first
+            var orderDetails = await _context.OrderDetails.Where(od => od.OrderId == id).ToListAsync();
+            if (orderDetails.Any())
+            {
+                _context.OrderDetails.RemoveRange(orderDetails);
+            }
+
             _context.Orders.Remove(order);
             await _context.SaveChangesAsync();
             return true;
         }
-
+        
         private async Task<bool> OrderExistsAsync(Guid id)
         {
             return await _context.Orders.AnyAsync(o => o.OrderId == id);

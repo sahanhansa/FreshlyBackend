@@ -36,6 +36,19 @@ namespace FreshlyBackendNew.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            //Composite primary keys
+
+            // Define composite primary key for LaundryItemService
+            modelBuilder.Entity<LaundryItemService>()
+                .HasKey(lis => new { lis.LaundryId, lis.ItemId, lis.ServiceId });
+
+            // Define composite primary key for OrderDetail
+            modelBuilder.Entity<OrderDetail>()
+                .HasKey(od => new { od.OrderId, od.ItemId, od.ServiceId });
+
+            // Define composite primary key for TemporaryOrderDetail
+            modelBuilder.Entity<TemporaryOrderDetail>()
+                .HasKey(tod => new { tod.TemporaryOrderId, tod.ItemId, tod.ServiceId });
             // Add this configuration only if the 'Feedback' class has a 'LaundryId' foreign key and a 'Laundry' navigation property.
             modelBuilder.Entity<Feedback>()
                 .HasOne(f => f.Laundry)
@@ -59,6 +72,7 @@ namespace FreshlyBackendNew.Data
     }
     // Ensure the 'Laundry' class has a collection of 'Feedback' to support the relationship.
 
+            base.OnModelCreating(modelBuilder);
     public class Laundry
     {
         public Guid LaundryId { get; set; }

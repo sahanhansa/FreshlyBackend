@@ -21,6 +21,10 @@ bin/
 .env.local
 .env.development
 .env.production
+# IDE settings
+.vscode/
+.idea/
+.vs/
 
 # Logs
 *.log
@@ -51,12 +55,20 @@ packages/
 # Rider IDE files
 .idea/
 *.sln.iml
+# Entity Framework migrations (uncomment if you want to ignore migrations)
+# Migrations/
 
 # Visual Studio specific
 .vs/
 *.tsscache
 *.TestResults/
+# Dependency directories
+node_modules/
+wwwroot/lib/
 
+# OS-specific files
+.DS_Store
+Thumbs.db
 # Resharper files
 _ReSharper*/
 *.DotSettings.user
@@ -65,7 +77,19 @@ _ReSharper*/
 *.coverage
 *.coveragexml
 *.testlog
+# Environment variables
+.env
 
+# Optional additions
+TestResults/
+coverage/
+*.db
+*.bak
+*.tmp
+*.temp
+*.vspscc
+*.vssscc
+*.ncrunch*
 # Additional .NET files
 project.lock.json
 project.fragment.lock.json

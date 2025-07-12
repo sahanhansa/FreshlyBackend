@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FreshlyBackendNew.Services.Implementations
 {
+    // Implementation of the ILaundryService interface.
     public class LaundryService : ILaundryService
     {
         private readonly ApplicationDbContext _context;
@@ -16,8 +17,20 @@ namespace FreshlyBackendNew.Services.Implementations
 
         public async Task<List<LaundryWithAddressDTO>> GetLaundriesForCustomerAsync()
         {
+            // Fetch laundries with their addresses and feedbacks using the Order table
+            var laundriesWithRatings = await (from laundry in _context.Laundries
+                                              join address in _context.Addresses on laundry.AddressId equals address.AddressId into addressGroup
+                                              from address in addressGroup.DefaultIfEmpty()
+                                              join order in _context.Orders on laundry.LaundryId equals order.LaundryId into orderGroup
+                                              from order in orderGroup.DefaultIfEmpty()
+                                              join feedback in _context.Feedbacks on order.OrderId equals feedback.OrderId into feedbackGroup
+                                              select new
             try
-            {
+                                              {
+                                                  Laundry = laundry,
+                                                  Address = address,
+                                                  AverageRating = feedbackGroup.Any() ? feedbackGroup.Average(f => f.Rating) : 0
+                                              }).ToListAsync();
                 // Fetch the basic laundry information with addresses
                 var laundries = await _context.Laundries
                     .Include(l => l.Address)
@@ -25,8 +38,15 @@ namespace FreshlyBackendNew.Services.Implementations
 
                 var dtoList = new List<LaundryWithAddressDTO>();
 
+            // Map the data to a list of LaundryWithAddressDTO objects
+            var dtoList = laundriesWithRatings.Select(l => new LaundryWithAddressDTO
                 foreach (var laundry in laundries)
-                {
+            {
+                LaundryId = l.Laundry.LaundryId.ToString(),
+                LaundryName = l.Laundry.LaundryName,
+                City = l.Address?.City, 
+                AverageRating = Math.Round((double)l.AverageRating, 1) // Round the average rating
+            }).ToList();
                     // Separately calculate average rating for each laundry
                     double averageRating = 0;
                     var orderIds = await _context.Orders
@@ -152,8 +172,8 @@ namespace FreshlyBackendNew.Services.Implementations
                     });
                 }
 
-                return dtoList;
-            }
+            return dtoList;
+        }
             catch (Exception ex)
             {
                 // Log the exception
