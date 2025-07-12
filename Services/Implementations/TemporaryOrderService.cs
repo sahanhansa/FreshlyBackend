@@ -7,9 +7,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FreshlyBackendNew.Services.Implementations
 {
-    public class TemporaryOrderService(ApplicationDbContext context) : ITemporaryOrderService
+    public class TemporaryOrderService : ITemporaryOrderService
     {
-        private readonly ApplicationDbContext _context = context;
+        private readonly ApplicationDbContext _context;
+
+        public TemporaryOrderService(ApplicationDbContext context)
+        {
+            _context = context;
+        }
 
         public async Task<Guid> AddToBasketAsync(AddToBasketDTO dto)
         {
@@ -58,4 +63,5 @@ namespace FreshlyBackendNew.Services.Implementations
             return tempOrder.TemporaryOrderId;
         }
     }
+
 }

@@ -15,7 +15,7 @@ namespace FreshlyBackendNew.Models
         public Guid ContactId { get; set; }
 
         // Address Details
-        public required string ContactNumber { get; set; }
+        public string ContactNumber { get; set; }
 
         // Foreign keys
         public Guid? UserId { get; set; } // this include relavant id- customerid/laundryid/ownerid/driverids

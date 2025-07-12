@@ -19,13 +19,7 @@ namespace FreshlyBackendNew.Services.Interfaces
         // Updates an existing customer
         Task<CustomerDto?> UpdateCustomerAsync(Guid id, CustomerDto customerDto);
 
-        // Deletes a customer by ID and moves data to DeletedCustomers table
-        Task<bool> DeleteCustomerAsync(Guid id, string reason = "Deleted by admin");
-
-        // Retrieves all deleted customers
-        Task<IEnumerable<DeletedCustomerDto>> GetDeletedCustomersAsync();
-
-        // Restores a customer from the deleted customers table
-        Task<CustomerDto?> RestoreCustomerAsync(Guid id);
+        // Deletes a customer by ID
+        Task<bool> DeleteCustomerAsync(Guid id);
     }
 }

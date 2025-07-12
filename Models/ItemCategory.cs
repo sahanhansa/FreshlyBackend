@@ -14,7 +14,7 @@ namespace FreshlyBackendNew.Models
         public Guid CategoryId { get; set; }
 
         // Category Details
-        public required string CategoryName { get; set; }
+        public string CategoryName { get; set; }
 
         //Followings are the finalized item categories:
             //-Ladies

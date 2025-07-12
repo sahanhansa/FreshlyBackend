@@ -8,9 +8,14 @@ using System.Threading.Tasks;
 
 namespace FreshlyBackendNew.Services
 {
-    public class FeedbackService(ApplicationDbContext context) : IFeedbackService
+    public class FeedbackService : IFeedbackService
     {
-        private readonly ApplicationDbContext _context = context;
+        private readonly ApplicationDbContext _context;
+
+        public FeedbackService(ApplicationDbContext context)
+        {
+            _context = context;
+        }
 
         // Get all feedback with customer and laundry details
         public async Task<List<FeedbackDTO>> GetAllFeedbacksAsync()
@@ -32,7 +37,7 @@ namespace FreshlyBackendNew.Services
         }
 
         // Get a specific feedback by ID
-        public async Task<FeedbackDTO?> GetFeedbackByIdAsync(Guid id)
+        public async Task<FeedbackDTO> GetFeedbackByIdAsync(Guid id)
         {
             var feedback = await _context.Feedbacks
                 .Include(f => f.Customer)
@@ -59,7 +64,10 @@ namespace FreshlyBackendNew.Services
         // Create a new feedback
         public async Task<FeedbackDTO> CreateFeedbackAsync(FeedbackDTO feedbackDto)
         {
-            ArgumentNullException.ThrowIfNull(feedbackDto);
+            if (feedbackDto == null)
+            {
+                throw new ArgumentNullException(nameof(feedbackDto));
+            }
 
             var feedback = new Feedback
             {
@@ -73,9 +81,7 @@ namespace FreshlyBackendNew.Services
             _context.Feedbacks.Add(feedback);
             await _context.SaveChangesAsync();
 
-            // Retrieve the newly created feedback with related data
-            return await GetFeedbackByIdAsync(feedback.FeedbackId) ?? 
-                throw new InvalidOperationException("Failed to retrieve created feedback");
+            return await GetFeedbackByIdAsync(feedback.FeedbackId);
         }
 
         // Update an existing feedback

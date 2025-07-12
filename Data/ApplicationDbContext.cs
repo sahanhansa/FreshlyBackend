@@ -3,13 +3,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FreshlyBackendNew.Data
 {
-    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
+    public class ApplicationDbContext : DbContext
     {
         // DbSet properties for all models
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<Customer> Customers { get; set; }
-        public DbSet<DeletedCustomer> DeletedCustomers { get; set; }
         public DbSet<Driver> Drivers { get; set; }
         public DbSet<DriverNote> DriverNotes { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
@@ -25,6 +24,13 @@ namespace FreshlyBackendNew.Data
         public DbSet<Status> Statuses { get; set; }
         public DbSet<TemporaryOrder> TemporaryOrders { get; set; }
         public DbSet<TemporaryOrderDetail> TemporaryOrderDetails { get; set; }
+
+
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options) { }
+
+        // The error indicates that the 'Feedback' class does not have a property or navigation property named 'Laundry'.
+        // To fix this, you need to ensure that the 'Feedback' class has a property of type 'Laundry' and that it is properly configured in the model.
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -43,39 +49,36 @@ namespace FreshlyBackendNew.Data
             // Define composite primary key for TemporaryOrderDetail
             modelBuilder.Entity<TemporaryOrderDetail>()
                 .HasKey(tod => new { tod.TemporaryOrderId, tod.ItemId, tod.ServiceId });
-                
-            // Configure Feedback-Laundry relationship
+            // Add this configuration only if the 'Feedback' class has a 'LaundryId' foreign key and a 'Laundry' navigation property.
             modelBuilder.Entity<Feedback>()
                 .HasOne(f => f.Laundry)
                 .WithMany(l => l.Feedbacks)
                 .HasForeignKey(f => f.LaundryId);
-                
-            // Configure Feedback-Customer relationship
-            modelBuilder.Entity<Feedback>()
-                .HasOne(f => f.Customer)
-                .WithMany(c => c.Feedbacks)
-                .HasForeignKey(f => f.CustomerId);
-                
-            // Configure Contact-Customer relationship
-            modelBuilder.Entity<Contact>()
-                .HasQueryFilter(c => c.UserType == "Customer")
-                .HasOne<Customer>()
-                .WithMany(c => c.Contacts)
-                .HasForeignKey(c => c.UserId)
-                .HasPrincipalKey(c => c.CustomerId)
-                .OnDelete(DeleteBehavior.Cascade);
-                
-            // Configure Order-Customer relationship
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.Customer)
-                .WithMany(c => c.Orders)
-                .HasForeignKey(o => o.CustomerId);
-                
-            // Configure Feedback-Order relationship
-            modelBuilder.Entity<Feedback>()
-                .HasOne(f => f.Order)
-                .WithMany()
-                .HasForeignKey(f => f.OrderId);
         }
+    }
+    // Ensure the 'Feedback' class has the following properties to support the relationship with 'Laundry'.
+
+    public class Feedback
+    {
+        public Guid FeedbackId { get; set; }
+        public string? Description { get; set; }
+        public int? Rating { get; set; }
+        public Guid? OrderId { get; set; }
+        public Order? Order { get; set; }
+
+        // Add these properties to define the relationship with 'Laundry'.
+        public Guid? LaundryId { get; set; }
+        public Laundry? Laundry { get; set; }
+    }
+    // Ensure the 'Laundry' class has a collection of 'Feedback' to support the relationship.
+
+            base.OnModelCreating(modelBuilder);
+    public class Laundry
+    {
+        public Guid LaundryId { get; set; }
+        public string? Name { get; set; }
+
+        // Add this property to define the relationship with 'Feedback'.
+        public ICollection<Feedback>? Feedbacks { get; set; }
     }
 }

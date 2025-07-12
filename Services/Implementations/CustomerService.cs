@@ -10,9 +10,14 @@ using System.Threading.Tasks;
 
 namespace FreshlyBackendNew.Services.Implementations
 {
-    public class CustomerService(ApplicationDbContext context) : ICustomerService
+    public class CustomerService : ICustomerService
     {
-        private readonly ApplicationDbContext _context = context;
+        private readonly ApplicationDbContext _context;
+
+        public CustomerService(ApplicationDbContext context)
+        {
+            _context = context;
+        }
 
         // Retrieves all customer details
         public async Task<IEnumerable<CustomerDto>> GetCustomerDetailsAsync()
@@ -29,8 +34,6 @@ namespace FreshlyBackendNew.Services.Implementations
                     Username = c.Username,
                     AddressId = c.AddressId,
                     Address = c.Address != null ? $"{c.Address.HouseNo}, {c.Address.Street}, {c.Address.City}, {c.Address.PostalCode}" : null,
-                    // We need to keep 'new List<string>()' here because it's inside a LINQ expression 
-                    // that will be translated to SQL by Entity Framework
                     Contacts = c.Contacts != null ? c.Contacts.Select(ct => ct.ContactNumber).ToList() : new List<string>()
                 })
                 .ToListAsync();
@@ -58,16 +61,17 @@ namespace FreshlyBackendNew.Services.Implementations
                 Username = customer.Username,
                 AddressId = customer.AddressId,
                 Address = customer.Address != null ? $"{customer.Address.HouseNo}, {customer.Address.Street}, {customer.Address.City}, {customer.Address.PostalCode}" : null,
-                // Here we can use collection expression syntax because we're not in a LINQ query
-                // that needs to be translated to SQL
-                Contacts = customer.Contacts != null ? customer.Contacts.Select(ct => ct.ContactNumber).ToList() : []
+                Contacts = customer.Contacts != null ? customer.Contacts.Select(ct => ct.ContactNumber).ToList() : new List<string>()
             };
         }
 
         // Creates a new customer
         public async Task<CustomerDto> CreateCustomerAsync(CustomerDto customerDto)
         {
-            ArgumentNullException.ThrowIfNull(customerDto);
+            if (customerDto == null)
+            {
+                throw new ArgumentNullException(nameof(customerDto));
+            }
 
             var customer = new Customer
             {
@@ -127,8 +131,8 @@ namespace FreshlyBackendNew.Services.Implementations
             };
         }
 
-        // Deletes a customer by ID and moves data to DeletedCustomers table
-        public async Task<bool> DeleteCustomerAsync(Guid id, string reason = "Deleted by admin")
+        // Deletes a customer by ID
+        public async Task<bool> DeleteCustomerAsync(Guid id)
         {
             var customer = await _context.Customers
                 .Include(c => c.Orders)
@@ -141,103 +145,19 @@ namespace FreshlyBackendNew.Services.Implementations
             }
 
             // Check for dependent records
-            if (customer.Orders != null && customer.Orders.Count > 0)
+            if (customer.Orders != null && customer.Orders.Any())
             {
                 throw new InvalidOperationException("Cannot delete customer with associated orders.");
             }
 
-            if (customer.Feedbacks != null && customer.Feedbacks.Count > 0)
+            if (customer.Feedbacks != null && customer.Feedbacks.Any())
             {
                 throw new InvalidOperationException("Cannot delete customer with associated feedback.");
             }
 
-            // Create a DeletedCustomer record before removing the customer
-            var deletedCustomer = new DeletedCustomer
-            {
-                CustomerId = customer.CustomerId,
-                FirstName = customer.FirstName,
-                LastName = customer.LastName,
-                Username = customer.Username,
-                Password = customer.Password,
-                Email = customer.Email,
-                AddressId = customer.AddressId,
-                DeletedAt = DateTime.UtcNow,
-                DeletionReason = reason
-            };
-
-            // Add to the DeletedCustomers table
-            _context.DeletedCustomers.Add(deletedCustomer);
-
-            // Remove from the Customers table
             _context.Customers.Remove(customer);
-            
             await _context.SaveChangesAsync();
             return true;
-        }
-
-        // Retrieves all deleted customers
-        public async Task<IEnumerable<DeletedCustomerDto>> GetDeletedCustomersAsync()
-        {
-            return await _context.DeletedCustomers
-                .Select(c => new DeletedCustomerDto
-                {
-                    CustomerId = c.CustomerId,
-                    FirstName = c.FirstName,
-                    LastName = c.LastName,
-                    Email = c.Email,
-                    Username = c.Username,
-                    DeletedAt = c.DeletedAt,
-                    DeletionReason = c.DeletionReason
-                })
-                .ToListAsync();
-        }
-        
-        // Restores a customer from the deleted customers table
-        public async Task<CustomerDto?> RestoreCustomerAsync(Guid id)
-        {
-            var deletedCustomer = await _context.DeletedCustomers.FindAsync(id);
-            if (deletedCustomer == null)
-            {
-                return null;
-            }
-
-            // Check if a customer with the same ID already exists
-            var existingCustomer = await _context.Customers.FindAsync(id);
-            if (existingCustomer != null)
-            {
-                throw new InvalidOperationException("Cannot restore customer. A customer with the same ID already exists.");
-            }
-
-            // Create a new Customer from the DeletedCustomer data
-            var customer = new Customer
-            {
-                CustomerId = deletedCustomer.CustomerId,
-                FirstName = deletedCustomer.FirstName,
-                LastName = deletedCustomer.LastName,
-                Username = deletedCustomer.Username,
-                Password = deletedCustomer.Password,
-                Email = deletedCustomer.Email,
-                AddressId = deletedCustomer.AddressId
-            };
-
-            // Add to Customers table
-            _context.Customers.Add(customer);
-            
-            // Remove from DeletedCustomers table
-            _context.DeletedCustomers.Remove(deletedCustomer);
-
-            await _context.SaveChangesAsync();
-
-            // Return the restored customer as DTO
-            return new CustomerDto
-            {
-                CustomerId = customer.CustomerId,
-                FirstName = customer.FirstName,
-                LastName = customer.LastName,
-                Email = customer.Email,
-                Username = customer.Username,
-                AddressId = customer.AddressId
-            };
         }
     }
 }

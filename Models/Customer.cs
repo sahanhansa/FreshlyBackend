@@ -7,10 +7,7 @@ namespace FreshlyBackendNew.Models
     {
         public Customer()
         {
-            CustomerId = Guid.NewGuid();
-            Contacts = new List<Contact>();
-            Orders = new List<Order>();
-            Feedbacks = new List<Feedback>();
+            CustomerId = Guid.NewGuid(); 
         }
 
         // Primary Key
@@ -31,9 +28,6 @@ namespace FreshlyBackendNew.Models
         [ForeignKey("AddressId")]
         public Address? Address { get; set; }
 
-        // Collection navigation properties
-        public virtual ICollection<Contact> Contacts { get; set; }
-        public virtual ICollection<Order> Orders { get; set; }
-        public virtual ICollection<Feedback> Feedbacks { get; set; }
+
     }
 }

@@ -1,24 +1,36 @@
 ﻿using FreshlyBackendNew.Data;
 using FreshlyBackendNew.DTOs;
-using FreshlyBackendNew.Models;
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace FreshlyBackendNew.Services.Implementations
 {
     // Implementation of the ILaundryService interface.
-    public class LaundryService(ApplicationDbContext context) : ILaundryService
+    public class LaundryService : ILaundryService
     {
-        private readonly ApplicationDbContext _context = context;
+        private readonly ApplicationDbContext _context;
+
+        public LaundryService(ApplicationDbContext context)
+        {
+            _context = context;
+        }
 
         public async Task<List<LaundryWithAddressDTO>> GetLaundriesForCustomerAsync()
         {
+            // Fetch laundries with their addresses and feedbacks using the Order table
+            var laundriesWithRatings = await (from laundry in _context.Laundries
+                                              join address in _context.Addresses on laundry.AddressId equals address.AddressId into addressGroup
+                                              from address in addressGroup.DefaultIfEmpty()
+                                              join order in _context.Orders on laundry.LaundryId equals order.LaundryId into orderGroup
+                                              from order in orderGroup.DefaultIfEmpty()
+                                              join feedback in _context.Feedbacks on order.OrderId equals feedback.OrderId into feedbackGroup
+                                              select new
             try
-            {
+                                              {
+                                                  Laundry = laundry,
+                                                  Address = address,
+                                                  AverageRating = feedbackGroup.Any() ? feedbackGroup.Average(f => f.Rating) : 0
+                                              }).ToListAsync();
                 // Fetch the basic laundry information with addresses
                 var laundries = await _context.Laundries
                     .Include(l => l.Address)
@@ -26,8 +38,15 @@ namespace FreshlyBackendNew.Services.Implementations
 
                 var dtoList = new List<LaundryWithAddressDTO>();
 
+            // Map the data to a list of LaundryWithAddressDTO objects
+            var dtoList = laundriesWithRatings.Select(l => new LaundryWithAddressDTO
                 foreach (var laundry in laundries)
-                {
+            {
+                LaundryId = l.Laundry.LaundryId.ToString(),
+                LaundryName = l.Laundry.LaundryName,
+                City = l.Address?.City, 
+                AverageRating = Math.Round((double)l.AverageRating, 1) // Round the average rating
+            }).ToList();
                     // Separately calculate average rating for each laundry
                     double averageRating = 0;
                     var orderIds = await _context.Orders
@@ -35,7 +54,7 @@ namespace FreshlyBackendNew.Services.Implementations
                         .Select(o => o.OrderId)
                         .ToListAsync();
 
-                    if (orderIds.Count > 0)
+                    if (orderIds.Any())
                     {
                         var feedbackCount = await _context.Feedbacks
                             .Where(f => f.OrderId.HasValue && orderIds.Contains(f.OrderId.Value))
@@ -98,7 +117,7 @@ namespace FreshlyBackendNew.Services.Implementations
                     int feedbackCount = 0;
                     double averageRating = 0;
 
-                    if (orderIds.Count > 0)
+                    if (orderIds.Any())
                     {
                         feedbackCount = await _context.Feedbacks
                             .CountAsync(f => f.OrderId.HasValue && orderIds.Contains(f.OrderId.Value));
@@ -153,8 +172,8 @@ namespace FreshlyBackendNew.Services.Implementations
                     });
                 }
 
-                return dtoList;
-            }
+            return dtoList;
+        }
             catch (Exception ex)
             {
                 // Log the exception
@@ -165,7 +184,10 @@ namespace FreshlyBackendNew.Services.Implementations
 
         public async Task<LaundryAdminDTO> CreateLaundryAsync(LaundryAdminDTO laundryDto)
         {
-            ArgumentNullException.ThrowIfNull(laundryDto);
+            if (laundryDto == null)
+            {
+                throw new ArgumentNullException(nameof(laundryDto));
+            }
 
             var laundry = new FreshlyBackendNew.Models.Laundry
             {
@@ -180,11 +202,10 @@ namespace FreshlyBackendNew.Services.Implementations
             await _context.SaveChangesAsync();
 
             // Return the created laundry with updated details
-            var result = await GetLaundryByIdAsync(laundry.LaundryId);
-            return result ?? throw new InvalidOperationException("Failed to retrieve created laundry");
+            return await GetLaundryByIdAsync(laundry.LaundryId);
         }
 
-        public async Task<LaundryAdminDTO?> GetLaundryByIdAsync(Guid id)
+        public async Task<LaundryAdminDTO> GetLaundryByIdAsync(Guid id)
         {
             try
             {
@@ -213,7 +234,7 @@ namespace FreshlyBackendNew.Services.Implementations
                 int feedbackCount = 0;
                 double averageRating = 0;
 
-                if (orderIds.Count > 0)
+                if (orderIds.Any())
                 {
                     feedbackCount = await _context.Feedbacks
                         .CountAsync(f => f.OrderId.HasValue && orderIds.Contains(f.OrderId.Value));
