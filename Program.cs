@@ -2,18 +2,27 @@ using FreshlyBackendNew.Data;
 using FreshlyBackendNew.Services.Implementations;
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 // Configure EF Core with MySQL
+//builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//    options.UseMySql(
+//        builder.Configuration.GetConnectionString("MySQLConnection"),
+//        new MySqlServerVersion(new Version(8, 0, 21))
+//    )
+//);
+
+//Configure EF Core with Azure
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(
-        builder.Configuration.GetConnectionString("MySQLConnection"),
-        new MySqlServerVersion(new Version(8, 0, 21)) // Specify the MySQL server version here
-    )
-);
+        builder.Configuration.GetConnectionString("AzureMySqlConnection"),
+       ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("AzureMySqlConnection"))
+    ));
+
 
 // Add CORS services
 builder.Services.AddCors(options =>
