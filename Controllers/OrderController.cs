@@ -2,19 +2,22 @@ using FreshlyBackendNew.DTOs;
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace FreshlyBackendNew.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class OrderController(IOrderService orderService) : ControllerBase
+    public class OrderController : ControllerBase
     {
-        private readonly IOrderService _orderService = orderService;
-        
-        //Rohansi-Get new orders
+        private readonly IOrderService _orderService;
+
+        public OrderController(IOrderService orderService)
+        {
+            _orderService = orderService;
+        }
+
+        // GET: api/Order/{laundryId}/new-orders
         [HttpGet("{laundryId}/new-orders")]
         public async Task<IActionResult> GetNewOrders(Guid laundryId)
         {
@@ -32,8 +35,8 @@ namespace FreshlyBackendNew.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
-        
-        //Rohansi-Get processing orders
+
+        // GET: api/Order/{laundryId}/processing-orders
         [HttpGet("{laundryId}/processing-orders")]
         public async Task<IActionResult> GetProcessingOrders(Guid laundryId)
         {
@@ -52,7 +55,7 @@ namespace FreshlyBackendNew.Controllers
             }
         }
 
-        //Rohansi-Get all orders
+        // GET: api/Order/{laundryId}/all-orders
         [HttpGet("{laundryId}/all-orders")]
         public async Task<IActionResult> GetAllOrders(Guid laundryId)
         {
@@ -71,13 +74,12 @@ namespace FreshlyBackendNew.Controllers
             }
         }
 
-        // Add a simple GET endpoint without parameters
+        // GET: api/Order
         [HttpGet]
         public async Task<IActionResult> GetAllOrders()
         {
             try
             {
-                // Use a default GUID (empty) or implement a new method in your service
                 var orders = await _orderService.GetAllOrdersAsync(Guid.Empty);
 
                 if (orders == null || orders.Count == 0)

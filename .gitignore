@@ -1,4 +1,4 @@
-﻿# Node.js dependencies
+# Node.js dependencies
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -11,6 +11,7 @@ bin/
 *.suo
 *.cache
 *.user
+*.userprefs
 *.rsuser
 *.suo
 *.userosscache
@@ -21,10 +22,32 @@ bin/
 .env.local
 .env.development
 .env.production
+
 # IDE settings
 .vscode/
 .idea/
+
+# Visual Studio files
 .vs/
+*.vsidx
+*.vsdx
+*.vsp
+*.vssscc
+*.vspcc
+*.vspx
+*.vspscc
+*.v2
+*.bin
+*.bak
+*.tmp
+*.dbmdl
+*.cache
+*.pdb
+*.pss
+*.pidb
+*.ncb
+*.opensdf
+*.sdf
 
 # Logs
 *.log
@@ -55,20 +78,17 @@ packages/
 # Rider IDE files
 .idea/
 *.sln.iml
-# Entity Framework migrations (uncomment if you want to ignore migrations)
-# Migrations/
 
 # Visual Studio specific
 .vs/
 *.tsscache
 *.TestResults/
+
 # Dependency directories
 node_modules/
 wwwroot/lib/
+jspm_packages/
 
-# OS-specific files
-.DS_Store
-Thumbs.db
 # Resharper files
 _ReSharper*/
 *.DotSettings.user
@@ -77,8 +97,37 @@ _ReSharper*/
 *.coverage
 *.coveragexml
 *.testlog
+
 # Environment variables
 .env
+*.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+
+# NuGet
+[Nn]u[Gg]et/
+*.nupkg
+packages/
+
+# Other
+*.swp
+*.swo
+*~
+~$*
+*.orig
+*.pyc
+*.pyo
+*.pdb
+*.idb
+*.ilk
+*.meta
 
 # Optional additions
 TestResults/
@@ -90,6 +139,7 @@ coverage/
 *.vspscc
 *.vssscc
 *.ncrunch*
+
 # Additional .NET files
 project.lock.json
 project.fragment.lock.json

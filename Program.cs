@@ -11,7 +11,7 @@ namespace FreshlyBackendNew
     {
         public static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);// Creates a builder for configuring the web application.
+            var builder = WebApplication.CreateBuilder(args); // Creates a builder for configuring the web application.
 
             // Configure EF Core with MySQL
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
