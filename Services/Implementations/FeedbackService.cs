@@ -4,6 +4,7 @@ using FreshlyBackendNew.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace FreshlyBackendNew.Services
@@ -20,27 +21,48 @@ namespace FreshlyBackendNew.Services
         // Get all feedback with customer and laundry details
         public async Task<List<FeedbackDTO>> GetAllFeedbacksAsync()
         {
-            return await _context.Feedbacks
-                .Include(f => f.Customer)
+            var feedbacks = await _context.Feedbacks
+                .Include(f => f.Order)
+                .ThenInclude(o => o.Customer)
                 .Include(f => f.Laundry)
-                .Select(f => new FeedbackDTO
+                .ToListAsync();
+
+            var result = new List<FeedbackDTO>();
+            foreach (var f in feedbacks)
+            {
+                var dto = new FeedbackDTO
                 {
                     FeedbackId = f.FeedbackId,
                     Description = f.Description,
                     Rating = f.Rating,
-                    CustomerId = f.CustomerId,
-                    CustomerName = f.Customer != null ? $"{f.Customer.FirstName} {f.Customer.LastName}" : null,
-                    LaundryId = f.LaundryId,
-                    LaundryName = f.Laundry != null ? f.Laundry.LaundryName : null
-                })
-                .ToListAsync();
+                    LaundryId = f.LaundryId
+                };
+
+                // Get customer info from order if available
+                if (f.Order != null && f.Order.Customer != null)
+                {
+                    dto.CustomerId = f.Order.CustomerId;
+                    dto.CustomerName = $"{f.Order.Customer.FirstName} {f.Order.Customer.LastName}";
+                }
+
+                // Get laundry name if available
+                if (f.Laundry != null)
+                {
+                    dto.LaundryName = f.Laundry.LaundryName;
+                }
+
+                result.Add(dto);
+            }
+
+            return result;
         }
 
         // Get a specific feedback by ID
         public async Task<FeedbackDTO> GetFeedbackByIdAsync(Guid id)
         {
             var feedback = await _context.Feedbacks
-                .Include(f => f.Customer)
+                .Include(f => f.Order)
+                .ThenInclude(o => o.Customer)
                 .Include(f => f.Laundry)
                 .FirstOrDefaultAsync(f => f.FeedbackId == id);
 
@@ -49,16 +71,28 @@ namespace FreshlyBackendNew.Services
                 return null;
             }
 
-            return new FeedbackDTO
+            var dto = new FeedbackDTO
             {
                 FeedbackId = feedback.FeedbackId,
                 Description = feedback.Description,
                 Rating = feedback.Rating,
-                CustomerId = feedback.CustomerId,
-                CustomerName = feedback.Customer != null ? $"{feedback.Customer.FirstName} {feedback.Customer.LastName}" : null,
-                LaundryId = feedback.LaundryId,
-                LaundryName = feedback.Laundry != null ? feedback.Laundry.LaundryName : null
+                LaundryId = feedback.LaundryId
             };
+
+            // Get customer info from order if available
+            if (feedback.Order != null && feedback.Order.Customer != null)
+            {
+                dto.CustomerId = feedback.Order.CustomerId;
+                dto.CustomerName = $"{feedback.Order.Customer.FirstName} {feedback.Order.Customer.LastName}";
+            }
+
+            // Get laundry name if available
+            if (feedback.Laundry != null)
+            {
+                dto.LaundryName = feedback.Laundry.LaundryName;
+            }
+
+            return dto;
         }
 
         // Create a new feedback
@@ -69,12 +103,27 @@ namespace FreshlyBackendNew.Services
                 throw new ArgumentNullException(nameof(feedbackDto));
             }
 
+            // Find the Order associated with the Customer
+            Guid? orderId = null;
+            if (feedbackDto.CustomerId.HasValue)
+            {
+                var order = await _context.Orders
+                    .Where(o => o.CustomerId == feedbackDto.CustomerId && o.LaundryId == feedbackDto.LaundryId)
+                    .OrderByDescending(o => o.PlacedAt)
+                    .FirstOrDefaultAsync();
+                
+                if (order != null)
+                {
+                    orderId = order.OrderId;
+                }
+            }
+
             var feedback = new Feedback
             {
                 FeedbackId = Guid.NewGuid(),
                 Description = feedbackDto.Description,
                 Rating = feedbackDto.Rating,
-                CustomerId = feedbackDto.CustomerId,
+                OrderId = orderId,
                 LaundryId = feedbackDto.LaundryId
             };
 
@@ -98,9 +147,22 @@ namespace FreshlyBackendNew.Services
                 return false;
             }
 
+            // Find the Order associated with the Customer if CustomerId is provided
+            if (feedbackDto.CustomerId.HasValue)
+            {
+                var order = await _context.Orders
+                    .Where(o => o.CustomerId == feedbackDto.CustomerId && o.LaundryId == feedbackDto.LaundryId)
+                    .OrderByDescending(o => o.PlacedAt)
+                    .FirstOrDefaultAsync();
+                
+                if (order != null)
+                {
+                    feedback.OrderId = order.OrderId;
+                }
+            }
+
             feedback.Description = feedbackDto.Description;
             feedback.Rating = feedbackDto.Rating;
-            feedback.CustomerId = feedbackDto.CustomerId;
             feedback.LaundryId = feedbackDto.LaundryId;
 
             _context.Entry(feedback).State = EntityState.Modified;
