@@ -3,23 +3,25 @@ using FreshlyBackendNew.Services;
 using FreshlyBackendNew.Services.Implementations;
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json.Serialization;
+using System;
 
-namespace FreshlyBackendNew
-{
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args); // Creates a builder for configuring the web application.
+var builder = WebApplication.CreateBuilder(args);
 
-            // Configure EF Core with MySQL
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseMySql(
-                    builder.Configuration.GetConnectionString("MySQLConnection"),
-                    new MySqlServerVersion(new Version(8, 0, 21))
-                )
-            );
+// Configure EF Core with MySQL(This is the previous connection code)
+//builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//    options.UseMySql(
+//        builder.Configuration.GetConnectionString("MySQLConnection"),
+//        new MySqlServerVersion(new Version(8, 0, 21))
+//    )
+//);
+
+//Configure EF Core with Azure
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("AzureMySqlConnection"),
+       ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("AzureMySqlConnection"))
+    ));
+
 
             // Add CORS services with comprehensive settings
             builder.Services.AddCors(options =>
@@ -76,6 +78,3 @@ namespace FreshlyBackendNew
             app.MapControllers();
 
             app.Run();
-        }
-    }
-}
