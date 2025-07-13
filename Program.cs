@@ -23,7 +23,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("AzureMySqlConnection"),
-       ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("AzureMySqlConnection"))
+        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("AzureMySqlConnection")),
+        mySqlOptions => 
+        {
+            // Add retry logic for transient connection failures
+            mySqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null);
+                
+            // Increase command timeout to handle longer queries
+            mySqlOptions.CommandTimeout(60);
+        }
     ));
 
 // Configure JWT Authentication
@@ -42,7 +53,7 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? ""))
     };
 });
 
@@ -96,6 +107,9 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    
+    // Add detailed error pages in development
+    app.UseDeveloperExceptionPage();
     
     // Comment out HTTPS redirection in development for testing
     // app.UseHttpsRedirection();

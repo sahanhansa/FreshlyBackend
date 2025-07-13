@@ -9,6 +9,10 @@ namespace FreshlyBackendNew.Services.Interfaces
         Task<AuthResponse> LoginDriverAsync(LoginData loginData);
         Task<AuthResponse> LoginAdminAsync(LoginData loginData);
         Task<AuthResponse> LoginLaundryAsync(LoginData loginData);
-        string GenerateJwtToken(string userId, string username);
+        string GenerateJwtToken(string userId, string username, string role = "User");
+        
+        // Password security methods
+        string HashPassword(string password);
+        bool PasswordNeedsUpgrade(string currentPassword);
     }
 }

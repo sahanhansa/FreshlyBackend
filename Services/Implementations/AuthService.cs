@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Text;
 using FreshlyBackendNew.DTOs;
 using Microsoft.Extensions.Logging;
+using BCrypt.Net;
 
 namespace FreshlyBackendNew.Services.Implementations
 {
@@ -82,29 +83,79 @@ namespace FreshlyBackendNew.Services.Implementations
                     return null;
                 }
 
-                var admin = await _context.Owners
+                // First try to find the admin in the new Admin table
+                var admin = await _context.Admins
                     .FirstOrDefaultAsync(u => u.Username == loginData.Username);
 
-                if (admin == null)
+                if (admin != null)
+                {
+                    // Check if the password uses the BCrypt format
+                    bool passwordValid;
+                    
+                    if (admin.Password.StartsWith("$2a$") || admin.Password.StartsWith("$2b$"))
+                    {
+                        // The password is hashed with BCrypt, verify it
+                        try
+                        {
+                            passwordValid = BCrypt.Net.BCrypt.Verify(loginData.Password, admin.Password);
+                        }
+                        catch
+                        {
+                            // If BCrypt verification fails, fall back to plain text comparison
+                            passwordValid = admin.Password == loginData.Password;
+                        }
+                    }
+                    else
+                    {
+                        // Plain text comparison for backward compatibility
+                        passwordValid = admin.Password == loginData.Password;
+                    }
+                    
+                    if (!passwordValid)
+                    {
+                        _logger.LogInformation($"Invalid password for admin username: {loginData.Username}");
+                        return null;
+                    }
+
+                    // Update the last login time
+                    admin.LastLogin = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+
+                    string token = GenerateJwtToken(admin.AdminId.ToString(), admin.Username, admin.Role ?? "Admin");
+                    _logger.LogInformation($"Admin login successful: {admin.Username}");
+
+                    return new AuthResponse
+                    {
+                        Token = token,
+                        Username = admin.Username,
+                        UserId = admin.AdminId.ToString()
+                    };
+                }
+
+                // Fallback to the Owner table for backward compatibility
+                var owner = await _context.Owners
+                    .FirstOrDefaultAsync(u => u.Username == loginData.Username);
+
+                if (owner == null)
                 {
                     _logger.LogInformation($"Login attempt for non-existent admin username: {loginData.Username}");
                     return null;
                 }
 
-                if (admin.Password != loginData.Password)
+                if (owner.Password != loginData.Password)
                 {
-                    _logger.LogInformation($"Invalid password for admin username: {loginData.Username}");
+                    _logger.LogInformation($"Invalid password for owner username: {loginData.Username}");
                     return null;
                 }
 
-                string token = GenerateJwtToken(admin.OwnerId.ToString(), admin.Username);
-                _logger.LogInformation($"Admin login successful: {admin.Username}");
+                string ownerToken = GenerateJwtToken(owner.OwnerId.ToString(), owner.Username, "Owner");
+                _logger.LogInformation($"Owner login as admin successful: {owner.Username}");
 
                 return new AuthResponse
                 {
-                    Token = token,
-                    Username = admin.Username,
-                    UserId = admin.OwnerId.ToString()
+                    Token = ownerToken,
+                    Username = owner.Username,
+                    UserId = owner.OwnerId.ToString()
                 };
             }
             catch (Exception ex)
@@ -144,7 +195,7 @@ namespace FreshlyBackendNew.Services.Implementations
                     return null;
                 }
 
-                string token = GenerateJwtToken(laundry.LaundryId.ToString(), laundry.Username);
+                string token = GenerateJwtToken(laundry.LaundryId.ToString(), laundry.Username, "Laundry");
                 _logger.LogInformation($"Laundry login successful: {laundry.Username}");
 
                 return new AuthResponse
@@ -191,7 +242,7 @@ namespace FreshlyBackendNew.Services.Implementations
                     return null;
                 }
 
-                string token = GenerateJwtToken(driver.DriverId.ToString(), driver.Username);
+                string token = GenerateJwtToken(driver.DriverId.ToString(), driver.Username, "Driver");
                 _logger.LogInformation($"Driver login successful: {driver.Username}");
 
                 return new AuthResponse
@@ -213,7 +264,20 @@ namespace FreshlyBackendNew.Services.Implementations
             }
         }
 
-        public string GenerateJwtToken(string userId, string username)
+        // Helper method to hash passwords with BCrypt
+        public string HashPassword(string password)
+        {
+            return BCrypt.Net.BCrypt.HashPassword(password, BCrypt.Net.BCrypt.GenerateSalt());
+        }
+
+        // Helper method to verify if a password needs to be upgraded to BCrypt
+        public bool PasswordNeedsUpgrade(string currentPassword)
+        {
+            return !(currentPassword.StartsWith("$2a$") || currentPassword.StartsWith("$2b$"));
+        }
+
+        // Updated to include role in token
+        public string GenerateJwtToken(string userId, string username, string role = "User")
         {
             try
             {
@@ -234,6 +298,7 @@ namespace FreshlyBackendNew.Services.Implementations
                 {
                     new Claim(ClaimTypes.NameIdentifier, userId),
                     new Claim(ClaimTypes.Name, username),
+                    new Claim(ClaimTypes.Role, role),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 };
 

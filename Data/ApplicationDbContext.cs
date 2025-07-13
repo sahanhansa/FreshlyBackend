@@ -1,5 +1,6 @@
 ﻿using FreshlyBackendNew.Models;
 using Microsoft.EntityFrameworkCore;
+using BCrypt.Net;
 
 namespace FreshlyBackendNew.Data
 {
@@ -7,6 +8,7 @@ namespace FreshlyBackendNew.Data
     {
         // DbSet properties for all models
         public DbSet<Address> Addresses { get; set; }
+        public DbSet<Admin> Admins { get; set; } // Added Admin DbSet
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Driver> Drivers { get; set; }
@@ -52,6 +54,22 @@ namespace FreshlyBackendNew.Data
                 .HasOne(f => f.Laundry)
                 .WithMany(l => l.Feedbacks)
                 .HasForeignKey(f => f.LaundryId);
+                
+            // Seed default admin user with BCrypt hashed password
+            modelBuilder.Entity<Admin>().HasData(
+                new Admin
+                {
+                    AdminId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                    Username = "admin",
+                    // BCrypt hashed version of "admin123"
+                    Password = "$2a$11$1mN9MtoLb5x./cJJfF9DUOs7O6w2HMInYQ6D.U1OU1Vm4eMjMKmNa",
+                    FirstName = "System",
+                    LastName = "Administrator",
+                    Email = "admin@freshly.com",
+                    Role = "SuperAdmin",
+                    CreatedAt = DateTime.UtcNow
+                }
+            );
         }
     }
 }
