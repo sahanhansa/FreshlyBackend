@@ -29,9 +29,6 @@ namespace FreshlyBackendNew.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
 
-        // The error indicates that the 'Feedback' class does not have a property or navigation property named 'Laundry'.
-        // To fix this, you need to ensure that the 'Feedback' class has a property of type 'Laundry' and that it is properly configured in the model.
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -49,36 +46,12 @@ namespace FreshlyBackendNew.Data
             // Define composite primary key for TemporaryOrderDetail
             modelBuilder.Entity<TemporaryOrderDetail>()
                 .HasKey(tod => new { tod.TemporaryOrderId, tod.ItemId, tod.ServiceId });
-            // Add this configuration only if the 'Feedback' class has a 'LaundryId' foreign key and a 'Laundry' navigation property.
+            
+            // Define the relationship between Feedback and Laundry
             modelBuilder.Entity<Feedback>()
                 .HasOne(f => f.Laundry)
                 .WithMany(l => l.Feedbacks)
                 .HasForeignKey(f => f.LaundryId);
         }
-    }
-    // Ensure the 'Feedback' class has the following properties to support the relationship with 'Laundry'.
-
-    public class Feedback
-    {
-        public Guid FeedbackId { get; set; }
-        public string? Description { get; set; }
-        public int? Rating { get; set; }
-        public Guid? OrderId { get; set; }
-        public Order? Order { get; set; }
-
-        // Add these properties to define the relationship with 'Laundry'.
-        public Guid? LaundryId { get; set; }
-        public Laundry? Laundry { get; set; }
-    }
-    // Ensure the 'Laundry' class has a collection of 'Feedback' to support the relationship.
-
-            base.OnModelCreating(modelBuilder);
-    public class Laundry
-    {
-        public Guid LaundryId { get; set; }
-        public string? Name { get; set; }
-
-        // Add this property to define the relationship with 'Feedback'.
-        public ICollection<Feedback>? Feedbacks { get; set; }
     }
 }

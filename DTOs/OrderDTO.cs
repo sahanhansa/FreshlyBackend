@@ -7,6 +7,7 @@ namespace FreshlyBackendNew.DTOs
         public string? PlacedTime { get; set; }
         public string? PickupDate { get; set; }
         public string? PickupTime { get; set; }
+        public DateTime? PlacedDateTime { get; set; }
 
         // Customer details
         public CustomerDTO? Customer { get; set; }
@@ -31,38 +32,38 @@ namespace FreshlyBackendNew.DTOs
         public string? LastName { get; set; }
         public string? Email { get; set; }
         public string? Username { get; set; }
+        public string CustomerFName { get; set; } = string.Empty;
+        public string CustomerLName { get; set; } = string.Empty;
         public AddressDTO? Address { get; set; }
     }
 
     public class AddressDTO
     {
+        public Guid AddressId { get; set; }
         public string? HouseNo { get; set; }
         public string? Street { get; set; }
         public string? City { get; set; }
         public string? PostalCode { get; set; }
         public string? FullAddress { get; set; }
     }
-        public DateTime? PlacedDate { get; set; }
-       
+
     public class LaundryDTO
     {
         public Guid LaundryId { get; set; }
         public string? LaundryName { get; set; }
     }
-        public string StatusName { get; set; } = string.Empty;
-    
+
     public class StatusDTO
     {
         public Guid StatusID { get; set; }
         public string? StatusName { get; set; }
+        public string StatusDisplayName { get; set; } = string.Empty;
     }
-        public string CustomerFName { get; set; } = string.Empty;
-        
+
     public class OrderTypeDTO
     {
         public Guid TypeId { get; set; }
         public string? TypeName { get; set; }
-        public string CustomerLName { get; set; } = string.Empty;
     }
 
     public class UserDTO

@@ -22,21 +22,33 @@ namespace FreshlyBackendNew.Services.Implementations
         // Retrieves all customer details
         public async Task<IEnumerable<CustomerDto>> GetCustomerDetailsAsync()
         {
-            return await _context.Customers
+            var customers = await _context.Customers
                 .Include(c => c.Address)
-                .Include(c => c.Contacts)
-                .Select(c => new CustomerDto
-                {
-                    CustomerId = c.CustomerId,
-                    FirstName = c.FirstName,
-                    LastName = c.LastName,
-                    Email = c.Email,
-                    Username = c.Username,
-                    AddressId = c.AddressId,
-                    Address = c.Address != null ? $"{c.Address.HouseNo}, {c.Address.Street}, {c.Address.City}, {c.Address.PostalCode}" : null,
-                    Contacts = c.Contacts != null ? c.Contacts.Select(ct => ct.ContactNumber).ToList() : new List<string>()
-                })
                 .ToListAsync();
+
+            var customerDtos = new List<CustomerDto>();
+            
+            foreach (var customer in customers)
+            {
+                // Separately fetch contacts for this customer
+                var contacts = await _context.Contacts
+                    .Where(c => c.UserId == customer.CustomerId && c.UserType == "Customer")
+                    .ToListAsync();
+                
+                customerDtos.Add(new CustomerDto
+                {
+                    CustomerId = customer.CustomerId,
+                    FirstName = customer.FirstName,
+                    LastName = customer.LastName,
+                    Email = customer.Email,
+                    Username = customer.Username,
+                    AddressId = customer.AddressId,
+                    Address = customer.Address != null ? $"{customer.Address.HouseNo}, {customer.Address.Street}, {customer.Address.City}, {customer.Address.PostalCode}" : null,
+                    Contacts = contacts.Select(ct => ct.ContactNumber).ToList()
+                });
+            }
+            
+            return customerDtos;
         }
 
         // Retrieves a customer by ID
@@ -44,13 +56,17 @@ namespace FreshlyBackendNew.Services.Implementations
         {
             var customer = await _context.Customers
                 .Include(c => c.Address)
-                .Include(c => c.Contacts)
                 .FirstOrDefaultAsync(c => c.CustomerId == id);
 
             if (customer == null)
             {
                 return null;
             }
+
+            // Fetch contacts for this customer
+            var contacts = await _context.Contacts
+                .Where(c => c.UserId == customer.CustomerId && c.UserType == "Customer")
+                .ToListAsync();
 
             return new CustomerDto
             {
@@ -61,7 +77,7 @@ namespace FreshlyBackendNew.Services.Implementations
                 Username = customer.Username,
                 AddressId = customer.AddressId,
                 Address = customer.Address != null ? $"{customer.Address.HouseNo}, {customer.Address.Street}, {customer.Address.City}, {customer.Address.PostalCode}" : null,
-                Contacts = customer.Contacts != null ? customer.Contacts.Select(ct => ct.ContactNumber).ToList() : new List<string>()
+                Contacts = contacts.Select(ct => ct.ContactNumber).ToList()
             };
         }
 
@@ -85,6 +101,22 @@ namespace FreshlyBackendNew.Services.Implementations
             };
 
             _context.Customers.Add(customer);
+            
+            // Create contacts if provided
+            if (customerDto.Contacts != null && customerDto.Contacts.Any())
+            {
+                foreach (var contactNumber in customerDto.Contacts)
+                {
+                    var contact = new Contact
+                    {
+                        ContactNumber = contactNumber,
+                        UserId = customer.CustomerId,
+                        UserType = "Customer"
+                    };
+                    _context.Contacts.Add(contact);
+                }
+            }
+            
             await _context.SaveChangesAsync();
 
             return new CustomerDto
@@ -94,7 +126,8 @@ namespace FreshlyBackendNew.Services.Implementations
                 LastName = customer.LastName,
                 Email = customer.Email,
                 Username = customer.Username,
-                AddressId = customer.AddressId
+                AddressId = customer.AddressId,
+                Contacts = customerDto.Contacts ?? new List<string>()
             };
         }
 
@@ -118,41 +151,68 @@ namespace FreshlyBackendNew.Services.Implementations
             customer.Username = customerDto.Username;
             customer.AddressId = customerDto.AddressId;
 
+            // Update contacts if provided
+            if (customerDto.Contacts != null)
+            {
+                // Remove existing contacts
+                var existingContacts = await _context.Contacts
+                    .Where(c => c.UserId == id && c.UserType == "Customer")
+                    .ToListAsync();
+                
+                if (existingContacts.Any())
+                {
+                    _context.Contacts.RemoveRange(existingContacts);
+                }
+                
+                // Add new contacts
+                foreach (var contactNumber in customerDto.Contacts)
+                {
+                    var contact = new Contact
+                    {
+                        ContactNumber = contactNumber,
+                        UserId = customer.CustomerId,
+                        UserType = "Customer"
+                    };
+                    _context.Contacts.Add(contact);
+                }
+            }
+
             await _context.SaveChangesAsync();
 
-            return new CustomerDto
-            {
-                CustomerId = customer.CustomerId,
-                FirstName = customer.FirstName,
-                LastName = customer.LastName,
-                Email = customer.Email,
-                Username = customer.Username,
-                AddressId = customer.AddressId
-            };
+            return await GetCustomerByIdAsync(id); // Return the updated customer with contacts
         }
 
         // Deletes a customer by ID
         public async Task<bool> DeleteCustomerAsync(Guid id)
         {
-            var customer = await _context.Customers
-                .Include(c => c.Orders)
-                .Include(c => c.Feedbacks)
-                .FirstOrDefaultAsync(c => c.CustomerId == id);
-
+            var customer = await _context.Customers.FindAsync(id);
             if (customer == null)
             {
                 return false;
             }
 
-            // Check for dependent records
-            if (customer.Orders != null && customer.Orders.Any())
+            // Check for dependent records - orders
+            var hasOrders = await _context.Orders.AnyAsync(o => o.CustomerId == id);
+            if (hasOrders)
             {
                 throw new InvalidOperationException("Cannot delete customer with associated orders.");
             }
 
-            if (customer.Feedbacks != null && customer.Feedbacks.Any())
+            // Check for dependent records - feedbacks
+            var hasFeedbacks = await _context.Feedbacks.AnyAsync(f => f.Order.CustomerId == id);
+            if (hasFeedbacks)
             {
                 throw new InvalidOperationException("Cannot delete customer with associated feedback.");
+            }
+
+            // Delete related contacts
+            var contacts = await _context.Contacts
+                .Where(c => c.UserId == id && c.UserType == "Customer")
+                .ToListAsync();
+            
+            if (contacts.Any())
+            {
+                _context.Contacts.RemoveRange(contacts);
             }
 
             _context.Customers.Remove(customer);
