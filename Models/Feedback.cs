@@ -20,10 +20,13 @@ namespace FreshlyBackendNew.Models
 
         // Foreign Keys
         public Guid? OrderId { get; set; }
+        public Guid? LaundryId { get; set; }
 
         // Navigation Properties
         [ForeignKey("OrderId")]
         public Order? Order { get; set; }
-
+        
+        [ForeignKey("LaundryId")]
+        public Laundry? Laundry { get; set; }
     }
 }
