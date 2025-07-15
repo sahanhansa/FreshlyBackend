@@ -1,4 +1,5 @@
 using FreshlyBackendNew.Data;
+using FreshlyBackendNew.Services;
 using FreshlyBackendNew.Services.Implementations;
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         new MySqlServerVersion(new Version(8, 0, 21)) // Specify the MySQL server version here
     )
 );
+
+
 
 // Add CORS services
 builder.Services.AddCors(options =>
@@ -33,6 +36,13 @@ builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ITemporaryOrderService, TemporaryOrderService>();
+
+
+//ruwe
+builder.Services.AddScoped<IAllPickupService, AllPickupService>();
+builder.Services.AddScoped<IAllDeliveryService, AllDeliveryService>();
+builder.Services.AddScoped<ICompleteTasksService, CompleteTasksService>();
+
 
 
 

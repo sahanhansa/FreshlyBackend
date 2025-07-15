@@ -13,16 +13,18 @@ namespace FreshlyBackendNew.Controllers
     {
         private readonly IAllPickupService _pickupService;
         private readonly IAllDeliveryService _deliveryService;
+        private readonly ICompleteTasksService _completetasksservice;
         private readonly ApplicationDbContext _context;
         private readonly IOrderService _orderService;
 
         // Constructor with dependency injection
-        public OrdersController(ApplicationDbContext context, IAllPickupService pickupService, IAllDeliveryService deliveryService, IOrderService orderService)
+        public OrdersController(ApplicationDbContext context, IAllPickupService pickupService, IAllDeliveryService deliveryService, ICompleteTasksService completetasksservice, IOrderService orderService)
         {
             _context = context;
             _pickupService = pickupService;
             _deliveryService = deliveryService;
             _orderService = orderService;
+            _completetasksservice = completetasksservice;
         }
 
         // --- Pickup Endpoints ---
@@ -80,6 +82,36 @@ namespace FreshlyBackendNew.Controllers
 
             return Ok(deliveryDetails);
         }
+
+        [HttpGet("GetAllCompleteTasks")]
+        public async Task<IActionResult> GetAllCompleteTask()
+        {
+            var completetasks = await _completetasksservice.GetAllCompleteTasks();
+
+            if (completetasks == null)
+            {
+                return NotFound("No orders found.");
+            }
+
+            return Ok(completetasks);
+        }
+
+
+        [HttpGet("GetAllCompleteTasks/{orderId}")]
+        public async Task<IActionResult> GetAllCompleteTaskDetails(string orderId)
+        {
+            var completetasksDetails = await _completetasksservice.GetAllCompleteTasksBYId(orderId);
+
+            if (completetasksDetails == null)
+            {
+                return NotFound("No orders found.");
+            }
+
+            return Ok(completetasksDetails);
+        }
+
+
+
 
         // --- Laundry Order Management (Rohansi) ---
 
