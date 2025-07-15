@@ -11,5 +11,7 @@ namespace FreshlyBackendNew.Services.Interfaces
         Task<OrderDTO> CreateOrderAsync(OrderDTO orderDto);
         Task<bool> UpdateOrderAsync(Guid id, OrderDTO orderDto);
         Task<bool> DeleteOrderAsync(Guid id);
+        Task<bool> ConfirmOrderAsync(ConfirmOrderDTO dto);
+
     }
 }

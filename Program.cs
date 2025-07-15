@@ -1,17 +1,19 @@
 using FreshlyBackendNew.Data;
+using FreshlyBackendNew.Services;
 using FreshlyBackendNew.Services.Implementations;
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Amazon.S3;
-using FreshlyBackendNew.Services;
-using Amazon;
-using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
+using Amazon;
+using Amazon.S3;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Configure EF Core with MySQL
 //builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -21,45 +23,32 @@ var builder = WebApplication.CreateBuilder(args);
 //    )
 //);
 
-//Configure EF Core with Azure
+// Configure EF Core with Azure
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("AzureMySqlConnection"),
         ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("AzureMySqlConnection"))
     ));
 
-
-// Add CORS services
-builder.Services.AddCors(options =>
+// Configure AWS S3
+builder.Services.AddSingleton<IAmazonS3>(serviceProvider =>
 {
-    options.AddPolicy("AllowAngularApp",
-        policy =>
-        {
-            policy.WithOrigins("http://localhost:4200") //  Angular app's URL
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-        });
-});
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
 
-// Configure AWS S3 - More explicit configuration
-        builder.Services.AddSingleton<IAmazonS3>(serviceProvider =>
-        {
-            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-    
-            var config = new AmazonS3Config
-            {
-                RegionEndpoint = RegionEndpoint.EUNorth1,
-                UseHttp = false,
-                UseAccelerateEndpoint = false
-            };
-    
-            var credentials = new Amazon.Runtime.BasicAWSCredentials(
-                configuration["AWS:AccessKey"], 
-                configuration["AWS:SecretKey"]
-            );
-    
-            return new AmazonS3Client(credentials, config);
-        });
+    var config = new AmazonS3Config
+    {
+        RegionEndpoint = RegionEndpoint.EUNorth1,
+        UseHttp = false,
+        UseAccelerateEndpoint = false
+    };
+
+    var credentials = new Amazon.Runtime.BasicAWSCredentials(
+        configuration["AWS:AccessKey"],
+        configuration["AWS:SecretKey"]
+    );
+
+    return new AmazonS3Client(credentials, config);
+});
 
 // Configure JWT Authentication
 builder.Services.AddAuthentication(options =>
@@ -81,35 +70,32 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Add CORS services
+// Add CORS services with comprehensive settings
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp",
         policy =>
         {
-            policy.WithOrigins("http://localhost:4200") //  Angular app's URL
-                .AllowAnyHeader()
-                .AllowAnyMethod();
+            policy.WithOrigins("http://localhost:4200", "http://localhost:4000", "http://127.0.0.1:4200")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
         });
 });
 
-
-// Register all application services in one place
-// Use fully qualified name to avoid ambiguity
-builder.Services.AddScoped<FreshlyBackendNew.Services.Interfaces.IOrderService, FreshlyBackendNew.Services.Implementations.OrderService>();
+// Register application services
+builder.Services.AddScoped<IAllPickupService, AllPickupService>();
+builder.Services.AddScoped<IAllDeliveryService, AllDeliveryService>();
 builder.Services.AddScoped<ILaundryService, LaundryService>();
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ITemporaryOrderService, TemporaryOrderService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
-builder.Services.AddScoped<IAllPickupService, AllPickupService>();
-builder.Services.AddScoped<IAllDeliveryService, AllDeliveryService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IFileStorageService, S3StorageService>();
 builder.Services.AddScoped<IServiceService, ServicesService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
-
-
 
 // Add controller services with improved JSON handling
 builder.Services.AddControllers()
@@ -128,17 +114,13 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    
+
     // Add detailed error pages in development
     app.UseDeveloperExceptionPage();
-    
-    // Comment out HTTPS redirection in development for testing
-    // app.UseHttpsRedirection();
 }
 else
 {

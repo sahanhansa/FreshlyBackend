@@ -564,6 +564,7 @@ namespace FreshlyBackendNew.Migrations
 
             modelBuilder.Entity("FreshlyBackendNew.Models.Feedback", b =>
                 {
+
                     b.HasOne("FreshlyBackendNew.Models.Laundry", "Laundry")
                         .WithMany("Feedbacks")
                         .HasForeignKey("LaundryId");
@@ -766,6 +767,7 @@ namespace FreshlyBackendNew.Migrations
                 {
                     b.Navigation("Feedbacks");
                 });
+
 #pragma warning restore 612, 618
         }
     }
