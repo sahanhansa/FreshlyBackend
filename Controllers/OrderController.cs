@@ -25,6 +25,27 @@ namespace FreshlyBackendNew.Controllers
             _orderService = orderService;
         }
 
+        //lasini-confirm new order
+        [HttpPost("confirm")]
+        public async Task<IActionResult> ConfirmOrder([FromBody] ConfirmOrderDTO dto)
+        {
+            if (dto == null || dto.TemporaryOrderId == Guid.Empty)
+                return BadRequest("Invalid order data.");
+
+            try
+            {
+                var result = await _orderService.ConfirmOrderAsync(dto);
+                if (!result)
+                    return NotFound("Temporary order not found or has no items.");
+
+                return Ok(new { message = "Order confirmed successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while confirming the order: {ex.Message}");
+            }
+        }
+
         // --- Pickup Endpoints ---
 
         [HttpGet("GetAllPickups")]
@@ -136,5 +157,7 @@ namespace FreshlyBackendNew.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+
+        
     }
 }

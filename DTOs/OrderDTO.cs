@@ -12,4 +12,6 @@ namespace FreshlyBackendNew.DTOs
         public string CustomerLName { get; set; } = string.Empty;
     }
 
+
+
 }

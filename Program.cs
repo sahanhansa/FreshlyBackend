@@ -1,4 +1,5 @@
 using FreshlyBackendNew.Data;
+using FreshlyBackendNew.Services;
 using FreshlyBackendNew.Services.Implementations;
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -37,6 +38,9 @@ builder.Services.AddCors(options =>
 });
 
 // Register application services
+// Use fully qualified names to avoid any ambiguity
+builder.Services.AddScoped<FreshlyBackendNew.Services.IAllPickupService, FreshlyBackendNew.Services.AllPickupService>();
+builder.Services.AddScoped<FreshlyBackendNew.Services.IAllDeliveryService, FreshlyBackendNew.Services.AllDeliveryService>();
 builder.Services.AddScoped<ILaundryService, LaundryService>();
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
