@@ -81,24 +81,18 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Add CORS services with comprehensive settings
+// Add CORS services
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp",
         policy =>
         {
-            policy.WithOrigins(
-                    "http://localhost:4200", 
-                    "https://localhost:4200",
-                    "http://localhost:4000", 
-                    "https://localhost:4000",
-                    "http://127.0.0.1:4200",
-                    "https://127.0.0.1:4200") 
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials();
+            policy.WithOrigins("http://localhost:4200") //  Angular app's URL
+                .AllowAnyHeader()
+                .AllowAnyMethod();
         });
 });
+
 
 // Register all application services in one place
 // Use fully qualified name to avoid ambiguity
