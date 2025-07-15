@@ -22,7 +22,7 @@ namespace FreshlyBackendNew.Services.Implementations
         public async Task<List<OrderDTO>> GetNewOrdersAsync(Guid laundryId)
         {
             var pickedUpStatus = await _context.Statuses
-                .FirstOrDefaultAsync(s => s.StatusName != null && string.Equals(s.StatusName, "picked up", StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefaultAsync(s => s.StatusName != null && s.StatusName.ToLower() == "picked up");
 
             if (pickedUpStatus == null)
                 return [];
@@ -48,80 +48,81 @@ namespace FreshlyBackendNew.Services.Implementations
         }
 
         public async Task<List<OrderDTO>> GetProcessingOrdersAsync(Guid laundryId)
+{
+    var processingStatus = await _context.Statuses
+        .FirstOrDefaultAsync(s => s.StatusName != null && s.StatusName.ToLower() == "processing in laundry");
+
+    if (processingStatus == null)
+        return [];
+
+    var orders = await _context.Orders
+        .Where(o => o.LaundryId == laundryId && o.StatusId == processingStatus.StatusID)
+        .Include(o => o.Customer)
+            .ThenInclude(c => c.Address)
+        .Include(o => o.Laundry)
+        .Include(o => o.Status)
+        .ToListAsync();
+
+    var result = new List<OrderDTO>();
+    foreach (var o in orders)
+    {
+        var dto = new OrderDTO
         {
-            var processingStatus = await _context.Statuses
-                .FirstOrDefaultAsync(s => s.StatusName != null && string.Equals(s.StatusName, "processing in laundry", StringComparison.OrdinalIgnoreCase));
+            OrderId = o.OrderId,
+            PlacedDate = o.PlacedAt?.ToString("yyyy-MM-dd"),
+            PlacedTime = o.PlacedAt?.ToString("HH:mm:ss"),
+            PickupDate = o.PickupAt?.ToString("yyyy-MM-dd"),
+            PickupTime = o.PickupAt?.ToString("HH:mm:ss")
+        };
 
-            if (processingStatus == null)
-                return [];
-
-            var orders = await _context.Orders
-                .Where(o => o.LaundryId == laundryId && o.StatusId == processingStatus.StatusID)
-                .Include(o => o.Customer)
-                .ThenInclude(c => c.Address)
-                .Include(o => o.Laundry)
-                .Include(o => o.Status)
-                .ToListAsync();
-
-            var result = new List<OrderDTO>();
-            foreach (var o in orders)
+        if (o.Customer != null)
+        {
+            dto.Customer = new CustomerDTO
             {
-                var dto = new OrderDTO
+                CustomerId = o.Customer.CustomerId,
+                FirstName = o.Customer.FirstName,
+                LastName = o.Customer.LastName,
+                Email = o.Customer.Email,
+                Username = o.Customer.Username
+            };
+
+            if (o.Customer.Address != null)
+            {
+                dto.Customer.Address = new AddressDTO
                 {
-                    OrderId = o.OrderId,
-                    PlacedDate = o.PlacedAt.HasValue ? o.PlacedAt.Value.ToString("yyyy-MM-dd") : null,
-                    PlacedTime = o.PlacedAt.HasValue ? o.PlacedAt.Value.ToString("HH:mm:ss") : null,
-                    PickupDate = o.PickupAt.HasValue ? o.PickupAt.Value.ToString("yyyy-MM-dd") : null,
-                    PickupTime = o.PickupAt.HasValue ? o.PickupAt.Value.ToString("HH:mm:ss") : null
+                    HouseNo = o.Customer.Address.HouseNo,
+                    Street = o.Customer.Address.Street,
+                    City = o.Customer.Address.City,
+                    PostalCode = o.Customer.Address.PostalCode,
+                    FullAddress = $"{o.Customer.Address.HouseNo ?? ""}, {o.Customer.Address.Street ?? ""}, {o.Customer.Address.City ?? ""}, {o.Customer.Address.PostalCode ?? ""}"
                 };
-
-                if (o.Customer != null)
-                {
-                    dto.Customer = new CustomerDTO
-                    {
-                        CustomerId = o.Customer.CustomerId,
-                        FirstName = o.Customer.FirstName,
-                        LastName = o.Customer.LastName,
-                        Email = o.Customer.Email,
-                        Username = o.Customer.Username
-                    };
-
-                    if (o.Customer.Address != null)
-                    {
-                        dto.Customer.Address = new AddressDTO
-                        {
-                            HouseNo = o.Customer.Address.HouseNo,
-                            Street = o.Customer.Address.Street,
-                            City = o.Customer.Address.City,
-                            PostalCode = o.Customer.Address.PostalCode,
-                            FullAddress = $"{o.Customer.Address.HouseNo ?? ""}, {o.Customer.Address.Street ?? ""}, {o.Customer.Address.City ?? ""}, {o.Customer.Address.PostalCode ?? ""}"
-                        };
-                    }
-                }
-
-                if (o.Laundry != null)
-                {
-                    dto.Laundry = new LaundryDTO
-                    {
-                        LaundryId = o.Laundry.LaundryId,
-                        LaundryName = o.Laundry.LaundryName
-                    };
-                }
-
-                if (o.Status != null)
-                {
-                    dto.Status = new StatusDTO
-                    {
-                        StatusID = o.Status.StatusID,
-                        StatusName = o.Status.StatusName
-                    };
-                }
-
-                result.Add(dto);
             }
-
-            return result;
         }
+
+        if (o.Laundry != null)
+        {
+            dto.Laundry = new LaundryDTO
+            {
+                LaundryId = o.Laundry.LaundryId,
+                LaundryName = o.Laundry.LaundryName
+            };
+        }
+
+        if (o.Status != null)
+        {
+            dto.Status = new StatusDTO
+            {
+                StatusID = o.Status.StatusID,
+                StatusName = o.Status.StatusName
+            };
+        }
+
+        result.Add(dto);
+    }
+
+    return result;
+}
+
 
         public async Task<List<OrderDTO>> GetAllOrdersAsync(Guid laundryId)
         {
