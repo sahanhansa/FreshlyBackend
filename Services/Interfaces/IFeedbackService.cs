@@ -1,12 +1,16 @@
-﻿using FreshlyBackendNew.DTOs;
+using FreshlyBackendNew.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace FreshlyBackendNew.Services
+namespace FreshlyBackendNew.Services.Interfaces
+
 {
     public interface IFeedbackService
     {
+       //Rohansi-Get feedbacks from laundry side
+        Task<List<FeedbackDTO>> GetFeedbacksAsync(Guid laundryId);
+        
         // Get all feedback with customer and laundry details
         Task<List<FeedbackDTO>> GetAllFeedbacksAsync();
 
