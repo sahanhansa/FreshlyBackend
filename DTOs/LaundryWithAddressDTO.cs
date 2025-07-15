@@ -2,9 +2,9 @@
 {
     public class LaundryWithAddressDTO
     {
-        public string LaundryId { get; set; }
-        public string LaundryName { get; set; }
-        public string City { get; set; }
+        public string LaundryId { get; set; } = string.Empty;
+        public string LaundryName { get; set; } = string.Empty;
+        public string? City { get; set; }
         public double AverageRating { get; set; }
     }
 }
