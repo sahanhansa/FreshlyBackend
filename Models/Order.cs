@@ -23,6 +23,10 @@ namespace FreshlyBackendNew.Models
         public Guid? CustomerId { get; set; }
         public Guid? StatusId { get; set; }
 
+        //driver details-new
+        public Guid? PickupDriverId { get; set; }
+        public Guid? DeliveryDriverId { get; set; }
+
         // Navigation Properties
         [ForeignKey("LaundryId")]
         public Laundry? Laundry { get; set; } 
@@ -32,5 +36,6 @@ namespace FreshlyBackendNew.Models
 
         [ForeignKey("StatusId")]
         public Status? Status { get; set; }
+
     }
 }
