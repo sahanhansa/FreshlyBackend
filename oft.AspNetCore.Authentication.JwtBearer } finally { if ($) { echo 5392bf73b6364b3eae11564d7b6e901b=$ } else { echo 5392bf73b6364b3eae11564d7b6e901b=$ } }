@@ -1,0 +1,19 @@
+Controllers/LaundryController.cs
+Controllers/OrderController.cs
+Controllers/TemporaryOrderController.cs
+DTOs/LaundryWithAddressDTO.cs
+DTOs/OrderDTO.cs
+DTOs/OrderDetailDTO.cs
+Data/ApplicationDbContext.cs
+FreshlyBackendNew.csproj
+Program.cs
+Services/Implementations/CustomerService.cs
+Services/Implementations/FeedbackService.cs
+Services/Implementations/LaundryService.cs
+Services/Implementations/OrderServiceBasic.cs
+Services/Implementations/OrderServiceNew.cs
+Services/Interfaces/ILaundryService.cs
+Services/Interfaces/IOrderServiceBasic.cs
+Services/Interfaces/IOrderServiceNew.cs
+appsettings.json
+"tatus } finally { if ($\357\200\277) { echo \357\200\2421abb46624d924400adae8f0fef6f086b=$\357\200\277\357\200\242 } else { echo \357\200\2421abb46624d924400adae8f0fef6f086b=$\357\200\277\357\200\242 } }"

@@ -4,6 +4,7 @@ using FreshlyBackendNew.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FreshlyBackendNew.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250713112235_AddPasswordResetFieldsToAdmin")]
+    partial class AddPasswordResetFieldsToAdmin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -564,7 +567,6 @@ namespace FreshlyBackendNew.Migrations
 
             modelBuilder.Entity("FreshlyBackendNew.Models.Feedback", b =>
                 {
-
                     b.HasOne("FreshlyBackendNew.Models.Laundry", "Laundry")
                         .WithMany("Feedbacks")
                         .HasForeignKey("LaundryId");
@@ -767,7 +769,6 @@ namespace FreshlyBackendNew.Migrations
                 {
                     b.Navigation("Feedbacks");
                 });
-
 #pragma warning restore 612, 618
         }
     }

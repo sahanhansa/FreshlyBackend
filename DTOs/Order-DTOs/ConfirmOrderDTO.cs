@@ -9,7 +9,8 @@ namespace FreshlyBackendNew.DTOs
         public AddressDTO? Address { get; set; } // For updating existing address
     }
 
-    public class AddressDTO
+    //public class AddressDTO
+    public class UpdatedAddressDTO
     {
         public Guid AddressId { get; set; }
         public string? HouseNo { get; set; }

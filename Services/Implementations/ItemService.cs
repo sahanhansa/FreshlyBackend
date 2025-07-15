@@ -1,5 +1,6 @@
 ﻿using FreshlyBackendNew.Data;
 using FreshlyBackendNew.DTOs;
+using FreshlyBackendNew.Models;
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +17,6 @@ namespace FreshlyBackendNew.Services.Implementations
 
         public async Task<List<ItemWithServicesDTO>> GetItemsByLaundryIdAsync(Guid laundryId)
         {
-            // Fetch Items and Related Data using explicit joins
             var itemsWithServices = await (from item in _context.Items
                 join laundryItemService in _context.LaundryItemServices
                     on item.ItemId equals laundryItemService.ItemId
@@ -30,13 +30,11 @@ namespace FreshlyBackendNew.Services.Implementations
                 select new
                 {
                     Item = item,
-                    CategoryName =
-                        category != null ? category.CategoryName : "Other", // Replace null-propagating operator
+                    CategoryName = category != null ? category.CategoryName : "Other",
                     Service = service,
                     Price = laundryItemService.Price
                 }).ToListAsync();
 
-            // Map Data to DTOs
             var result = itemsWithServices
                 .GroupBy(i => i.Item.ItemId)
                 .Select(group => new ItemWithServicesDTO
@@ -50,7 +48,7 @@ namespace FreshlyBackendNew.Services.Implementations
                         {
                             ServiceId = g.Service.ServiceId,
                             ServiceName = g.Service.ServiceName,
-                            Price = g.Price ?? 0 // Handle null Price
+                            Price = g.Price ?? 0
                         })
                         .ToList()
                 })
@@ -58,17 +56,46 @@ namespace FreshlyBackendNew.Services.Implementations
 
             return result;
         }
-         public async Task<bool> DeleteItemAsync(Guid id)
-            {
-                var item = await _context.Items.FindAsync(id);
-                if (item == null)
-                    return false;
 
-                _context.Items.Remove(item);
-                await _context.SaveChangesAsync();
-                return true;
-            }
+        public async Task<bool> DeleteItemAsync(Guid id)
+        {
+            var item = await _context.Items.FindAsync(id);
+            if (item == null)
+                return false;
+
+            _context.Items.Remove(item);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-    }
+        public async Task<bool> AddItemAsync(AddItemDTO itemDto)
+        {
+            var item = new Item
+            {
+                ItemId = Guid.NewGuid(),
+                Name = itemDto.Name,
+                Description = itemDto.Description,
+                CategoryId = itemDto.CategoryId,
+                ItemImageLink = itemDto.ImageUrl
+            };
 
+            _context.Items.Add(item);
+
+            foreach (var service in itemDto.Services)
+            {
+                var laundryItemService = new LaundryItemService
+                {
+                    LaundryId = itemDto.LaundryId,
+                    ItemId = item.ItemId,
+                    ServiceId = service.ServiceId,
+                    Price = service.Price ?? 0
+                };
+
+                _context.LaundryItemServices.Add(laundryItemService);
+            }
+
+            var result = await _context.SaveChangesAsync();
+            return result > 0;
+        }
+    }
+}
