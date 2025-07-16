@@ -30,5 +30,8 @@ namespace FreshlyBackendNew.Models
 
         [ForeignKey("OwnerId")]
         public Owner? Owner { get; set; }
+        
+        // Collection Navigation Property
+        public ICollection<Feedback>? Feedbacks { get; set; }
     }
 }
