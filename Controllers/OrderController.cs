@@ -1,3 +1,4 @@
+using FreshlyBackendNew.Data;
 using FreshlyBackendNew.DTOs;
 using FreshlyBackendNew.Services;
 using FreshlyBackendNew.Services.Interfaces;
@@ -16,7 +17,6 @@ namespace FreshlyBackendNew.Controllers
         private readonly IAllDeliveryService _deliveryService;
         private readonly ICompleteTasksService _completetasksservice;
         private readonly ApplicationDbContext _context;
-        private readonly IOrderService _orderService;
 
         public OrderController(
             IOrderService orderService,
@@ -48,8 +48,6 @@ namespace FreshlyBackendNew.Controllers
             {
                 return StatusCode(500, $"An error occurred while confirming the order: {ex.Message}");
             }
-            _orderService = orderService;
-            _completetasksservice = completetasksservice;
         }
 
         // --- Pickup Endpoints ---
@@ -254,6 +252,36 @@ namespace FreshlyBackendNew.Controllers
                     return NotFound($"Order with ID {id} not found.");
                 }
                 return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while deleting the order: {ex.Message}");
+            }
+        }
+
+        [HttpPatch("MarksToTake")]
+        public async Task<IActionResult> MarksToTake([FromBody]MarkOrderDto markOrder)
+        {
+            try
+            {
+                await _pickupService.MarksToTake(markOrder);
+
+                return Created();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while deleting the order: {ex.Message}");
+            }
+        }
+
+        [HttpPatch("MarksToDeliver")]
+        public async Task<IActionResult> MarksToDeliver([FromBody] MarkOrderDto markOrder)
+        {
+            try
+            {
+                await _pickupService.MarksToDeliver(markOrder);
+
+                return Created();
             }
             catch (Exception ex)
             {

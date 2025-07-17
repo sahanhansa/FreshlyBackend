@@ -113,8 +113,6 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        // Handle null values properly
-        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         // Handle circular references
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
