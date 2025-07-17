@@ -6,10 +6,9 @@ namespace FreshlyBackendNew.DTOs
     {
         public Guid TemporaryOrderId { get; set; }
         public DateTime PickupAt { get; set; }
-        public AddressDTO? Address { get; set; } // For updating existing address
+        public UpdatedAddressDTO? Address { get; set; } // For updating existing address
     }
 
-    //public class AddressDTO
     public class UpdatedAddressDTO
     {
         public Guid AddressId { get; set; }
