@@ -24,6 +24,25 @@ namespace FreshlyBackendNew.Controllers
             _pickupService = pickupService;
             _deliveryService = deliveryService;
         }
+        // lasini-get cutomer address when confirming order
+        // GET: api/Order/Customer/{customerId}/address
+        [HttpGet("Customer/{customerId}/address")]
+        public async Task<IActionResult> GetCustomerAddress(Guid customerId)
+        {
+            try
+            {
+                var address = await _orderService.GetCustomerAddressAsync(customerId);
+
+                if (address == null)
+                    return NotFound($"No address found for customer with ID: {customerId}");
+
+                return Ok(address);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
 
 
         //lasini-confirm new order
