@@ -147,5 +147,67 @@ namespace FreshlyBackendNew.Services.Implementations
 
             return laundryItemService?.Price ?? 0;
         }
+
+       
+        // Completely deletes an order and all related records from the database
+        public async Task<bool> CancelOrderAsync(Guid orderId)
+        {
+            // Use a transaction to ensure all related records are deleted or none
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // Check if order exists
+                var order = await _context.Orders.FindAsync(orderId);
+                if (order == null)
+                    return false;
+
+                // Delete dependent records in correct order to maintain referential integrity
+
+                // 1. Delete any feedback related to this order
+                var feedback = await _context.Feedbacks
+                    .Where(f => f.OrderId == orderId)
+                    .ToListAsync();
+                if (feedback.Any())
+                {
+                    _context.Feedbacks.RemoveRange(feedback);
+                }
+
+                // 2. Delete any driver notes related to this order
+                var driverNotes = await _context.DriverNotes
+                    .Where(dn => dn.OrderId == orderId)
+                    .ToListAsync();
+                if (driverNotes.Any())
+                {
+                    _context.DriverNotes.RemoveRange(driverNotes);
+                }
+
+                // 3. Delete order details (items in the order)
+                var orderDetails = await _context.OrderDetails
+                    .Where(od => od.OrderId == orderId)
+                    .ToListAsync();
+                if (orderDetails.Any())
+                {
+                    _context.OrderDetails.RemoveRange(orderDetails);
+                }
+
+                // 4. Finally delete the order itself
+                _context.Orders.Remove(order);
+
+                // Save all changes
+                await _context.SaveChangesAsync();
+
+                // Commit transaction
+                await transaction.CommitAsync();
+
+                return true;
+            }
+            catch (Exception)
+            {
+                // Rollback transaction in case of any errors
+                await transaction.RollbackAsync();
+                throw; // Rethrow to be handled by controller
+            }
+        }
     }
 }

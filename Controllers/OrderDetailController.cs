@@ -22,7 +22,7 @@ namespace FreshlyBackendNew.Controllers
             _orderDetailService = orderDetailService;
         }
 
-        // GET: api/OrderDetail/{orderId}
+        //lasini- GET: api/OrderDetail/{orderId}
         [HttpGet("{orderId}")]
         public async Task<IActionResult> GetOrderDetails(Guid orderId)
         {
@@ -42,7 +42,7 @@ namespace FreshlyBackendNew.Controllers
             }
         }
 
-        // GET: api/OrderDetail/customer/{customerId}/ongoing
+        //lasini- GET: api/OrderDetail/customer/{customerId}/ongoing
         [HttpGet("customer/{customerId}/ongoing")]
         public async Task<IActionResult> GetOngoingOrders(Guid customerId)
         {
@@ -59,6 +59,26 @@ namespace FreshlyBackendNew.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     $"An error occurred while retrieving ongoing orders: {ex.Message}");
+            }
+        }
+
+        // lasini-Add this endpoint for order cancellation
+        [HttpDelete("cancel/{orderId}")]
+        public async Task<IActionResult> CancelOrder(Guid orderId)
+        {
+            try
+            {
+                var result = await _orderDetailService.CancelOrderAsync(orderId);
+
+                if (!result)
+                    return NotFound($"Order with ID {orderId} not found or could not be canceled.");
+
+                return Ok(new { message = "Order successfully canceled" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"An error occurred while canceling the order: {ex.Message}");
             }
         }
     }

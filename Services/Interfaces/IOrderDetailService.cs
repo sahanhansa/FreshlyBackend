@@ -10,5 +10,6 @@ namespace FreshlyBackendNew.Services.Interfaces
         Task<OrderDetailsDTO> GetOrderDetailsAsync(Guid orderId);
         Task<List<OrderDetailsDTO>> GetOngoingOrdersForCustomerAsync(Guid customerId);
         Task<decimal> CalculateOrderTotalAsync(Guid orderId);
+        Task<bool> CancelOrderAsync(Guid orderId);
     }
 }
