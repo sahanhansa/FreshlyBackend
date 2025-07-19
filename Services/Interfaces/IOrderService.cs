@@ -1,4 +1,5 @@
 using FreshlyBackendNew.DTOs;
+using System.Threading.Tasks;
 
 namespace FreshlyBackendNew.Services.Interfaces
 {
@@ -11,7 +12,8 @@ namespace FreshlyBackendNew.Services.Interfaces
         Task<OrderDTO> CreateOrderAsync(OrderDTO orderDto);
         Task<bool> UpdateOrderAsync(Guid id, OrderDTO orderDto);
         Task<bool> DeleteOrderAsync(Guid id);
+        Task<DTOs.Order_DTOs.AddressDTO> GetCustomerAddressAsync(Guid customerId);
         Task<bool> ConfirmOrderAsync(ConfirmOrderDTO dto);
-
+        
     }
 }

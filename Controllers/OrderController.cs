@@ -1,4 +1,6 @@
+using FreshlyBackendNew.Data;
 using FreshlyBackendNew.DTOs;
+using FreshlyBackendNew.Models;
 using FreshlyBackendNew.Services;
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +16,8 @@ namespace FreshlyBackendNew.Controllers
         private readonly IOrderService _orderService;
         private readonly IAllPickupService _pickupService;
         private readonly IAllDeliveryService _deliveryService;
+        private readonly ICompleteTasksService _completetasksservice;
+        private readonly ApplicationDbContext _context;
 
         public OrderController(
             IOrderService orderService,
@@ -23,6 +27,25 @@ namespace FreshlyBackendNew.Controllers
             _orderService = orderService;
             _pickupService = pickupService;
             _deliveryService = deliveryService;
+        }
+        // lasini-get cutomer address when confirming order
+        // GET: api/Order/Customer/{customerId}/address
+        [HttpGet("Customer/{customerId}/address")]
+        public async Task<IActionResult> GetCustomerAddress(Guid customerId)
+        {
+            try
+            {
+                var address = await _orderService.GetCustomerAddressAsync(customerId);
+
+                if (address == null)
+                    return NotFound($"No address found for customer with ID: {customerId}");
+
+                return Ok(address);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
         }
 
 
@@ -102,6 +125,36 @@ namespace FreshlyBackendNew.Controllers
 
             return Ok(deliveryDetails);
         }
+
+        [HttpGet("GetAllCompleteTasks")]
+        public async Task<IActionResult> GetAllCompleteTask()
+        {
+            var completetasks = await _completetasksservice.GetAllCompleteTasks();
+
+            if (completetasks == null)
+            {
+                return NotFound("No orders found.");
+            }
+
+            return Ok(completetasks);
+        }
+
+
+        [HttpGet("GetAllCompleteTasks/{orderId}")]
+        public async Task<IActionResult> GetAllCompleteTaskDetails(string orderId)
+        {
+            var completetasksDetails = await _completetasksservice.GetAllCompleteTasksBYId(orderId);
+
+            if (completetasksDetails == null)
+            {
+                return NotFound("No orders found.");
+            }
+
+            return Ok(completetasksDetails);
+        }
+
+
+
 
         // --- Laundry Order Management (Rohansi) ---
 
@@ -183,6 +236,26 @@ namespace FreshlyBackendNew.Controllers
             }
         }
 
+        // POST: api/Order - Create a new order
+        [HttpPost]
+        public async Task<IActionResult> CreateOrder([FromBody] OrderDTO orderDto)
+        {
+            if (orderDto == null)
+                return BadRequest("Order data is required.");
+
+            try
+            {
+                var createdOrder = await _orderService.CreateOrderAsync(orderDto);
+                if (createdOrder == null)
+                    return StatusCode(500, "Failed to create order.");
+                return CreatedAtAction(nameof(GetAllOrders), new { id = createdOrder.OrderId }, createdOrder);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while creating the order: {ex.Message}");
+            }
+        }
+
         // PUT: api/Order/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateOrder(Guid id, [FromBody] OrderDTO orderDto)
@@ -219,6 +292,80 @@ namespace FreshlyBackendNew.Controllers
                     return NotFound($"Order with ID {id} not found.");
                 }
                 return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while deleting the order: {ex.Message}");
+            }
+        }
+
+        [HttpPatch("MarksToTake")]
+        public async Task<IActionResult> MarksToTake([FromBody] MarkOrderDto markOrder)
+        {
+            try
+            {
+                await _pickupService.MarksToTake(markOrder);
+
+                return Created();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while deleting the order: {ex.Message}");
+            }
+        }
+
+        [HttpPatch("MarksToDeliver")]
+        public async Task<IActionResult> MarksToDeliver([FromBody] MarkOrderDto markOrder)
+        {
+            try
+            {
+                await _pickupService.MarksToDeliver(markOrder);
+
+                return Created();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while deleting the order: {ex.Message}");
+            }
+        }
+
+        [HttpPatch("MarksToLaundryTake")]
+        public async Task<IActionResult> MarksToLaundryTake([FromBody] MarkOrderDto markOrder)
+        {
+            try
+            {
+
+                await _deliveryService.MarksToLaundryTake(markOrder);
+
+                return Created();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while deleting the order: {ex.Message}");
+            }
+        }
+        [HttpPatch("MarksToLaundryPick")]
+        public async Task<IActionResult> MarksToLaundryPick([FromBody] MarkOrderDto orderDto)
+        {
+            try
+            {
+                await _deliveryService.MarksToLaundryPick(orderDto);
+
+                return Created();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while deleting the order: {ex.Message}");
+            }
+        }
+        [HttpPatch("MarksToCustomerDeliver")]
+        public async Task<IActionResult> MarksToCustomerDeliver([FromBody] MarkOrderDto markOrder)
+        {
+            try
+            {
+                await _deliveryService.MarksToCustomerDeliver(markOrder);
+
+                return Created();
             }
             catch (Exception ex)
             {

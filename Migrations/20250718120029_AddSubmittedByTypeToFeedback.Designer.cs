@@ -4,6 +4,7 @@ using FreshlyBackendNew.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FreshlyBackendNew.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250718120029_AddSubmittedByTypeToFeedback")]
+    partial class AddSubmittedByTypeToFeedback
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -102,7 +105,7 @@ namespace FreshlyBackendNew.Migrations
                             Email = "admin@freshly.com",
                             FirstName = "System",
                             LastName = "Administrator",
-                            Password = "$2a$11$1mN9MtoLb5x./cJJfF9DUOs7O6w2HMInYQ6D.U1OU1Vm4eMjMKmNa",
+                            Password = "admin123",
                             Role = "SuperAdmin",
                             Username = "admin"
                         });
@@ -265,12 +268,6 @@ namespace FreshlyBackendNew.Migrations
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("ItemImageLink")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Name")
                         .HasColumnType("longtext");
 
@@ -365,17 +362,11 @@ namespace FreshlyBackendNew.Migrations
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid?>("DeliveryDriverId")
-                        .HasColumnType("char(36)");
-
                     b.Property<Guid?>("LaundryId")
                         .HasColumnType("char(36)");
 
                     b.Property<DateTime?>("PickupAt")
                         .HasColumnType("datetime(6)");
-
-                    b.Property<Guid?>("PickupDriverId")
-                        .HasColumnType("char(36)");
 
                     b.Property<DateTime?>("PlacedAt")
                         .HasColumnType("datetime(6)");

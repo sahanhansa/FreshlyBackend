@@ -1,7 +1,6 @@
 using FreshlyBackendNew.Data;
 using FreshlyBackendNew.DTOs;
 using FreshlyBackendNew.Models;
-using FreshlyBackendNew.Services.Implementations;
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,13 +15,13 @@ namespace FreshlyBackendNew.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<AdminController> _logger;
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
 
         public AdminController(ApplicationDbContext context, ILogger<AdminController> logger, IAuthService authService)
         {
             _context = context;
             _logger = logger;
-            _authService = (AuthService)authService; // Cast to access the password hashing methods
+            _authService = authService;
         }
 
         // GET: api/Admin
@@ -112,7 +111,7 @@ namespace FreshlyBackendNew.Controllers
                 var admin = new Admin
                 {
                     Username = adminDTO.Username,
-                    Password = _authService.HashPassword(adminDTO.Password), // Hash the password
+                    Password = adminDTO.Password, // Plain text password
                     FirstName = adminDTO.FirstName,
                     LastName = adminDTO.LastName,
                     Email = adminDTO.Email,
@@ -187,18 +186,7 @@ namespace FreshlyBackendNew.Controllers
 
                 if (!string.IsNullOrEmpty(adminDTO.Password))
                 {
-                    // Check if the current password needs to be upgraded to BCrypt
-                    if (_authService.PasswordNeedsUpgrade(admin.Password))
-                    {
-                        admin.Password = _authService.HashPassword(adminDTO.Password);
-                    }
-                    else
-                    {
-                        // Already using BCrypt, just update with the new hashed password
-                        admin.Password = _authService.HashPassword(adminDTO.Password);
-                    }
-                    
-                    // Clear any password reset token when password is changed
+                    admin.Password = adminDTO.Password; // Plain text password
                     admin.PasswordResetToken = null;
                     admin.PasswordResetExpiry = null;
                 }
@@ -291,12 +279,7 @@ namespace FreshlyBackendNew.Controllers
 
                 // Generate a secure random password
                 string newPassword = Guid.NewGuid().ToString().Substring(0, 8);
-                
-                // Update the admin's password with the hashed version
-                admin.Password = _authService.HashPassword(newPassword);
-                
-                // In a real application, you would send this password via email
-                // For now, we'll just return it in the response
+                admin.Password = newPassword; // Plain text password
                 await _context.SaveChangesAsync();
 
                 return Ok(new { Message = "Password has been reset", TemporaryPassword = newPassword });
@@ -383,10 +366,9 @@ namespace FreshlyBackendNew.Controllers
                 }
 
                 // Update the password and clear the reset token
-                admin.Password = _authService.HashPassword(resetDTO.NewPassword);
+                admin.Password = resetDTO.NewPassword; // Plain text password
                 admin.PasswordResetToken = null;
                 admin.PasswordResetExpiry = null;
-                
                 await _context.SaveChangesAsync();
 
                 return Ok(new { Message = "Password has been successfully reset" });

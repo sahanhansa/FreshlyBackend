@@ -170,13 +170,13 @@ namespace FreshlyBackendNew.Services.Implementations
                 summaries.Add(new TemporaryOrderSummaryDTO
                 {
                     TemporaryOrderId = tempOrder.TemporaryOrderId,
-                    LaundryId = tempOrder.LaundryId, // Add this line
+                    LaundryId = tempOrder.LaundryId,
                     LaundryName = tempOrder.Laundry?.LaundryName ?? "",
                     LaundryAddress = tempOrder.Laundry != null
-                        ? $"{tempOrder.Laundry.LaundryName}, {tempOrder.Laundry.Address}" // Replace with actual address if available
+                        ? $"{tempOrder.Laundry.LaundryName}, {tempOrder.Laundry.Address}"
                         : "",
                     Items = items,
-                    TotalAmount = total
+                    TotalCost = total // Use TotalCost for consistency
                 });
             }
 
@@ -220,7 +220,27 @@ namespace FreshlyBackendNew.Services.Implementations
             return true;
         }
 
+        public async Task<decimal> CalculateTemporaryOrderTotalCostAsync(Guid temporaryOrderId)
+        {
+            var details = await _context.TemporaryOrderDetails
+                .Where(d => d.TemporaryOrderId == temporaryOrderId)
+                .ToListAsync();
 
+            var tempOrder = await _context.TemporaryOrders.FindAsync(temporaryOrderId);
+            if (tempOrder == null)
+                return 0;
+
+            decimal total = 0;
+            foreach (var d in details)
+            {
+                var price = await _context.LaundryItemServices
+                    .Where(lis => lis.LaundryId == tempOrder.LaundryId && lis.ItemId == d.ItemId && lis.ServiceId == d.ServiceId)
+                    .Select(lis => lis.Price ?? 0)
+                    .FirstOrDefaultAsync();
+                total += price * (d.Quantity ?? 0);
+            }
+            return total;
+        }
     }
 
 }
