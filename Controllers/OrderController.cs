@@ -93,6 +93,26 @@ namespace FreshlyBackendNew.Controllers
             }
         }
 
+        // POST: api/Order - Create a new order
+        [HttpPost]
+        public async Task<IActionResult> CreateOrder([FromBody] OrderDTO orderDto)
+        {
+            if (orderDto == null)
+                return BadRequest("Order data is required.");
+
+            try
+            {
+                var createdOrder = await _orderService.CreateOrderAsync(orderDto);
+                if (createdOrder == null)
+                    return StatusCode(500, "Failed to create order.");
+                return CreatedAtAction(nameof(GetAllOrders), new { id = createdOrder.OrderId }, createdOrder);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while creating the order: {ex.Message}");
+            }
+        }
+
         // PUT: api/Order/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateOrder(Guid id, [FromBody] OrderDTO orderDto)

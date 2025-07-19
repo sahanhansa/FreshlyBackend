@@ -4,6 +4,7 @@ using FreshlyBackendNew.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FreshlyBackendNew.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250718064123_UpdateAdminPasswordSeed")]
+    partial class UpdateAdminPasswordSeed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -98,7 +101,7 @@ namespace FreshlyBackendNew.Migrations
                         new
                         {
                             AdminId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedAt = new DateTime(2025, 7, 18, 12, 0, 28, 439, DateTimeKind.Utc).AddTicks(2197),
+                            CreatedAt = new DateTime(2025, 7, 18, 6, 41, 19, 911, DateTimeKind.Utc).AddTicks(7707),
                             Email = "admin@freshly.com",
                             FirstName = "System",
                             LastName = "Administrator",
@@ -243,9 +246,6 @@ namespace FreshlyBackendNew.Migrations
 
                     b.Property<int?>("Rating")
                         .HasColumnType("int");
-
-                    b.Property<string>("SubmittedByType")
-                        .HasColumnType("longtext");
 
                     b.HasKey("FeedbackId");
 

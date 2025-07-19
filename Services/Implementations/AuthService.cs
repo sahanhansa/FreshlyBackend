@@ -7,7 +7,6 @@ using System.Security.Claims;
 using System.Text;
 using FreshlyBackendNew.DTOs;
 using Microsoft.Extensions.Logging;
-using BCrypt.Net;
 
 namespace FreshlyBackendNew.Services.Implementations
 {
@@ -83,47 +82,27 @@ namespace FreshlyBackendNew.Services.Implementations
                     return null;
                 }
 
+                // Trim password to avoid whitespace issues
+                loginData.Password = loginData.Password?.Trim();
+
                 // First try to find the admin in the new Admin table
                 var admin = await _context.Admins
                     .FirstOrDefaultAsync(u => u.Username == loginData.Username);
 
                 if (admin != null)
                 {
-                    // Check if the password uses the BCrypt format
-                    bool passwordValid;
-                    
-                    if (admin.Password.StartsWith("$2a$") || admin.Password.StartsWith("$2b$"))
-                    {
-                        // The password is hashed with BCrypt, verify it
-                        try
-                        {
-                            passwordValid = BCrypt.Net.BCrypt.Verify(loginData.Password, admin.Password);
-                        }
-                        catch
-                        {
-                            // If BCrypt verification fails, fall back to plain text comparison
-                            passwordValid = admin.Password == loginData.Password;
-                        }
-                    }
-                    else
-                    {
-                        // Plain text comparison for backward compatibility
-                        passwordValid = admin.Password == loginData.Password;
-                    }
-                    
+                    // Only use plain text comparison for admin password
+                    bool passwordValid = admin.Password == loginData.Password;
                     if (!passwordValid)
                     {
                         _logger.LogInformation($"Invalid password for admin username: {loginData.Username}");
                         return null;
                     }
-
                     // Update the last login time
                     admin.LastLogin = DateTime.UtcNow;
                     await _context.SaveChangesAsync();
-
                     string token = GenerateJwtToken(admin.AdminId.ToString(), admin.Username, admin.Role ?? "Admin");
                     _logger.LogInformation($"Admin login successful: {admin.Username}");
-
                     return new AuthResponse
                     {
                         Token = token,
@@ -262,18 +241,6 @@ namespace FreshlyBackendNew.Services.Implementations
                     UserId = "Error"
                 };
             }
-        }
-
-        // Helper method to hash passwords with BCrypt
-        public string HashPassword(string password)
-        {
-            return BCrypt.Net.BCrypt.HashPassword(password, BCrypt.Net.BCrypt.GenerateSalt());
-        }
-
-        // Helper method to verify if a password needs to be upgraded to BCrypt
-        public bool PasswordNeedsUpgrade(string currentPassword)
-        {
-            return !(currentPassword.StartsWith("$2a$") || currentPassword.StartsWith("$2b$"));
         }
 
         // Updated to include role in token

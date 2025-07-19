@@ -8,6 +8,7 @@ namespace FreshlyBackendNew.DTOs
         public string? PickupDate { get; set; }
         public string? PickupTime { get; set; }
         public DateTime? PlacedDateTime { get; set; }
+        public decimal? TotalCost { get; set; } // Add this property to hold total cost
 
         // Customer details
         public CustomerDTO? Customer { get; set; }

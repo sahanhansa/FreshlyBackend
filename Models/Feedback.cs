@@ -28,5 +28,8 @@ namespace FreshlyBackendNew.Models
         
         [ForeignKey("LaundryId")]
         public Laundry? Laundry { get; set; }
+
+        // Identifies who filed the feedback: "Customer", "Driver", or "Laundry"
+        public string? SubmittedByType { get; set; }
     }
 }
