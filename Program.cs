@@ -108,6 +108,8 @@ builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IFileStorageService, S3StorageService>();
 builder.Services.AddScoped<IServiceService, ServicesService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+// Add this line to your service registrations in Program.cs
+builder.Services.AddScoped<IOrderDetailService, OrderDetailService>();
 
 // Add controller services with improved JSON handling
 builder.Services.AddControllers()
