@@ -7,9 +7,6 @@ namespace FreshlyBackendNew.DTOs
         public Guid CategoryId { get; set; }
         public string ImageUrl { get; set; }
         public List<ServiceDTO> Services { get; set; }
-        
-        public Guid LaundryId { get; set; }
-
     }
 
     public class ServiceDTO
