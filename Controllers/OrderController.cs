@@ -1,4 +1,6 @@
+using FreshlyBackendNew.Data;
 using FreshlyBackendNew.DTOs;
+using FreshlyBackendNew.Models;
 using FreshlyBackendNew.Services;
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +16,8 @@ namespace FreshlyBackendNew.Controllers
         private readonly IOrderService _orderService;
         private readonly IAllPickupService _pickupService;
         private readonly IAllDeliveryService _deliveryService;
+        private readonly ICompleteTasksService _completetasksservice;
+        private readonly ApplicationDbContext _context;
 
         public OrderController(
             IOrderService orderService,
@@ -121,6 +125,36 @@ namespace FreshlyBackendNew.Controllers
 
             return Ok(deliveryDetails);
         }
+
+        [HttpGet("GetAllCompleteTasks")]
+        public async Task<IActionResult> GetAllCompleteTask()
+        {
+            var completetasks = await _completetasksservice.GetAllCompleteTasks();
+
+            if (completetasks == null)
+            {
+                return NotFound("No orders found.");
+            }
+
+            return Ok(completetasks);
+        }
+
+
+        [HttpGet("GetAllCompleteTasks/{orderId}")]
+        public async Task<IActionResult> GetAllCompleteTaskDetails(string orderId)
+        {
+            var completetasksDetails = await _completetasksservice.GetAllCompleteTasksBYId(orderId);
+
+            if (completetasksDetails == null)
+            {
+                return NotFound("No orders found.");
+            }
+
+            return Ok(completetasksDetails);
+        }
+
+
+
 
         // --- Laundry Order Management (Rohansi) ---
 
@@ -238,6 +272,80 @@ namespace FreshlyBackendNew.Controllers
                     return NotFound($"Order with ID {id} not found.");
                 }
                 return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while deleting the order: {ex.Message}");
+            }
+        }
+
+        [HttpPatch("MarksToTake")]
+        public async Task<IActionResult> MarksToTake([FromBody] MarkOrderDto markOrder)
+        {
+            try
+            {
+                await _pickupService.MarksToTake(markOrder);
+
+                return Created();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while deleting the order: {ex.Message}");
+            }
+        }
+
+        [HttpPatch("MarksToDeliver")]
+        public async Task<IActionResult> MarksToDeliver([FromBody] MarkOrderDto markOrder)
+        {
+            try
+            {
+                await _pickupService.MarksToDeliver(markOrder);
+
+                return Created();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while deleting the order: {ex.Message}");
+            }
+        }
+
+        [HttpPatch("MarksToLaundryTake")]
+        public async Task<IActionResult> MarksToLaundryTake([FromBody] MarkOrderDto markOrder)
+        {
+            try
+            {
+
+                await _deliveryService.MarksToLaundryTake(markOrder);
+
+                return Created();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while deleting the order: {ex.Message}");
+            }
+        }
+        [HttpPatch("MarksToLaundryPick")]
+        public async Task<IActionResult> MarksToLaundryPick([FromBody] MarkOrderDto orderDto)
+        {
+            try
+            {
+                await _deliveryService.MarksToLaundryPick(orderDto);
+
+                return Created();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while deleting the order: {ex.Message}");
+            }
+        }
+        [HttpPatch("MarksToCustomerDeliver")]
+        public async Task<IActionResult> MarksToCustomerDeliver([FromBody] MarkOrderDto markOrder)
+        {
+            try
+            {
+                await _deliveryService.MarksToCustomerDeliver(markOrder);
+
+                return Created();
             }
             catch (Exception ex)
             {

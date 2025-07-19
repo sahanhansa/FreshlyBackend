@@ -47,6 +47,9 @@ builder.Services.AddSingleton<IAmazonS3>(serviceProvider =>
         configuration["AWS:SecretKey"]
     );
 
+
+
+// Add CORS services
     return new AmazonS3Client(credentials, config);
 });
 
@@ -91,6 +94,15 @@ builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ITemporaryOrderService, TemporaryOrderService>();
+
+
+//ruwe
+builder.Services.AddScoped<IAllPickupService, AllPickupService>();
+builder.Services.AddScoped<IAllDeliveryService, AllDeliveryService>();
+builder.Services.AddScoped<ICompleteTasksService, CompleteTasksService>();
+
+
+
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IFileStorageService, S3StorageService>();
@@ -101,8 +113,6 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        // Handle null values properly
-        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         // Handle circular references
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });

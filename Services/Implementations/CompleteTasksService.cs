@@ -1,84 +1,78 @@
 ﻿using FreshlyBackendNew.Data;
 using FreshlyBackendNew.DTOs;
+using FreshlyBackendNew.DTOs.Driver_DTOs;
+using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace FreshlyBackendNew.Services
+namespace FreshlyBackendNew.Services.Implementations
 {
-    public class AllPickupService : IAllPickupService
+    public class CompleteTasksService : ICompleteTasksService
     {
         private readonly ApplicationDbContext _context;
 
-        // Constructor injection of the database context
-        public AllPickupService(ApplicationDbContext context)
+        public CompleteTasksService(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // Retrieves a list of all pickups with relevant customer, laundry, address, and contact details
-        public async Task<List<PickupDetailsDto>> GetAllPickups()
+        // Get all orders that are completed
+        public async Task<List<CompleteTasksDetailsDto>> GetAllCompleteTasks()
         {
             try
             {
-                var pickups = await (
+                var completedTasks = await (
                     from ord in _context.Orders
                     join cust in _context.Customers on ord.CustomerId equals cust.CustomerId
-                    join add in _context.Addresses on cust.AddressId equals add.AddressId
+                    join addr in _context.Addresses on cust.AddressId equals addr.AddressId
                     join laun in _context.Laundries on ord.LaundryId equals laun.LaundryId
                     join sta in _context.Statuses on ord.StatusId equals sta.StatusID
-                    where sta.StatusName == "Pickup Complete" || sta.StatusName == "Pickup Pending"
-                    select new PickupDetailsDto
+                    where sta.StatusName == "Pickup Complete" || sta.StatusName == "Delivery Complete"
+                    select new CompleteTasksDetailsDto
                     {
                         OrderId = ord.OrderId,
                         CustomerId = cust.CustomerId,
                         CustomerName = cust.FirstName + " " + cust.LastName,
-                        Address = add.HouseNo + " " + add.Street + ", " + add.City,
-                        Status = sta.StatusName,
+                        Address = addr.HouseNo + " " + addr.Street + ", " + addr.City,
                         LaundryName = laun.LaundryName,
-
-                        // Fetch all contact numbers associated with the customer
+                        Status = sta.StatusName,
                         Contact = _context.Contacts
-                            .Where(c => c.UserId == cust.CustomerId)
+                            .Where(c => c.UserId == cust.CustomerId && c.UserType == "Customer")
                             .Select(c => c.ContactNumber)
                             .ToList()
-                    })
-                    .ToListAsync();
+                    }
+                ).ToListAsync();
 
-                return pickups;
+                return completedTasks;
             }
             catch (Exception ex)
             {
-                // You may log the error here or throw a custom exception
-                throw new Exception("An error occurred while retrieving all orders.", ex);
+                throw new Exception("An error occurred while retrieving completed tasks.", ex);
             }
         }
 
-        // Retrieves detailed pickup information for a specific order ID
-        public async Task<PickupDetailsByIdDto> GetPickupDetailsBYId(string orderID)
+        // Get details for a specific completed task by Order ID
+        public async Task<CompleteTasksDetailsByIdDto> GetAllCompleteTasksBYId(string orderID)
         {
             try
             {
-                var pickupDetails = await (
+                var completedTaskDetails = await (
                     from ord in _context.Orders
                     join cust in _context.Customers on ord.CustomerId equals cust.CustomerId
-                    join add in _context.Addresses on cust.AddressId equals add.AddressId
+                    join addr in _context.Addresses on cust.AddressId equals addr.AddressId
                     join laun in _context.Laundries on ord.LaundryId equals laun.LaundryId
                     join sta in _context.Statuses on ord.StatusId equals sta.StatusID
-                    where ord.OrderId.ToString() == orderID && (sta.StatusName == "Pickup Complete" || sta.StatusName == "Pickup Pending")
-                    select new PickupDetailsByIdDto
+                    where ord.OrderId.ToString() == orderID && (sta.StatusName == "Pickup Complete" || sta.StatusName == "Delivery Complete")
+                    select new CompleteTasksDetailsByIdDto
                     {
                         OrderId = ord.OrderId,
                         CustomerName = cust.FirstName + " " + cust.LastName,
-                        Address = add.HouseNo + " " + add.Street + ", " + add.City,
+                        Address = addr.HouseNo + " " + addr.Street + ", " + addr.City,
                         LaundryName = laun.LaundryName,
                         Status = sta.StatusName,
-
-                        // Fetch all contact numbers associated with the customer
                         Contact = _context.Contacts
-                            .Where(c => c.UserId == cust.CustomerId)
+                            .Where(c => c.UserId == cust.CustomerId && c.UserType == "Customer")
                             .Select(c => c.ContactNumber)
                             .ToList(),
-
-                        // Fetch all items associated with the order
                         OrderItems = _context.OrderDetails
                             .Where(o => o.OrderId == ord.OrderId)
                             .Join(_context.Items,
@@ -90,16 +84,18 @@ namespace FreshlyBackendNew.Services
                                       Quantity = (int)o.Quantity
                                   })
                             .ToList()
-                    })
-                    .FirstOrDefaultAsync();
+                    }
+                ).FirstOrDefaultAsync();
 
-                return pickupDetails;
+                return completedTaskDetails;
             }
             catch (Exception ex)
             {
-                // You may log the error here or throw a custom exception
-                throw new Exception($"An error occurred while retrieving order details for Order ID: {orderID}", ex);
+                throw new Exception($"An error occurred while retrieving completed task details for Order ID: {orderID}", ex);
             }
         }
+
+      
     }
 }
+
