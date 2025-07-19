@@ -7,7 +7,7 @@
         public string LaundryName { get; set; }
         public string? LaundryAddress { get; set; }
         public List<TemporaryOrderItemDTO> Items { get; set; } = new();
-        public decimal TotalAmount { get; set; }
+        public decimal TotalCost { get; set; } // For consistency with OrderDTO
     }
 
     public class TemporaryOrderItemDTO

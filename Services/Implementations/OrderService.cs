@@ -155,6 +155,20 @@ namespace FreshlyBackendNew.Services.Implementations
                     PlacedDateTime = o.PlacedAt
                 };
 
+                // Calculate total cost for the order
+                var orderDetails = await _context.OrderDetails.Where(od => od.OrderId == o.OrderId).ToListAsync();
+                decimal totalCost = 0;
+                foreach (var detail in orderDetails)
+                {
+                    var price = await _context.LaundryItemServices
+                        .Where(lis => lis.LaundryId == o.LaundryId && lis.ItemId == detail.ItemId && lis.ServiceId == detail.ServiceId)
+                        .Select(lis => lis.Price ?? 0)
+                        .FirstOrDefaultAsync();
+                    totalCost += price * (detail.Quantity ?? 0);
+                }
+                dto.TotalCost = totalCost;
+
+                // ...existing code for customer, laundry, status...
                 if (o.Customer != null)
                 {
                     dto.Customer = new CustomerDTO
@@ -229,6 +243,20 @@ namespace FreshlyBackendNew.Services.Implementations
                 PlacedDateTime = order.PlacedAt
             };
 
+            // Calculate total cost for the order
+            var orderDetails = await _context.OrderDetails.Where(od => od.OrderId == order.OrderId).ToListAsync();
+            decimal totalCost = 0;
+            foreach (var detail in orderDetails)
+            {
+                var price = await _context.LaundryItemServices
+                    .Where(lis => lis.LaundryId == order.LaundryId && lis.ItemId == detail.ItemId && lis.ServiceId == detail.ServiceId)
+                    .Select(lis => lis.Price ?? 0)
+                    .FirstOrDefaultAsync();
+                totalCost += price * (detail.Quantity ?? 0);
+            }
+            dto.TotalCost = totalCost;
+
+            // ...existing code for customer, laundry, status...
             if (order.Customer != null)
             {
                 dto.Customer = new CustomerDTO
@@ -333,7 +361,7 @@ namespace FreshlyBackendNew.Services.Implementations
                 // Set default status if not provided
                 var defaultStatus = await _context.Statuses
                     .FirstOrDefaultAsync(s => s.StatusName != null && 
-                        string.Equals(s.StatusName, "placed", StringComparison.OrdinalIgnoreCase));
+                        s.StatusName.ToLower() == "placed");
                 
                 if (defaultStatus != null)
                 {
