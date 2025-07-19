@@ -495,19 +495,7 @@ namespace FreshlyBackendNew.Services.Implementations
                 if (!tempDetails.Any())
                     return false; // No items to confirm
 
-                // Update address if provided
-                //if (dto.Address != null)
-                //{
-                //    var address = await _context.Addresses.FindAsync(dto.Address.AddressId);
-                //    if (address != null)
-                //    {
-                //        address.HouseNo = dto.Address.HouseNo ?? address.HouseNo;
-                //        address.Street = dto.Address.Street ?? address.Street;
-                //        address.City = dto.Address.City ?? address.City;
-                //        address.PostalCode = dto.Address.PostalCode ?? address.PostalCode;
-                //    }
-                //}
-                
+                // Update address if provided            
                 if (dto.Address != null) // dto.Address is now UpdatedAddressDTO
                 {
                     var address = await _context.Addresses.FindAsync(dto.Address.AddressId);
@@ -526,7 +514,8 @@ namespace FreshlyBackendNew.Services.Implementations
                     OrderId = Guid.NewGuid(),
                     CustomerId = tempOrder.CustomerId,
                     LaundryId = tempOrder.LaundryId,
-                    PlacedAt = DateTime.UtcNow,
+                    //PlacedAt = DateTime.UtcNow,
+                    PlacedAt = DateTime.UtcNow.AddTicks(-(DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond)),
                     PickupAt = dto.PickupAt,
                     StatusId = orderPlacedStatusId
                 };

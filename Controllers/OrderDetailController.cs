@@ -1,6 +1,9 @@
 ﻿using FreshlyBackendNew.Data;
+using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
 
 namespace FreshlyBackendNew.Controllers
 {
@@ -9,10 +12,54 @@ namespace FreshlyBackendNew.Controllers
     public class OrderDetailController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IOrderDetailService _orderDetailService;
 
-        public OrderDetailController(ApplicationDbContext context)
+        public OrderDetailController(
+            ApplicationDbContext context,
+            IOrderDetailService orderDetailService)
         {
             _context = context;
+            _orderDetailService = orderDetailService;
+        }
+
+        // GET: api/OrderDetail/{orderId}
+        [HttpGet("{orderId}")]
+        public async Task<IActionResult> GetOrderDetails(Guid orderId)
+        {
+            try
+            {
+                var orderDetails = await _orderDetailService.GetOrderDetailsAsync(orderId);
+
+                if (orderDetails == null)
+                    return NotFound($"Order with ID {orderId} not found.");
+
+                return Ok(orderDetails);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"An error occurred while retrieving order details: {ex.Message}");
+            }
+        }
+
+        // GET: api/OrderDetail/customer/{customerId}/ongoing
+        [HttpGet("customer/{customerId}/ongoing")]
+        public async Task<IActionResult> GetOngoingOrders(Guid customerId)
+        {
+            try
+            {
+                var ongoingOrders = await _orderDetailService.GetOngoingOrdersForCustomerAsync(customerId);
+
+                if (ongoingOrders == null || ongoingOrders.Count == 0)
+                    return NotFound($"No ongoing orders found for customer with ID {customerId}.");
+
+                return Ok(ongoingOrders);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"An error occurred while retrieving ongoing orders: {ex.Message}");
+            }
         }
     }
 }
