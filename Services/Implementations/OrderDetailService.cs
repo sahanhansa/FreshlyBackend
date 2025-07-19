@@ -209,5 +209,50 @@ namespace FreshlyBackendNew.Services.Implementations
                 throw; // Rethrow to be handled by controller
             }
         }
+
+        //lasini-get out for delivery orders
+        public async Task<List<OrderDetailsDTO>> GetOutForDeliveryOrdersForCustomerAsync(Guid customerId)
+        {
+            try
+            {
+                // Get the "out for delivery" status ID
+                var outForDeliveryStatusId = await _context.Statuses
+                    .Where(s => s.StatusName != null && s.StatusName.ToLower().Trim() == "out for delivery")
+                    .Select(s => s.StatusID)
+                    .FirstOrDefaultAsync();
+
+                if (outForDeliveryStatusId == Guid.Empty)
+                    return new List<OrderDetailsDTO>();
+
+                // Get orders with "out for delivery" status for this customer
+                var orderIds = await _context.Orders
+                    .Where(o => o.CustomerId == customerId &&
+                           o.StatusId.HasValue &&
+                           o.StatusId.Value == outForDeliveryStatusId)
+                    .Select(o => o.OrderId)
+                    .ToListAsync();
+
+                var result = new List<OrderDetailsDTO>();
+
+                // Get full details for each order
+                foreach (var orderId in orderIds)
+                {
+                    var orderDetails = await GetOrderDetailsAsync(orderId);
+                    if (orderDetails != null)
+                    {
+                        result.Add(orderDetails);
+                    }
+                }
+
+                // Order by most recent first
+                return result.OrderByDescending(o => o.OrderDate).ToList();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error getting out for delivery orders: {ex.Message}");
+                return new List<OrderDetailsDTO>();
+            }
+        }
     }
 }

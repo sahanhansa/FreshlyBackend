@@ -1,4 +1,5 @@
 ﻿using FreshlyBackendNew.Data;
+using FreshlyBackendNew.DTOs.Order_DTOs;
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -79,6 +80,27 @@ namespace FreshlyBackendNew.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     $"An error occurred while canceling the order: {ex.Message}");
+            }
+        }
+
+        //lasini
+        // GET: api/OrderDetail/customer/{customerId}/outfordelivery
+        [HttpGet("customer/{customerId}/outfordelivery")]
+        public async Task<IActionResult> GetOutForDeliveryOrders(Guid customerId)
+        {
+            try
+            {
+                var outForDeliveryOrders = await _orderDetailService.GetOutForDeliveryOrdersForCustomerAsync(customerId);
+
+                if (outForDeliveryOrders == null || outForDeliveryOrders.Count == 0)
+                    return Ok(new List<OrderDetailsDTO>()); // Return empty list instead of 404 for easier client handling
+
+                return Ok(outForDeliveryOrders);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"An error occurred while retrieving out for delivery orders: {ex.Message}");
             }
         }
     }
