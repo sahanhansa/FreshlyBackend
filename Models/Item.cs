@@ -16,6 +16,10 @@ namespace FreshlyBackendNew.Models
 
         // Item Details
         public string? Name { get; set; }
+        
+        public string? Description { get; set; }
+        
+        public string? ItemImageLink { get; set; }
 
         // Foreign Key
         public Guid CategoryId { get; set; }

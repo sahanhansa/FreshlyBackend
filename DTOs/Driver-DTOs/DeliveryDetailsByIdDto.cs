@@ -13,5 +13,7 @@
         public string LaundryName { get; set; }
         public List<OrderedItemsDto> OrderItems { get; set; }
         public string PaymenthMethod { get; set; }
+        public Guid? DeliverDriver { get; set; }
+        public string? note { get; set; }
     }
 }

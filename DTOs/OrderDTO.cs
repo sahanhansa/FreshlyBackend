@@ -46,18 +46,25 @@ namespace FreshlyBackendNew.DTOs
         public string? City { get; set; }
         public string? PostalCode { get; set; }
         public string? FullAddress { get; set; }
+        public DateTime? PlacedDate { get; set; }
     }
+
+    
 
     public class LaundryDTO
     {
         public Guid LaundryId { get; set; }
         public string? LaundryName { get; set; }
+        public string StatusName { get; set; } = string.Empty;
     }
 
     public class StatusDTO
     {
         public Guid StatusID { get; set; }
         public string? StatusName { get; set; }
+
+        public string CustomerFName { get; set; } = string.Empty;
+
         public string StatusDisplayName { get; set; } = string.Empty;
     }
 
@@ -72,4 +79,5 @@ namespace FreshlyBackendNew.DTOs
         public Guid UserId { get; set; }
         public string? Username { get; set; }
     }
+
 }
