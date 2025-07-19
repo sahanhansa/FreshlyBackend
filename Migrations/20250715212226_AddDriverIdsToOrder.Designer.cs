@@ -4,6 +4,7 @@ using FreshlyBackendNew.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FreshlyBackendNew.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250715212226_AddDriverIdsToOrder")]
+    partial class AddDriverIdsToOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -98,7 +101,7 @@ namespace FreshlyBackendNew.Migrations
                         new
                         {
                             AdminId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedAt = new DateTime(2025, 7, 18, 12, 0, 28, 439, DateTimeKind.Utc).AddTicks(2197),
+                            CreatedAt = new DateTime(2025, 7, 15, 21, 22, 24, 808, DateTimeKind.Utc).AddTicks(8519),
                             Email = "admin@freshly.com",
                             FirstName = "System",
                             LastName = "Administrator",
@@ -135,10 +138,6 @@ namespace FreshlyBackendNew.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("AccountStatus")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<Guid?>("AddressId")
                         .HasColumnType("char(36)");
 
@@ -169,10 +168,6 @@ namespace FreshlyBackendNew.Migrations
                     b.Property<Guid>("DriverId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
-
-                    b.Property<string>("AccountStatus")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<Guid?>("AddressId")
                         .HasColumnType("char(36)");
@@ -244,9 +239,6 @@ namespace FreshlyBackendNew.Migrations
                     b.Property<int?>("Rating")
                         .HasColumnType("int");
 
-                    b.Property<string>("SubmittedByType")
-                        .HasColumnType("longtext");
-
                     b.HasKey("FeedbackId");
 
                     b.HasIndex("LaundryId");
@@ -301,10 +293,6 @@ namespace FreshlyBackendNew.Migrations
                     b.Property<Guid>("LaundryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
-
-                    b.Property<string>("AccountStatus")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<Guid?>("AddressId")
                         .HasColumnType("char(36)");

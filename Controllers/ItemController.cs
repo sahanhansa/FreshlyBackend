@@ -1,4 +1,5 @@
-﻿using FreshlyBackendNew.Services.Interfaces;
+﻿using FreshlyBackendNew.DTOs;
+using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FreshlyBackendNew.Controllers
@@ -34,6 +35,18 @@ namespace FreshlyBackendNew.Controllers
         }
 
         //Rohansi-Add new item to a list
+        
+        [HttpPost("add-item")]
+        public async Task<IActionResult> AddItem([FromBody] AddItemDTO itemDto)
+        {
+            if (itemDto == null || itemDto.Services == null || !itemDto.Services.Any())
+            {
+                return BadRequest("Item details or services are missing.");
+            }
+
+            var success = await _itemService.AddItemAsync(itemDto);
+            return success ? Ok("Item added successfully.") : StatusCode(500, "Failed to add item.");
+        }
         //Rohansi-Edit item details
         //Rohansi-Delete an item from list
             

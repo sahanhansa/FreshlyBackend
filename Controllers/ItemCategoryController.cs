@@ -1,7 +1,5 @@
-﻿using FreshlyBackendNew.Data;
-using FreshlyBackendNew.Models;
+﻿using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace FreshlyBackendNew.Controllers
 {
@@ -9,13 +7,22 @@ namespace FreshlyBackendNew.Controllers
     [ApiController]
     public class ItemCategoryController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ICategoryService _categoryService;
 
-        public ItemCategoryController(ApplicationDbContext context)
+        public ItemCategoryController(ICategoryService categoryService)
         {
-            _context = context;
+            _categoryService = categoryService;
         }
 
-        
+        [HttpGet("GetCategoryIdByName/{categoryName}")]
+        public async Task<IActionResult> GetCategoryIdByName(string categoryName)
+        {
+            var result = await _categoryService.GetCategoryIdByNameAsync(categoryName);
+
+            if (result == null)
+                return NotFound($"Category with name '{categoryName}' not found.");
+
+            return Ok(result);
+        }
     }
 }

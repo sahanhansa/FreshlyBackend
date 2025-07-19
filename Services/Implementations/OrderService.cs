@@ -1,5 +1,6 @@
 ﻿using FreshlyBackendNew.Data;
 using FreshlyBackendNew.DTOs;
+using FreshlyBackendNew.Models;
 using FreshlyBackendNew.Services.Interfaces;
 using FreshlyBackendNew.Models;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,7 @@ namespace FreshlyBackendNew.Services.Implementations
         public async Task<List<OrderDTO>> GetNewOrdersAsync(Guid laundryId)
         {
             var pickedUpStatus = await _context.Statuses
-                .FirstOrDefaultAsync(s => s.StatusName != null && string.Equals(s.StatusName, "picked up", StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefaultAsync(s => s.StatusName != null && s.StatusName.ToLower() == "picked up");
 
             if (pickedUpStatus == null)
                 return [];
@@ -50,7 +51,7 @@ namespace FreshlyBackendNew.Services.Implementations
         public async Task<List<OrderDTO>> GetProcessingOrdersAsync(Guid laundryId)
         {
             var processingStatus = await _context.Statuses
-                .FirstOrDefaultAsync(s => s.StatusName != null && string.Equals(s.StatusName, "processing in laundry", StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefaultAsync(s => s.StatusName != null && s.StatusName.ToLower() == "processing in laundry");
 
             if (processingStatus == null)
                 return [];
@@ -58,7 +59,7 @@ namespace FreshlyBackendNew.Services.Implementations
             var orders = await _context.Orders
                 .Where(o => o.LaundryId == laundryId && o.StatusId == processingStatus.StatusID)
                 .Include(o => o.Customer)
-                .ThenInclude(c => c.Address)
+                    .ThenInclude(c => c.Address)
                 .Include(o => o.Laundry)
                 .Include(o => o.Status)
                 .ToListAsync();
@@ -69,10 +70,10 @@ namespace FreshlyBackendNew.Services.Implementations
                 var dto = new OrderDTO
                 {
                     OrderId = o.OrderId,
-                    PlacedDate = o.PlacedAt.HasValue ? o.PlacedAt.Value.ToString("yyyy-MM-dd") : null,
-                    PlacedTime = o.PlacedAt.HasValue ? o.PlacedAt.Value.ToString("HH:mm:ss") : null,
-                    PickupDate = o.PickupAt.HasValue ? o.PickupAt.Value.ToString("yyyy-MM-dd") : null,
-                    PickupTime = o.PickupAt.HasValue ? o.PickupAt.Value.ToString("HH:mm:ss") : null
+                    PlacedDate = o.PlacedAt?.ToString("yyyy-MM-dd"),
+                    PlacedTime = o.PlacedAt?.ToString("HH:mm:ss"),
+                    PickupDate = o.PickupAt?.ToString("yyyy-MM-dd"),
+                    PickupTime = o.PickupAt?.ToString("HH:mm:ss")
                 };
 
                 if (o.Customer != null)
@@ -122,6 +123,7 @@ namespace FreshlyBackendNew.Services.Implementations
 
             return result;
         }
+
 
         public async Task<List<OrderDTO>> GetAllOrdersAsync(Guid laundryId)
         {
@@ -461,5 +463,122 @@ namespace FreshlyBackendNew.Services.Implementations
         {
             return await _context.Orders.AnyAsync(o => o.OrderId == id);
         }
+
+        //lasini-get relavant customer address
+        public async Task<DTOs.Order_DTOs.AddressDTO> GetCustomerAddressAsync(Guid customerId)
+        {
+            var customer = await _context.Customers
+                .Include(c => c.Address)
+                .FirstOrDefaultAsync(c => c.CustomerId == customerId);
+
+            if (customer == null || customer.Address == null)
+                return null;
+
+            return new DTOs.Order_DTOs.AddressDTO
+            {
+                AddressId = customer.Address.AddressId,
+                HouseNo = customer.Address.HouseNo,
+                Street = customer.Address.Street,
+                City = customer.Address.City,
+                PostalCode = customer.Address.PostalCode
+            };
+        }
+
+        //lasini-confirm new order
+        public async Task<bool> ConfirmOrderAsync(ConfirmOrderDTO dto)
+        {
+            // Begin transaction to ensure data consistency
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // Get status IDs
+                var orderPlacedStatusId = await _context.Statuses
+                    .Where(s => s.StatusName == "Order Placed")
+                    .Select(s => s.StatusID)
+                    .FirstOrDefaultAsync();
+
+                if (orderPlacedStatusId == Guid.Empty)
+                {
+                    // Status not found, create it
+                    var newStatus = new Status { StatusID = Guid.NewGuid(), StatusName = "Order Placed" };
+                    _context.Statuses.Add(newStatus);
+                    await _context.SaveChangesAsync();
+                    orderPlacedStatusId = newStatus.StatusID;
+                }
+
+                // Load the temporary order with customer and laundry details
+                var tempOrder = await _context.TemporaryOrders
+                    .Include(o => o.Customer)
+                    .Include(o => o.Laundry)
+                    .FirstOrDefaultAsync(o => o.TemporaryOrderId == dto.TemporaryOrderId);
+
+                if (tempOrder == null)
+                    return false;
+
+                // Get all temporary order details
+                var tempDetails = await _context.TemporaryOrderDetails
+                    .Where(d => d.TemporaryOrderId == dto.TemporaryOrderId)
+                    .ToListAsync();
+
+                if (!tempDetails.Any())
+                    return false; // No items to confirm
+
+                // Update address if provided            
+                if (dto.Address != null) // dto.Address is now UpdatedAddressDTO
+                {
+                    var address = await _context.Addresses.FindAsync(dto.Address.AddressId);
+                    if (address != null)
+                    {
+                        address.HouseNo = dto.Address.HouseNo ?? address.HouseNo;
+                        address.Street = dto.Address.Street ?? address.Street;
+                        address.City = dto.Address.City ?? address.City;
+                        address.PostalCode = dto.Address.PostalCode ?? address.PostalCode;
+                    }
+                }
+
+                // Create new order
+                var order = new Order
+                {
+                    OrderId = Guid.NewGuid(),
+                    CustomerId = tempOrder.CustomerId,
+                    LaundryId = tempOrder.LaundryId,
+                    //PlacedAt = DateTime.UtcNow,
+                    PlacedAt = DateTime.UtcNow.AddTicks(-(DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond)),
+                    PickupAt = dto.PickupAt,
+                    StatusId = orderPlacedStatusId
+                };
+                _context.Orders.Add(order);
+
+                // Copy details from temporary order to order details
+                foreach (var tempDetail in tempDetails)
+                {
+                    _context.OrderDetails.Add(new OrderDetail
+                    {
+                        OrderId = order.OrderId,
+                        ItemId = tempDetail.ItemId,
+                        ServiceId = tempDetail.ServiceId,
+                        Quantity = tempDetail.Quantity
+                    });
+                }
+
+                // Update temporary order status to "Order Placed"
+                tempOrder.StatusId = orderPlacedStatusId;
+
+                // Remove all temporary order details (as specified in requirements)
+                _context.TemporaryOrderDetails.RemoveRange(tempDetails);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return true;
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+
     }
 }

@@ -1,6 +1,9 @@
-﻿using FreshlyBackendNew.Data;
-using Microsoft.AspNetCore.Http;
+﻿using FreshlyBackendNew.DTOs;
+using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
 namespace FreshlyBackendNew.Controllers
 {
@@ -8,11 +11,6 @@ namespace FreshlyBackendNew.Controllers
     [ApiController]
     public class LaundryItemServiceController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-
-        public LaundryItemServiceController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+        
     }
 }

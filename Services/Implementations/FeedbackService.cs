@@ -1,5 +1,6 @@
-﻿using FreshlyBackendNew.Data;
+using FreshlyBackendNew.Data;
 using FreshlyBackendNew.DTOs;
+using FreshlyBackendNew.Services.Interfaces;
 using FreshlyBackendNew.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -7,17 +8,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace FreshlyBackendNew.Services
+public class FeedbackService : IFeedbackService
 {
-    public class FeedbackService : IFeedbackService
+    private readonly ApplicationDbContext _context;
+
+    public FeedbackService(ApplicationDbContext context)
     {
-        private readonly ApplicationDbContext _context;
+        _context = context;
+    }
 
-        public FeedbackService(ApplicationDbContext context)
-        {
-            _context = context;
-        }
-
+   //Rohansi-Get Feddbacks from laundry side
+    public async Task<List<FeedbackDTO>> GetFeedbacksAsync(Guid laundryId)
+    {
+        return await _context.Feedbacks
+            .Include(f => f.Order)
+            .ThenInclude(o => o.Customer) // Include customer data
+            .Where(f => f.Order != null && f.Order.LaundryId == laundryId)
+            .Select(f => new FeedbackDTO
+            {
+                Description = f.Description ?? string.Empty,
+                Rating = f.Rating ?? 0,
+                CustomerFName= f.Order.Customer.FirstName ?? "Unknown" ,
+                CustomerLName = f.Order.Customer.LastName ?? "Unknown" 
+            })
+            .ToListAsync();
+    }
         // Get all feedback with customer and laundry details
         public async Task<List<FeedbackDTO>> GetAllFeedbacksAsync()
         {
@@ -196,4 +211,3 @@ namespace FreshlyBackendNew.Services
             return await _context.Feedbacks.AnyAsync(f => f.FeedbackId == id);
         }
     }
-}

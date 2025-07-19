@@ -1,5 +1,6 @@
-﻿using FreshlyBackendNew.DTOs;
-using FreshlyBackendNew.Services;
+﻿using FreshlyBackendNew.Data;
+using FreshlyBackendNew.DTOs;
+using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace FreshlyBackendNew.Controllers
     [ApiController]
     public class FeedbackController : ControllerBase
     {
+    
         private readonly IFeedbackService _feedbackService;
 
         public FeedbackController(IFeedbackService feedbackService)
@@ -18,30 +20,34 @@ namespace FreshlyBackendNew.Controllers
             _feedbackService = feedbackService;
         }
 
-        // GET: api/Feedback
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<FeedbackDTO>>> GetFeedbacks()
+        //Rohansi-Get feedbacks from laundry side
+        
+        [HttpGet("get-feedbacks/{laundryId}")]
+        public async Task<ActionResult<List<FeedbackDTO>>> GetFeedbacks(Guid laundryId)
         {
-            var feedbacks = await _feedbackService.GetAllFeedbacksAsync();
-            return Ok(feedbacks);
-        }
-
-        // GET: api/Feedback/{id}
-        [HttpGet("{id}")]
-        public async Task<ActionResult<FeedbackDTO>> GetFeedback(Guid id)
-        {
-            var feedback = await _feedbackService.GetFeedbackByIdAsync(id);
-            if (feedback == null)
+            try
             {
-                return NotFound();
-            }
-            return Ok(feedback);
-        }
+                var feedbacks = await _feedbackService.GetFeedbacksAsync(laundryId);
 
+                if (feedbacks == null || feedbacks.Count == 0)
+                {
+                    return NotFound("No feedbacks found for this laundry.");
+                }
+
+                return Ok(feedbacks);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception here if needed
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        
         // POST: api/Feedback
         [HttpPost]
         public async Task<ActionResult<FeedbackDTO>> CreateFeedback([FromBody] FeedbackDTO feedbackDto)
         {
+         
             if (feedbackDto == null || (feedbackDto.Rating.HasValue && (feedbackDto.Rating < 1 || feedbackDto.Rating > 5)))
             {
                 return BadRequest("Invalid feedback data.");
@@ -50,7 +56,7 @@ namespace FreshlyBackendNew.Controllers
             var createdFeedback = await _feedbackService.CreateFeedbackAsync(feedbackDto);
             return CreatedAtAction(nameof(GetFeedback), new { id = createdFeedback.FeedbackId }, createdFeedback);
         }
-
+        
         // PUT: api/Feedback/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateFeedback(Guid id, [FromBody] FeedbackDTO feedbackDto)
@@ -78,6 +84,26 @@ namespace FreshlyBackendNew.Controllers
                 return NotFound();
             }
             return NoContent();
+        }
+
+    // GET: api/Feedback
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<FeedbackDTO>>> GetFeedbacks()
+        {
+            var feedbacks = await _feedbackService.GetAllFeedbacksAsync();
+            return Ok(feedbacks);
+        }
+
+        // GET: api/Feedback/{id}
+        [HttpGet("{id}")]
+        public async Task<ActionResult<FeedbackDTO>> GetFeedback(Guid id)
+        {
+            var feedback = await _feedbackService.GetFeedbackByIdAsync(id);
+            if (feedback == null)
+            {
+                return NotFound();
+            }
+            return Ok(feedback);
         }
     }
 }
