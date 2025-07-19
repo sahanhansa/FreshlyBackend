@@ -25,5 +25,6 @@ namespace FreshlyBackendNew.Services.Interfaces
 
         // Delete a feedback
         Task<bool> DeleteFeedbackAsync(Guid id);
+        
     }
 }

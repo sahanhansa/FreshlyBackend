@@ -15,6 +15,12 @@ namespace FreshlyBackendNew.Services.Implementations
             _context = context;
         }
 
+        public async Task<bool> CheckItemBelongsToLaundry(Guid itemId, Guid laundryId)
+        {
+            return await _context.LaundryItemServices
+                .AnyAsync(x => x.ItemId == itemId && x.LaundryId == laundryId);
+        }
+
         public async Task<List<ItemWithServicesDTO>> GetItemsByLaundryIdAsync(Guid laundryId)
         {
             var itemsWithServices = await (from item in _context.Items
@@ -42,6 +48,7 @@ namespace FreshlyBackendNew.Services.Implementations
                     ItemId = group.Key,
                     ItemName = group.First().Item.Name,
                     CategoryName = group.First().CategoryName,
+                    ImageUrl = group.First().Item.ItemImageLink,
                     Services = group
                         .Where(g => g.Service != null)
                         .Select(g => new ServiceWithPriceDTO
@@ -57,18 +64,36 @@ namespace FreshlyBackendNew.Services.Implementations
             return result;
         }
 
-        public async Task<bool> DeleteItemAsync(Guid id)
+        
+        //Rohansi-Delete an item
+        public async Task<bool> DeleteItemAsync(Guid itemId, Guid laundryId)
         {
-            var item = await _context.Items.FindAsync(id);
+            // Check if the item is associated with the given laundry
+            var exists = await _context.LaundryItemServices
+                .AnyAsync(l => l.ItemId == itemId && l.LaundryId == laundryId);
+
+            if (!exists)
+                return false; // Not allowed to delete
+
+            // Delete LaundryItemService entries first
+            var relatedServices = _context.LaundryItemServices
+                .Where(l => l.ItemId == itemId && l.LaundryId == laundryId);
+            _context.LaundryItemServices.RemoveRange(relatedServices);
+
+            // Delete the item itself
+            var item = await _context.Items.FindAsync(itemId);
             if (item == null)
                 return false;
 
             _context.Items.Remove(item);
+
             await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> AddItemAsync(AddItemDTO itemDto)
+
+        //Rohansi-Add an item
+        public async Task<bool> AddItemAsync(AddItemDTO itemDto, Guid laundryId)
         {
             var item = new Item
             {
@@ -85,7 +110,7 @@ namespace FreshlyBackendNew.Services.Implementations
             {
                 var laundryItemService = new LaundryItemService
                 {
-                    LaundryId = itemDto.LaundryId,
+                    LaundryId = laundryId,
                     ItemId = item.ItemId,
                     ServiceId = service.ServiceId,
                     Price = service.Price ?? 0
@@ -97,5 +122,49 @@ namespace FreshlyBackendNew.Services.Implementations
             var result = await _context.SaveChangesAsync();
             return result > 0;
         }
+        
+        //Rohansi-Edit an item
+        
+        public async Task<bool> UpdateItemAsync(Guid itemId, UpdateItemDTO itemDto, Guid laundryId)
+        {
+            // Check if the item belongs to this laundry
+            var isOwned = await _context.LaundryItemServices
+                .AnyAsync(x => x.ItemId == itemId && x.LaundryId == laundryId);
+
+            if (!isOwned)
+                return false;
+
+            // Update the item info
+            var item = await _context.Items.FindAsync(itemId);
+            if (item == null)
+                return false;
+
+            item.Name = itemDto.Name;
+            item.Description = itemDto.Description;
+            item.CategoryId = itemDto.CategoryId;
+            item.ItemImageLink = itemDto.ImageUrl;
+
+            // Remove existing services for this laundry & item
+            var existingServices = _context.LaundryItemServices
+                .Where(x => x.ItemId == itemId && x.LaundryId == laundryId);
+            _context.LaundryItemServices.RemoveRange(existingServices);
+
+            // Add updated services
+            foreach (var service in itemDto.Services)
+            {
+                var newService = new LaundryItemService
+                {
+                    LaundryId = laundryId,
+                    ItemId = itemId,
+                    ServiceId = service.ServiceId,
+                    Price = service.Price ?? 0
+                };
+                _context.LaundryItemServices.Add(newService);
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
     }
 }

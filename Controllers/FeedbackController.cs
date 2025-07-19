@@ -20,28 +20,34 @@ namespace FreshlyBackendNew.Controllers
             _feedbackService = feedbackService;
         }
 
+        private Guid GetLaundryIdFromToken()
+        {
+            var userIdClaim = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+            return Guid.Parse(userIdClaim!);
+        }
+
+        
         //Rohansi-Get feedbacks from laundry side
         
-        [HttpGet("get-feedbacks/{laundryId}")]
-        public async Task<ActionResult<List<FeedbackDTO>>> GetFeedbacks(Guid laundryId)
+        [HttpGet("get-my-feedbacks/{laundryId}")]
+        public async Task<ActionResult<List<FeedbackDTO>>> GetMyFeedbacks(Guid laundryId)
         {
             try
             {
                 var feedbacks = await _feedbackService.GetFeedbacksAsync(laundryId);
 
                 if (feedbacks == null || feedbacks.Count == 0)
-                {
                     return NotFound("No feedbacks found for this laundry.");
-                }
 
                 return Ok(feedbacks);
             }
             catch (Exception ex)
             {
-                // Log the exception here if needed
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {ex.Message} - StackTrace: {ex.StackTrace}");
             }
         }
+        
+
         
         // POST: api/Feedback
         [HttpPost]
