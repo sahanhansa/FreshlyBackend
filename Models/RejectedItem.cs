@@ -17,24 +17,24 @@ namespace FreshlyBackendNew.Models
         public Guid RejectedItemId { get; set; }
 
         // Foreign Keys
-        [Required]
-        public Guid OrderId { get; set; }
+        
+        public Guid? OrderId { get; set; }
 
-        [Required]
-        public Guid ItemId { get; set; }
+        
+        public Guid? ItemId { get; set; }
 
-        [Required]
-        public Guid ServiceId { get; set; }
+        
+        public Guid? ServiceId { get; set; }
 
-        [Required]
-        public Guid LaundryId { get; set; }
+        
+        public Guid? LaundryId { get; set; }
 
         // Item Info
-        [Required]
-        public string ItemName { get; set; } = string.Empty;
+        
+        public string? ItemName { get; set; } = string.Empty;
 
-        [Required]
-        public int Quantity { get; set; }
+        
+        public int? Quantity { get; set; }
 
         public string? Reason { get; set; }
 
