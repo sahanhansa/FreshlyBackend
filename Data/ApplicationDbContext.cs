@@ -1,6 +1,5 @@
 ﻿using FreshlyBackendNew.Models;
 using Microsoft.EntityFrameworkCore;
-using BCrypt.Net;
 
 namespace FreshlyBackendNew.Data
 {
@@ -61,8 +60,8 @@ namespace FreshlyBackendNew.Data
                 {
                     AdminId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
                     Username = "admin",
-                    // BCrypt hashed version of "admin123"
-                    Password = "$2a$11$1mN9MtoLb5x./cJJfF9DUOs7O6w2HMInYQ6D.U1OU1Vm4eMjMKmNa",
+                    // Plain text password for testing
+                    Password = "admin123",
                     FirstName = "System",
                     LastName = "Administrator",
                     Email = "admin@freshly.com",

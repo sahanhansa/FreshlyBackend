@@ -28,6 +28,7 @@ namespace FreshlyBackendNew.Models
         // Navigation Properties
         [ForeignKey("AddressId")]
         public Address? Address { get; set; }
+        public string AccountStatus { get; set; } = "active";
 
     }
 }

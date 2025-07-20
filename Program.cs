@@ -94,11 +94,6 @@ builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ITemporaryOrderService, TemporaryOrderService>();
-
-
-//ruwe
-builder.Services.AddScoped<IAllPickupService, AllPickupService>();
-builder.Services.AddScoped<IAllDeliveryService, AllDeliveryService>();
 builder.Services.AddScoped<ICompleteTasksService, CompleteTasksService>();
 builder.Services.AddScoped<IDriverContactService, DriverContactService>();
 builder.Services.AddScoped<IDriverProfileService, DriverProfileService>();
@@ -108,6 +103,8 @@ builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IFileStorageService, S3StorageService>();
 builder.Services.AddScoped<IServiceService, ServicesService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+// Add this line to your service registrations in Program.cs
+builder.Services.AddScoped<IOrderDetailService, OrderDetailService>();
 
 
 // Add controller services with improved JSON handling
