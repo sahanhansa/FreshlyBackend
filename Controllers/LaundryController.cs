@@ -105,5 +105,24 @@ namespace FreshlyBackendNew.Controllers
                 return StatusCode(500, new { error = "An error occurred while retrieving the laundry", details = ex.Message });
             }
         }
+
+        [HttpGet("details/{laundryId}")]
+        public async Task<IActionResult> GetLaundryDetails(Guid laundryId)
+        {
+            try
+            {
+                var laundryDetails = await _laundryService.GetLaundryDetailsAsync(laundryId);
+                if (laundryDetails == null)
+                {
+                    return NotFound($"Laundry with ID {laundryId} not found.");
+                }
+                return Ok(laundryDetails);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetLaundryDetails: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while retrieving the laundry details", details = ex.Message });
+            }
+        }
     }
 }
