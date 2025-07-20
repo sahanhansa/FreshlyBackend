@@ -4,6 +4,7 @@ using FreshlyBackendNew.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FreshlyBackendNew.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250720063254_AddUserIdToFeedback")]
+    partial class AddUserIdToFeedback
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -98,7 +101,7 @@ namespace FreshlyBackendNew.Migrations
                         new
                         {
                             AdminId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedAt = new DateTime(2025, 7, 20, 14, 42, 26, 851, DateTimeKind.Utc).AddTicks(5975),
+                            CreatedAt = new DateTime(2025, 7, 20, 6, 32, 52, 637, DateTimeKind.Utc).AddTicks(9775),
                             Email = "admin@freshly.com",
                             FirstName = "System",
                             LastName = "Administrator",
@@ -116,19 +119,15 @@ namespace FreshlyBackendNew.Migrations
 
                     b.Property<string>("ContactNumber")
                         .IsRequired()
-                        .HasColumnType("varchar(20)");
+                        .HasColumnType("longtext");
 
                     b.Property<Guid?>("UserId")
-                        .IsRequired()
                         .HasColumnType("char(36)");
 
                     b.Property<string>("UserType")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("longtext");
 
                     b.HasKey("ContactId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Contacts");
                 });
@@ -147,23 +146,18 @@ namespace FreshlyBackendNew.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Password")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Username")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("CustomerId");
@@ -195,20 +189,13 @@ namespace FreshlyBackendNew.Migrations
                     b.Property<string>("LastName")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("LicenseNo")
+                    b.Property<string>("LicensNo")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Password")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("ProfileImage")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Username")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("VehicleNo")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("DriverId");
@@ -249,9 +236,6 @@ namespace FreshlyBackendNew.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("Description")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("InquiryType")
                         .HasColumnType("longtext");
 
                     b.Property<Guid?>("LaundryId")
@@ -390,15 +374,8 @@ namespace FreshlyBackendNew.Migrations
                     b.Property<Guid?>("DeliveryDriverId")
                         .HasColumnType("char(36)");
 
-                    b.Property<bool>("IsPaid")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<Guid?>("LaundryId")
                         .HasColumnType("char(36)");
-
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<DateTime?>("PickupAt")
                         .HasColumnType("datetime(6)");
@@ -583,21 +560,6 @@ namespace FreshlyBackendNew.Migrations
                     b.HasIndex("ServiceId");
 
                     b.ToTable("TemporaryOrderDetails");
-                });
-
-            modelBuilder.Entity("FreshlyBackendNew.Models.Contact", b =>
-                {
-                    b.HasOne("FreshlyBackendNew.Models.Customer", null)
-                        .WithMany("Contacts")
-                        .HasForeignKey("UserId");
-
-                    b.HasOne("FreshlyBackendNew.Models.Driver", null)
-                        .WithMany("Contacts")
-                        .HasForeignKey("UserId");
-
-                    b.HasOne("FreshlyBackendNew.Models.Laundry", null)
-                        .WithMany("Contacts")
-                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("FreshlyBackendNew.Models.Customer", b =>
@@ -833,20 +795,8 @@ namespace FreshlyBackendNew.Migrations
                     b.Navigation("TemporaryOrder");
                 });
 
-            modelBuilder.Entity("FreshlyBackendNew.Models.Customer", b =>
-                {
-                    b.Navigation("Contacts");
-                });
-
-            modelBuilder.Entity("FreshlyBackendNew.Models.Driver", b =>
-                {
-                    b.Navigation("Contacts");
-                });
-
             modelBuilder.Entity("FreshlyBackendNew.Models.Laundry", b =>
                 {
-                    b.Navigation("Contacts");
-
                     b.Navigation("Feedbacks");
                 });
 #pragma warning restore 612, 618

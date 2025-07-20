@@ -14,7 +14,7 @@ namespace FreshlyBackendNew.Services.Implementations
             _context = context;
         }
 
-        public async Task<ProfileDetailsByIdDto> GetDriverProfileDetailsAsync(Guid driverId)
+        public async Task<ProfileDetailsByIdDto?> GetDriverProfileDetailsAsync(Guid driverId)
         {
             var driver = await _context.Drivers
                 .AsNoTracking()
@@ -28,9 +28,13 @@ namespace FreshlyBackendNew.Services.Implementations
                 DriverID = driver.DriverId,
                 FirstName = driver.FirstName ?? "",
                 LastName = driver.LastName ?? "",
-                LicenseNumber = driver.LicensNo ?? "",
+                LicenseNumber = driver.LicenseNo ?? "",
                 Email = driver.Email ?? "",
                 VehicleNumber = driver.VehicleNo ?? "",
+                //ContactNumber = driver.ContactNumber ?? "",
+                //HomeAddress = driver.HomeAddress ?? "",
+                //VehicleNumber = driver.VehicleNumber ?? "",
+                //Location = driver.Location ?? ""
             };
 
             var contacts = await _context.Contacts

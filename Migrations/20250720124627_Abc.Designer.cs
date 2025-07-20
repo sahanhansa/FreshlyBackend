@@ -4,6 +4,7 @@ using FreshlyBackendNew.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FreshlyBackendNew.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250720124627_Abc")]
+    partial class Abc
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -98,7 +101,7 @@ namespace FreshlyBackendNew.Migrations
                         new
                         {
                             AdminId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedAt = new DateTime(2025, 7, 20, 14, 42, 26, 851, DateTimeKind.Utc).AddTicks(5975),
+                            CreatedAt = new DateTime(2025, 7, 20, 12, 46, 26, 382, DateTimeKind.Utc).AddTicks(263),
                             Email = "admin@freshly.com",
                             FirstName = "System",
                             LastName = "Administrator",
@@ -115,20 +118,30 @@ namespace FreshlyBackendNew.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("ContactNumber")
-                        .IsRequired()
-                        .HasColumnType("varchar(20)");
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("DriverId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("LaundryId")
+                        .HasColumnType("char(36)");
 
                     b.Property<Guid?>("UserId")
-                        .IsRequired()
                         .HasColumnType("char(36)");
 
                     b.Property<string>("UserType")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("longtext");
 
                     b.HasKey("ContactId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("DriverId");
+
+                    b.HasIndex("LaundryId");
 
                     b.ToTable("Contacts");
                 });
@@ -195,6 +208,9 @@ namespace FreshlyBackendNew.Migrations
                     b.Property<string>("LastName")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("LicensNo")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("LicenseNo")
                         .HasColumnType("longtext");
 
@@ -205,10 +221,6 @@ namespace FreshlyBackendNew.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("Username")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("VehicleNo")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("DriverId");
@@ -589,15 +601,15 @@ namespace FreshlyBackendNew.Migrations
                 {
                     b.HasOne("FreshlyBackendNew.Models.Customer", null)
                         .WithMany("Contacts")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("FreshlyBackendNew.Models.Driver", null)
                         .WithMany("Contacts")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("DriverId");
 
                     b.HasOne("FreshlyBackendNew.Models.Laundry", null)
                         .WithMany("Contacts")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("LaundryId");
                 });
 
             modelBuilder.Entity("FreshlyBackendNew.Models.Customer", b =>

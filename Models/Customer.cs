@@ -7,27 +7,23 @@ namespace FreshlyBackendNew.Models
     {
         public Customer()
         {
-            CustomerId = Guid.NewGuid(); 
+            CustomerId = Guid.NewGuid();
+            Contacts = new List<Contact>();
         }
 
-        // Primary Key
         [Key]
         public Guid CustomerId { get; set; }
-
-        // Basic Information
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public string? Username { get; set; }
-        public string? Password { get; set; }
-        public string? Email { get; set; }
-
-        // Foreign Keys
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public string Email { get; set; }
+        public string AccountStatus { get; set; } = "active";
         public Guid? AddressId { get; set; }
 
-        // Navigation Properties
+        // Navigation PropertiesgjdF
         [ForeignKey("AddressId")]
         public Address? Address { get; set; }
-        public string AccountStatus { get; set; } = "active";
-
+        public virtual ICollection<Contact> Contacts { get; set; }
     }
 }
