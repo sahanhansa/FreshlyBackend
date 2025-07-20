@@ -34,5 +34,7 @@ namespace FreshlyBackendNew.Models
 
         // Identifies who filed the feedback: "Customer", "Driver", or "Laundry"
         public string? SubmittedByType { get; set; }
+        public string? InquiryType { get; set; }
+
     }
 }
