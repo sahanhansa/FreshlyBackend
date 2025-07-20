@@ -1,13 +1,15 @@
 ﻿using FreshlyBackendNew.Data;
 using FreshlyBackendNew.DTOs.Admin;
 using FreshlyBackendNew.Models;
-using FreshlyBackendNew.DTOs.Driver_DTOs;
-using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
-using System.Diagnostics;
+using FreshlyBackendNew.DTOs.Driver_DTOs;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using FreshlyBackendNew.Services.Interfaces;
 
 namespace FreshlyBackendNew.Controllers
 {
@@ -15,22 +17,24 @@ namespace FreshlyBackendNew.Controllers
     [ApiController]
     public class DriverController : ControllerBase
     {
+        private readonly ApplicationDbContext _context;
         private readonly IDriverContactService _driverContactService;
         private readonly IDriverProfileService _driverProfileService;
-        private readonly ApplicationDbContext _context;
+
         public DriverController(ApplicationDbContext context, IDriverContactService driverContactService, IDriverProfileService driverProfileService)
         {
+            _context = context;
             _driverContactService = driverContactService;
             _driverProfileService = driverProfileService;
-            _context = context;
         }
+
+        // GET: api/Driver/GetContactUsDetails/{driverId}
         [HttpGet("GetContactUsDetails/{driverId}")]
         public async Task<IActionResult> GetContactUsDetails(Guid driverId)
         {
             try
             {
                 var driverContact = await _driverContactService.GetDriverContactDetailsAsync(driverId);
-
                 if (driverContact == null)
                     return NotFound($"No contact details found for driver with ID: {driverId}");
 
@@ -42,19 +46,13 @@ namespace FreshlyBackendNew.Controllers
             }
         }
 
-        [HttpPost("AddMessage")]
-        public async Task<IActionResult> AddMessage([FromBody]DriverContactDetailsDto driverContactDetailsDto)
+        // POST: api/Driver/add-message
+        [HttpPost("add-message")]
+        public async Task<IActionResult> AddMessage(DriverContactDetailsDto driverContactDetailsDto)
         {
             try
             {
-                Debug.WriteLine(driverContactDetailsDto);
-                if (driverContactDetailsDto == null)
-                    return BadRequest("Request body is empty.");
-
                 await _driverContactService.AddMessage(driverContactDetailsDto);
-
-
-
                 return Ok();
             }
             catch (Exception ex)
@@ -63,15 +61,15 @@ namespace FreshlyBackendNew.Controllers
             }
         }
 
+        // GET: api/Driver/DriverProfile/{driverId}
         [HttpGet("DriverProfile/{driverId}")]
         public async Task<IActionResult> DriverProfile(Guid driverId)
         {
             try
             {
                 var driverProfile = await _driverProfileService.GetDriverProfileDetailsAsync(driverId);
-
                 if (driverProfile == null)
-                    return NotFound($"No contact details found for driver with ID: {driverId}");
+                    return NotFound($"No profile found for driver with ID: {driverId}");
 
                 return Ok(driverProfile);
             }
@@ -93,7 +91,7 @@ namespace FreshlyBackendNew.Controllers
                     FirstName = d.FirstName,
                     LastName = d.LastName,
                     Email = d.Email,
-                    LicensNo = d.LicenseNo,
+                    LicenseNo = d.LicenseNo, // Only use LicenseNo property
                     AddressId = d.AddressId,
                     Address = d.Address == null ? null : new AddressDTO
                     {
@@ -106,6 +104,7 @@ namespace FreshlyBackendNew.Controllers
                     AccountStatus = d.AccountStatus
                 })
                 .ToListAsync();
+
             return Ok(drivers);
         }
 
@@ -119,6 +118,61 @@ namespace FreshlyBackendNew.Controllers
             _context.Drivers.Add(driver);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetDrivers), new { id = driver.DriverId }, driver);
+        }
+
+        // POST: api/Driver/add-driver-with-address
+        [HttpPost("add-driver-with-address")]
+        public async Task<IActionResult> AddDriverWithAddress([FromBody] CreateDriverRequestDTO dto)
+        {
+            if (dto == null)
+                return BadRequest();
+
+            // Create Address
+            var address = new Address
+            {
+                HouseNo = dto.HouseNo,
+                Street = dto.Street,
+                City = dto.City,
+                PostalCode = dto.PostalCode
+            };
+            _context.Addresses.Add(address);
+            await _context.SaveChangesAsync();
+
+            // Create Driver
+            var driver = new Driver
+            {
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                Username = dto.Username,
+                Password = dto.Password,
+                Email = dto.Email,
+                LicenseNo = dto.LicenseNo,
+                AddressId = address.AddressId,
+                AccountStatus = dto.AccountStatus ?? "active"
+            };
+            _context.Drivers.Add(driver);
+            await _context.SaveChangesAsync();
+
+            // Prepare response DTO
+            var response = new DriverProfileDTO
+            {
+                DriverId = driver.DriverId,
+                FirstName = driver.FirstName,
+                LastName = driver.LastName,
+                Email = driver.Email,
+                LicenseNo = driver.LicenseNo,
+                AddressId = address.AddressId,
+                Address = new AddressDTO
+                {
+                    AddressId = address.AddressId,
+                    HouseNo = address.HouseNo,
+                    Street = address.Street,
+                    City = address.City,
+                    PostalCode = address.PostalCode
+                },
+                AccountStatus = driver.AccountStatus
+            };
+            return CreatedAtAction(nameof(GetDrivers), new { id = driver.DriverId }, response);
         }
 
         // PATCH: api/Driver/{id}/remove - Mark driver as deleted
@@ -168,6 +222,5 @@ namespace FreshlyBackendNew.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
-
     }
 }

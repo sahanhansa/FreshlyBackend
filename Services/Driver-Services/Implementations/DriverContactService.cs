@@ -50,5 +50,6 @@ namespace FreshlyBackendNew.Services.Implementations
             _context.Feedbacks.Add(message);
             await _context.SaveChangesAsync();
         }
+
     }
 }

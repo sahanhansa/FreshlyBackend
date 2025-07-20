@@ -106,6 +106,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 // Add this line to your service registrations in Program.cs
 builder.Services.AddScoped<IOrderDetailService, OrderDetailService>();
 builder.Services.AddScoped<IDriverContactService, DriverContactService>();
+builder.Services.AddScoped<IDriverProfileService, DriverProfileService>();
 
 // Add controller services with improved JSON handling
 builder.Services.AddControllers()
@@ -143,5 +144,14 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Ensure default admin exists on startup
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+    var authService = new AuthService(dbContext, config);
+    authService.EnsureDefaultAdminExistsAsync().GetAwaiter().GetResult();
+}
 
 app.Run();

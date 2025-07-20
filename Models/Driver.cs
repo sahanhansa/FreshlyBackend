@@ -33,7 +33,7 @@ namespace FreshlyBackendNew.Models
         public string VehicleNo { get; set; }
         public string? ProfileImage { get; set; }
 
-        public virtual ICollection<Contact>? Contacts { get; set; }
+        //public virtual ICollection<Contact>? Contacts { get; set; }
 
     }
 }

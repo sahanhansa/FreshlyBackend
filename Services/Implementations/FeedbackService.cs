@@ -17,8 +17,60 @@ public class FeedbackService : IFeedbackService
         _context = context;
     }
 
-   //Rohansi-Get Feddbacks from laundry side
-   public async Task<List<FeedbackDTO>> GetFeedbacksAsync(Guid laundryId)
+    //lasini-submit feedback
+    public async Task<FeedbackDTO> SubmitOrderFeedbackAsync(SubmitFeedbackDTO dto)
+    {
+        if (dto == null)
+            throw new ArgumentNullException(nameof(dto));
+
+        var feedback = new Feedback
+        {
+            FeedbackId = Guid.NewGuid(),
+            Description = dto.Description,
+            Rating = dto.Rating,
+            OrderId = dto.OrderId,
+            LaundryId = dto.LaundryId,
+            SubmittedByType = "C",
+            UserId = dto.CustomerId
+        };
+
+        _context.Feedbacks.Add(feedback);
+        await _context.SaveChangesAsync();
+
+        // Optionally, return the created feedback as DTO
+        return new FeedbackDTO
+        {
+            FeedbackId = feedback.FeedbackId,
+            Description = feedback.Description,
+            Rating = feedback.Rating,
+            LaundryId = feedback.LaundryId,
+            CustomerId = dto.CustomerId
+        };
+    }
+
+    //lasini-get feedback by order id
+    public async Task<FeedbackDTO?> GetFeedbackByOrderIdAsync(Guid orderId)
+    {
+        var feedback = await _context.Feedbacks
+            .Include(f => f.Order)
+            .Include(f => f.Laundry)
+            .FirstOrDefaultAsync(f => f.OrderId == orderId);
+
+        if (feedback == null)
+            return null;
+
+        return new FeedbackDTO
+        {
+            FeedbackId = feedback.FeedbackId,
+            Description = feedback.Description,
+            Rating = feedback.Rating,
+            LaundryId = feedback.LaundryId,
+            CustomerId = feedback.UserId
+        };
+    }
+
+    //Rohansi-Get Feddbacks from laundry side
+    public async Task<List<FeedbackDTO>> GetFeedbacksAsync(Guid laundryId)
    {
        try
        {
@@ -81,7 +133,9 @@ public class FeedbackService : IFeedbackService
                     FeedbackId = f.FeedbackId,
                     Description = f.Description,
                     Rating = f.Rating,
-                    LaundryId = f.LaundryId
+                    LaundryId = f.LaundryId,
+                    LaundryName = f.Laundry != null ? f.Laundry.LaundryName : null,
+                    SubmittedByType = f.SubmittedByType // Map SubmittedByType from entity
                 };
 
                 // Get customer info from order if available
@@ -89,12 +143,6 @@ public class FeedbackService : IFeedbackService
                 {
                     dto.CustomerId = f.Order.CustomerId;
                     dto.CustomerName = $"{f.Order.Customer.FirstName} {f.Order.Customer.LastName}";
-                }
-
-                // Get laundry name if available
-                if (f.Laundry != null)
-                {
-                    dto.LaundryName = f.Laundry.LaundryName;
                 }
 
                 result.Add(dto);
@@ -170,7 +218,8 @@ public class FeedbackService : IFeedbackService
                 Description = feedbackDto.Description,
                 Rating = feedbackDto.Rating,
                 OrderId = orderId,
-                LaundryId = feedbackDto.LaundryId
+                LaundryId = feedbackDto.LaundryId,
+                SubmittedByType = feedbackDto.SubmittedByType // Map SubmittedByType
             };
 
             _context.Feedbacks.Add(feedback);
@@ -210,6 +259,7 @@ public class FeedbackService : IFeedbackService
             feedback.Description = feedbackDto.Description;
             feedback.Rating = feedbackDto.Rating;
             feedback.LaundryId = feedbackDto.LaundryId;
+            feedback.SubmittedByType = feedbackDto.SubmittedByType; // Map SubmittedByType
 
             _context.Entry(feedback).State = EntityState.Modified;
             try
