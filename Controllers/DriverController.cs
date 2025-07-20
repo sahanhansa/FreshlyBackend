@@ -1,8 +1,6 @@
 ﻿using FreshlyBackendNew.Data;
 using FreshlyBackendNew.DTOs.Admin;
 using FreshlyBackendNew.Models;
-using FreshlyBackendNew.DTOs.Driver_DTOs;
-using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +12,7 @@ namespace FreshlyBackendNew.Controllers
     [ApiController]
     public class DriverController : ControllerBase
     {
+
         private readonly IDriverContactService _driverContactService;
         private readonly IDriverProfileService _driverProfileService;
         private readonly ApplicationDbContext _context;
