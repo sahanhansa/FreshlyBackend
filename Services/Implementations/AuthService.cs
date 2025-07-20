@@ -181,6 +181,27 @@ namespace FreshlyBackendNew.Services.Implementations
             }
         }
 
+        public async Task EnsureDefaultAdminExistsAsync()
+        {
+            var existingAdmin = await _context.Admins.FirstOrDefaultAsync(a => a.Username == "Sahan");
+            if (existingAdmin == null)
+            {
+                var hashedPassword = BCrypt.Net.BCrypt.HashPassword("RCG");
+                var admin = new Admin
+                {
+                    AdminId = Guid.NewGuid(),
+                    Username = "Sahan",
+                    Password = hashedPassword,
+                    FirstName = "Sahan",
+                    LastName = string.Empty,
+                    Email = string.Empty,
+                    Role = "SuperAdmin",
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.Admins.Add(admin);
+                await _context.SaveChangesAsync();
+            }
+        }
 
         public string GenerateJwtToken(string userId, string username, Dictionary<string, string> additionalClaims)
         {
