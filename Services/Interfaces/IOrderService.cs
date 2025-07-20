@@ -7,6 +7,8 @@ namespace FreshlyBackendNew.Services.Interfaces
     {
         Task<List<OrderDTO>> GetNewOrdersAsync(Guid laundryId);
         Task<List<OrderDTO>> GetProcessingOrdersAsync(Guid laundryId);
+        
+        Task<List<OrderDTO>> GetCompletedOrdersAsync(Guid laundryId);
         Task<List<OrderDTO>> GetAllOrdersAsync(Guid laundryId);
         Task<OrderDTO> GetOrderByIdAsync(Guid id);
         Task<OrderDTO> CreateOrderAsync(OrderDTO orderDto);

@@ -197,6 +197,25 @@ namespace FreshlyBackendNew.Controllers
             }
         }
 
+        //Rohansi-Get completed orders
+        [HttpGet("{laundryId}/completed-orders")]
+        public async Task<IActionResult> GetCompletedOrders(Guid laundryId)
+        {
+            try
+            {
+                var orders = await _orderService.GetCompletedOrdersAsync(laundryId);
+
+                if (orders == null || orders.Count == 0)
+                    return NotFound($"No 'Processing' orders found for LaundryId: {laundryId}");
+
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+        
         // GET: api/Order/{laundryId}/all-orders
         [HttpGet("{laundryId}/all-orders")]
         public async Task<IActionResult> GetAllOrders(Guid laundryId)
