@@ -4,6 +4,6 @@ namespace FreshlyBackendNew.Services.Interfaces
 {
     public interface IDriverProfileService
     {
-        Task<ProfileDetailsByIdDto?> GetDriverProfileDetailsAsync(Guid driverId);
+        Task<ProfileDetailsByIdDto> GetDriverProfileDetailsAsync(Guid driverId);
     }
 }

@@ -100,14 +100,15 @@ builder.Services.AddScoped<ITemporaryOrderService, TemporaryOrderService>();
 builder.Services.AddScoped<IAllPickupService, AllPickupService>();
 builder.Services.AddScoped<IAllDeliveryService, AllDeliveryService>();
 builder.Services.AddScoped<ICompleteTasksService, CompleteTasksService>();
-
-
+builder.Services.AddScoped<IDriverContactService, DriverContactService>();
+builder.Services.AddScoped<IDriverProfileService, DriverProfileService>();
 
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IFileStorageService, S3StorageService>();
 builder.Services.AddScoped<IServiceService, ServicesService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+
 
 // Add controller services with improved JSON handling
 builder.Services.AddControllers()
