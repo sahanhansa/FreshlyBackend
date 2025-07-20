@@ -11,41 +11,41 @@ namespace FreshlyBackendNew.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Contacts_Customers_CustomerId",
-                table: "Contacts");
+            //migrationBuilder.DropForeignKey(
+            //    name: "FK_Contacts_Customers_CustomerId",
+            //    table: "Contacts");
 
-            migrationBuilder.DropForeignKey(
-                name: "FK_Contacts_Drivers_DriverId",
-                table: "Contacts");
+            //migrationBuilder.DropForeignKey(
+            //    name: "FK_Contacts_Drivers_DriverId",
+            //    table: "Contacts");
 
-            migrationBuilder.DropForeignKey(
-                name: "FK_Contacts_Laundries_LaundryId",
-                table: "Contacts");
+            //migrationBuilder.DropForeignKey(
+            //    name: "FK_Contacts_Laundries_LaundryId",
+            //    table: "Contacts");
 
-            migrationBuilder.DropIndex(
-                name: "IX_Contacts_CustomerId",
-                table: "Contacts");
+            //migrationBuilder.DropIndex(
+            //    name: "IX_Contacts_CustomerId",
+            //    table: "Contacts");
 
-            migrationBuilder.DropIndex(
-                name: "IX_Contacts_DriverId",
-                table: "Contacts");
+            //migrationBuilder.DropIndex(
+            //    name: "IX_Contacts_DriverId",
+            //    table: "Contacts");
 
-            migrationBuilder.DropIndex(
-                name: "IX_Contacts_LaundryId",
-                table: "Contacts");
+            //migrationBuilder.DropIndex(
+            //    name: "IX_Contacts_LaundryId",
+            //    table: "Contacts");
 
-            migrationBuilder.DropColumn(
-                name: "CustomerId",
-                table: "Contacts");
+            //migrationBuilder.DropColumn(
+            //    name: "CustomerId",
+            //    table: "Contacts");
 
-            migrationBuilder.DropColumn(
-                name: "DriverId",
-                table: "Contacts");
+            //migrationBuilder.DropColumn(
+            //    name: "DriverId",
+            //    table: "Contacts");
 
-            migrationBuilder.DropColumn(
-                name: "LaundryId",
-                table: "Contacts");
+            //migrationBuilder.DropColumn(
+            //    name: "LaundryId",
+            //    table: "Contacts");
 
             migrationBuilder.UpdateData(
                 table: "Contacts",
@@ -95,10 +95,10 @@ namespace FreshlyBackendNew.Migrations
                 column: "CreatedAt",
                 value: new DateTime(2025, 7, 20, 13, 1, 30, 964, DateTimeKind.Utc).AddTicks(911));
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Contacts_UserId",
-                table: "Contacts",
-                column: "UserId");
+            //migrationBuilder.CreateIndex(
+            //    name: "IX_Contacts_UserId",
+            //    table: "Contacts",
+            //    column: "UserId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Contacts_Customers_UserId",
