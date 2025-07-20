@@ -29,6 +29,8 @@ namespace FreshlyBackendNew.Models
         [ForeignKey("AddressId")]
         public Address? Address { get; set; }
         public string AccountStatus { get; set; } = "active";
+        public string VehicleNo { get; set; }
+        public string? ProfileImage { get; set; }
 
     }
 }

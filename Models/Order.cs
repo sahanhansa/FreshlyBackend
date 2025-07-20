@@ -37,5 +37,10 @@ namespace FreshlyBackendNew.Models
         [ForeignKey("StatusId")]
         public Status? Status { get; set; }
 
+        //payment details
+        public string PaymentMethod { get; set; } // "COD" or "Online"
+        public bool IsPaid { get; set; } = false;  // true if online payment already made
+
+
     }
 }
