@@ -25,6 +25,10 @@ namespace FreshlyBackendNew.Services.Interfaces
 
         // Delete a feedback
         Task<bool> DeleteFeedbackAsync(Guid id);
-        
+
+        //lasini
+        Task<FeedbackDTO> SubmitOrderFeedbackAsync(SubmitFeedbackDTO dto);
+        Task<FeedbackDTO?> GetFeedbackByOrderIdAsync(Guid orderId);
+
     }
 }
