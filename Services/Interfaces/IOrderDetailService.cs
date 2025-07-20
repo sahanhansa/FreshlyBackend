@@ -16,5 +16,8 @@ namespace FreshlyBackendNew.Services.Interfaces
         //topay
         Task<List<OrderDetailsDTO>> GetOutForDeliveryOrdersForCustomerAsync(Guid customerId);
 
+        //completed
+        Task<List<OrderDetailsDTO>> GetCompletedOrdersForCustomerAsync(Guid customerId);
+
     }
 }
