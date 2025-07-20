@@ -20,7 +20,7 @@ namespace FreshlyBackendNew.Models
         public string? Username { get; set; }
         public string? Password { get; set; }
         public string? Email { get; set; }
-        public string? LicensNo { get; set; }
+        public string? LicenseNo { get; set; }
 
         // Foreign Keys
         public Guid? AddressId { get; set; }
@@ -28,9 +28,11 @@ namespace FreshlyBackendNew.Models
         // Navigation Properties
         [ForeignKey("AddressId")]
         public Address? Address { get; set; }
+
         public string AccountStatus { get; set; } = "active";
-        public string? LicenseNo { get; set; }
+        public string VehicleNo { get; set; }
         public string? ProfileImage { get; set; }
+
         public virtual ICollection<Contact>? Contacts { get; set; }
 
     }

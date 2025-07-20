@@ -28,7 +28,7 @@ namespace FreshlyBackendNew.Services.Implementations
                 DriverID = driver.DriverId,
                 FirstName = driver.FirstName ?? "",
                 LastName = driver.LastName ?? "",
-                LicenseNumber = driver.LicensNo ?? "",
+                LicenseNumber = driver.LicenseNo ?? "",
                 Email = driver.Email ?? "",
                 //ContactNumber = driver.ContactNumber ?? "",
                 //HomeAddress = driver.HomeAddress ?? "",
