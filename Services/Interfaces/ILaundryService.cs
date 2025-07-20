@@ -15,5 +15,8 @@ namespace FreshlyBackendNew.Services.Interfaces
         
         // Retrieves a specific laundry by its ID
         Task<LaundryAdminDTO> GetLaundryByIdAsync(Guid id);
+        
+        // Retrieves laundry details with image for a specific laundry
+        Task<LaundryDetailsDTO> GetLaundryDetailsAsync(Guid laundryId);
     }
 }
