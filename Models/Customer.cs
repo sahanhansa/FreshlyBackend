@@ -21,7 +21,7 @@ namespace FreshlyBackendNew.Models
         public string AccountStatus { get; set; } = "active";
         public Guid? AddressId { get; set; }
 
-        // Navigation Properties
+        // Navigation PropertiesgjdF
         [ForeignKey("AddressId")]
         public Address? Address { get; set; }
         public virtual ICollection<Contact> Contacts { get; set; }
