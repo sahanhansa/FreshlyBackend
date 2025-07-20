@@ -1,7 +1,6 @@
-﻿using FreshlyBackendNew.Data;
-using FreshlyBackendNew.Models;
+﻿using FreshlyBackendNew.Services.Implementations;
+using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace FreshlyBackendNew.Controllers
 {
@@ -9,13 +8,22 @@ namespace FreshlyBackendNew.Controllers
     [ApiController]
     public class ServiceController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IServiceService _servicesService;
 
-        public ServiceController(ApplicationDbContext context)
+        public ServiceController(IServiceService servicesService)
         {
-            _context = context;
+            _servicesService = servicesService;
         }
 
-        
+        [HttpGet("GetServiceIdByName/{serviceName}")]
+        public async Task<IActionResult> GetServiceIdByName(string serviceName)
+        {
+            var result = await _servicesService.GetServiceIdByNameAsync(serviceName);
+
+            if (result == null)
+                return NotFound($"Service with name '{serviceName}' not found.");
+
+            return Ok(result);
+        }
     }
 }

@@ -45,6 +45,69 @@ namespace FreshlyBackendNew.Migrations
                     b.ToTable("Addresses");
                 });
 
+            modelBuilder.Entity("FreshlyBackendNew.Models.Admin", b =>
+                {
+                    b.Property<Guid>("AdminId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("FirstName")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<DateTime?>("LastLogin")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("LastName")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<DateTime?>("PasswordResetExpiry")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("PasswordResetToken")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Role")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("AdminId");
+
+                    b.ToTable("Admins");
+
+                    b.HasData(
+                        new
+                        {
+                            AdminId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            CreatedAt = new DateTime(2025, 7, 20, 6, 32, 52, 637, DateTimeKind.Utc).AddTicks(9775),
+                            Email = "admin@freshly.com",
+                            FirstName = "System",
+                            LastName = "Administrator",
+                            Password = "admin123",
+                            Role = "SuperAdmin",
+                            Username = "admin"
+                        });
+                });
+
             modelBuilder.Entity("FreshlyBackendNew.Models.Contact", b =>
                 {
                     b.Property<Guid>("ContactId")
@@ -71,6 +134,10 @@ namespace FreshlyBackendNew.Migrations
                     b.Property<Guid>("CustomerId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
+
+                    b.Property<string>("AccountStatus")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<Guid?>("AddressId")
                         .HasColumnType("char(36)");
@@ -102,6 +169,10 @@ namespace FreshlyBackendNew.Migrations
                     b.Property<Guid>("DriverId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
+
+                    b.Property<string>("AccountStatus")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<Guid?>("AddressId")
                         .HasColumnType("char(36)");
@@ -164,13 +235,24 @@ namespace FreshlyBackendNew.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("longtext");
 
+                    b.Property<Guid?>("LaundryId")
+                        .HasColumnType("char(36)");
+
                     b.Property<Guid?>("OrderId")
                         .HasColumnType("char(36)");
 
                     b.Property<int?>("Rating")
                         .HasColumnType("int");
 
+                    b.Property<string>("SubmittedByType")
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("char(36)");
+
                     b.HasKey("FeedbackId");
+
+                    b.HasIndex("LaundryId");
 
                     b.HasIndex("OrderId");
 
@@ -185,6 +267,12 @@ namespace FreshlyBackendNew.Migrations
 
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("char(36)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ItemImageLink")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Name")
                         .HasColumnType("longtext");
@@ -216,6 +304,10 @@ namespace FreshlyBackendNew.Migrations
                     b.Property<Guid>("LaundryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
+
+                    b.Property<string>("AccountStatus")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<Guid?>("AddressId")
                         .HasColumnType("char(36)");
@@ -276,11 +368,17 @@ namespace FreshlyBackendNew.Migrations
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("char(36)");
 
+                    b.Property<Guid?>("DeliveryDriverId")
+                        .HasColumnType("char(36)");
+
                     b.Property<Guid?>("LaundryId")
                         .HasColumnType("char(36)");
 
                     b.Property<DateTime?>("PickupAt")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("PickupDriverId")
+                        .HasColumnType("char(36)");
 
                     b.Property<DateTime?>("PlacedAt")
                         .HasColumnType("datetime(6)");
@@ -496,9 +594,15 @@ namespace FreshlyBackendNew.Migrations
 
             modelBuilder.Entity("FreshlyBackendNew.Models.Feedback", b =>
                 {
+                    b.HasOne("FreshlyBackendNew.Models.Laundry", "Laundry")
+                        .WithMany("Feedbacks")
+                        .HasForeignKey("LaundryId");
+
                     b.HasOne("FreshlyBackendNew.Models.Order", "Order")
                         .WithMany()
                         .HasForeignKey("OrderId");
+
+                    b.Navigation("Laundry");
 
                     b.Navigation("Order");
                 });
@@ -686,6 +790,11 @@ namespace FreshlyBackendNew.Migrations
                     b.Navigation("Service");
 
                     b.Navigation("TemporaryOrder");
+                });
+
+            modelBuilder.Entity("FreshlyBackendNew.Models.Laundry", b =>
+                {
+                    b.Navigation("Feedbacks");
                 });
 #pragma warning restore 612, 618
         }

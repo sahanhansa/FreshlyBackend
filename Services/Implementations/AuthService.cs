@@ -7,6 +7,8 @@ using System.Security.Claims;
 using System.Text;
 using FreshlyBackendNew.DTOs;
 using BCrypt.Net;
+using Microsoft.Extensions.Logging;
+
 
 namespace FreshlyBackendNew.Services.Implementations
 {
@@ -15,11 +17,15 @@ namespace FreshlyBackendNew.Services.Implementations
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
 
+
         public AuthService(ApplicationDbContext context, IConfiguration configuration)
+
         {
             _context = context;
             _configuration = configuration;
+            _logger = logger;
         }
+
 
         public async Task<bool> IsUsernameTakenAsync(string username)
         {
@@ -32,20 +38,34 @@ namespace FreshlyBackendNew.Services.Implementations
                    await _context.Owners.AnyAsync(o => o.Username == username);
         }
 
+
         public async Task<AuthResponse> LoginCustomerAsync(LoginData loginData)
         {
             try
             {
+
                 if (loginData?.Username == null || loginData.Password == null)
                     return null;
 
                 var customer = await _context.Customers.FirstOrDefaultAsync(u => u.Username == loginData.Username);
                 if (customer == null || !BCrypt.Net.BCrypt.Verify(loginData.Password, customer.Password))
+
                 {
+                    _logger.LogInformation($"Login attempt for non-existent customer username: {loginData.Username}");
                     return null;
                 }
 
+                // Note: This is a simple password comparison. 
+                // In a production app, you should use a secure password hashing library
+                if (customer.Password != loginData.Password)
+                {
+                    _logger.LogInformation($"Invalid password for customer username: {loginData.Username}");
+                    return null;
+                }
+
+
                 string token = GenerateJwtToken(customer.CustomerId.ToString(), customer.Username ?? string.Empty);
+
 
                 return new AuthResponse
                 {
@@ -56,9 +76,10 @@ namespace FreshlyBackendNew.Services.Implementations
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, $"Error in LoginCustomerAsync: {ex.Message}");
                 return new AuthResponse
                 {
-                    Token = ex.Message,
+                    Token = "Error: " + ex.Message,
                     Username = "Error",
                     UserId = "Error"
                 };
@@ -69,29 +90,35 @@ namespace FreshlyBackendNew.Services.Implementations
         {
             try
             {
+
                 if (loginData?.Username == null || loginData.Password == null)
                     return null;
 
                 var admin = await _context.Owners.FirstOrDefaultAsync(u => u.Username == loginData.Username);
                 if (admin == null || !BCrypt.Net.BCrypt.Verify(loginData.Password, admin.Password))
+
                 {
+                    _logger.LogWarning("Login attempt with null or empty credentials");
                     return null;
                 }
 
+
                 string token = GenerateJwtToken(admin.OwnerId.ToString(), admin.Username ?? string.Empty);
+
 
                 return new AuthResponse
                 {
-                    Token = token,
-                    Username = admin.Username,
-                    UserId = admin.OwnerId.ToString()
+                    Token = ownerToken,
+                    Username = owner.Username,
+                    UserId = owner.OwnerId.ToString()
                 };
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, $"Error in LoginAdminAsync: {ex.Message}");
                 return new AuthResponse
                 {
-                    Token = ex.Message,
+                    Token = "Error: " + ex.Message,
                     Username = "Error",
                     UserId = "Error"
                 };
@@ -102,16 +129,22 @@ namespace FreshlyBackendNew.Services.Implementations
         {
             try
             {
+
                 if (loginData?.Username == null || loginData.Password == null)
                     return null;
 
                 var laundry = await _context.Laundries.FirstOrDefaultAsync(u => u.Username == loginData.Username);
                 if (laundry == null || !BCrypt.Net.BCrypt.Verify(loginData.Password, laundry.Password))
+
+
                 {
+                    _logger.LogInformation($"Invalid password for laundry username: {loginData.Username}");
                     return null;
                 }
 
+
                 string token = GenerateJwtToken(laundry.LaundryId.ToString(), laundry.Username ?? string.Empty);
+
 
                 return new AuthResponse
                 {
@@ -122,9 +155,10 @@ namespace FreshlyBackendNew.Services.Implementations
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, $"Error in LoginLaundryAsync: {ex.Message}");
                 return new AuthResponse
                 {
-                    Token = ex.Message,
+                    Token = "Error: " + ex.Message,
                     Username = "Error",
                     UserId = "Error"
                 };
@@ -135,16 +169,20 @@ namespace FreshlyBackendNew.Services.Implementations
         {
             try
             {
+
                 if (loginData?.Username == null || loginData.Password == null)
                     return null;
 
                 var driver = await _context.Drivers.FirstOrDefaultAsync(u => u.Username == loginData.Username);
                 if (driver == null || !BCrypt.Net.BCrypt.Verify(loginData.Password, driver.Password))
+
                 {
+                    _logger.LogInformation($"Invalid password for driver username: {loginData.Username}");
                     return null;
                 }
 
                 string token = GenerateJwtToken(driver.DriverId.ToString(), driver.Username ?? string.Empty);
+
 
                 return new AuthResponse
                 {
@@ -155,19 +193,22 @@ namespace FreshlyBackendNew.Services.Implementations
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, $"Error in LoginDriverAsync: {ex.Message}");
                 return new AuthResponse
                 {
-                    Token = ex.Message,
+                    Token = "Error: " + ex.Message,
                     Username = "Error",
                     UserId = "Error"
                 };
             }
         }
 
-        public string GenerateJwtToken(string userId, string username)
+        // Updated to include role in token
+        public string GenerateJwtToken(string userId, string username, string role = "User")
         {
-            var claims = new[]
+            try
             {
+
                 new Claim(ClaimTypes.NameIdentifier, userId),
                 new Claim(ClaimTypes.Name, username ?? string.Empty)
             };
@@ -188,6 +229,7 @@ namespace FreshlyBackendNew.Services.Implementations
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+
         }
     }
 }

@@ -20,10 +20,19 @@ namespace FreshlyBackendNew.Models
 
         // Foreign Keys
         public Guid? OrderId { get; set; }
+        public Guid? LaundryId { get; set; }
+
+        // Add UserId to identify which user issued the feedback
+        public Guid? UserId { get; set; }
 
         // Navigation Properties
         [ForeignKey("OrderId")]
         public Order? Order { get; set; }
+        
+        [ForeignKey("LaundryId")]
+        public Laundry? Laundry { get; set; }
 
+        // Identifies who filed the feedback: "Customer", "Driver", or "Laundry"
+        public string? SubmittedByType { get; set; }
     }
 }

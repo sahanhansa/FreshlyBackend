@@ -19,6 +19,7 @@ namespace FreshlyBackendNew.Models
         public string? Username { get; set; }
         public string? Password { get; set; }
         public string? Email { get; set; }
+        public string AccountStatus { get; set; } = "active";
 
         // Foreign Keys
         public Guid? AddressId { get; set; }
@@ -30,5 +31,8 @@ namespace FreshlyBackendNew.Models
 
         [ForeignKey("OwnerId")]
         public Owner? Owner { get; set; }
+        
+        // Collection Navigation Property
+        public ICollection<Feedback>? Feedbacks { get; set; }
     }
 }

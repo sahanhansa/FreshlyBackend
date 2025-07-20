@@ -16,6 +16,11 @@ namespace FreshlyBackendNew.Controllers
             _context = context;
         }
 
-        
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Status>>> GetStatuses()
+        {
+            var statuses = await _context.Statuses.ToListAsync();
+            return Ok(statuses);
+        }
     }
 }
