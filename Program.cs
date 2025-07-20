@@ -94,11 +94,6 @@ builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ITemporaryOrderService, TemporaryOrderService>();
-
-
-//ruwe
-builder.Services.AddScoped<IAllPickupService, AllPickupService>();
-builder.Services.AddScoped<IAllDeliveryService, AllDeliveryService>();
 builder.Services.AddScoped<ICompleteTasksService, CompleteTasksService>();
 
 

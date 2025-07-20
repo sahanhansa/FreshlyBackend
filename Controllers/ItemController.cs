@@ -59,6 +59,50 @@ namespace FreshlyBackendNew.Controllers
             }
         }
 
+        // GET request to get a single item by laundry ID and item ID
+        [HttpGet("GetItemByLaundryId/{laundryId}/{itemId}")]
+        public async Task<IActionResult> GetItemByLaundryId(Guid laundryId, Guid itemId)
+        {
+            try
+            {
+                // Fetch the specific item for the specified laundry
+                var result = await _itemService.GetItemByLaundryIdAsync(laundryId, itemId);
+                
+                if (result == null)
+                {
+                    return NotFound($"Item with ID {itemId} not found for laundry {laundryId}");
+                }
+                
+                // Enhance image URL if it is a filename
+                if (!string.IsNullOrEmpty(result.ImageUrl) && !result.ImageUrl.StartsWith("http"))
+                {
+                    try
+                    {
+                        // Try to get the full image URL from the storage service
+                        var fullImageUrl = await _fileStorageService.GetImageUrlAsync(result.ImageUrl);
+                        if (!string.IsNullOrEmpty(fullImageUrl))
+                        {
+                            result.ImageUrl = fullImageUrl;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log the error but don't fail the entire request
+                        Console.WriteLine($"Error resolving image URL for item {result.ItemId}: {ex.Message}");
+                    }
+                }
+                
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception and return an error response
+                Console.WriteLine($"Error in GetItemByLaundryId: {ex.Message}");
+                return StatusCode(500,
+                    new { error = "An error occurred while retrieving the item", details = ex.Message });
+            }
+        }
+
         //Rohansi-Add new item to a list
         
         [HttpPost("add-item/{laundryId}")]
@@ -69,9 +113,17 @@ namespace FreshlyBackendNew.Controllers
                 return BadRequest("Item details or services are missing.");
             }
 
-            var success = await _itemService.AddItemAsync(itemDto, laundryId);
+            var (success, message) = await _itemService.AddItemAsync(itemDto, laundryId);
 
-            return success ? Ok("Item added successfully.") : StatusCode(500, "Failed to add item.");
+            if (success)
+            {
+                return Ok(new { message = message });
+            }
+            else
+            {
+                // Return BadRequest for all errors including duplicates
+                return BadRequest(new { message = message });
+            }
         }
 
         
@@ -85,6 +137,18 @@ namespace FreshlyBackendNew.Controllers
 
             return Ok("Item updated successfully.");
         }
+        
+        // Rohansi - Partially update an item (alternative method)
+        [HttpPatch("update-item/{itemId}/{laundryId}")]
+        public async Task<IActionResult> PatchItem(Guid itemId, Guid laundryId, [FromBody] UpdateItemDTO itemDto)
+        {
+            var result = await _itemService.UpdateItemAsync(itemId, itemDto, laundryId);
+            if (!result)
+                return Unauthorized("You cannot update this item or item not found.");
+
+            return Ok("Item updated successfully.");
+        }
+
 
         
         //Rohansi-Delete an item from list
@@ -92,11 +156,58 @@ namespace FreshlyBackendNew.Controllers
         [HttpDelete("delete-item/{itemId}/{laundryId}")]
         public async Task<IActionResult> DeleteItem(Guid itemId, Guid laundryId)
         {
-            var result = await _itemService.DeleteItemAsync(itemId, laundryId);
-            if (!result)
-                return NotFound($"Item with ID {itemId} not found or not owned by your laundry.");
+            try
+            {
+                // Get the item's image URL before deletion
+                var imageUrl = await _itemService.GetItemImageUrlAsync(itemId, laundryId);
+                
+                if (imageUrl == null)
+                {
+                    return NotFound($"Item with ID {itemId} not found or not owned by your laundry.");
+                }
 
-            return NoContent();
+                // Delete the item from database
+                var result = await _itemService.DeleteItemAsync(itemId, laundryId);
+                if (!result)
+                {
+                    return NotFound($"Item with ID {itemId} not found or not owned by your laundry.");
+                }
+
+                // Delete the image from storage if it exists
+                if (!string.IsNullOrEmpty(imageUrl))
+                {
+                    try
+                    {
+                        // Extract filename from URL if it's a full URL
+                        string fileName = imageUrl;
+                        if (imageUrl.StartsWith("http"))
+                        {
+                            // Extract filename from URL
+                            fileName = Path.GetFileName(new Uri(imageUrl).LocalPath);
+                        }
+
+                        // Delete the image from storage
+                        var imageDeleted = await _fileStorageService.DeleteImageAsync(fileName);
+                        if (!imageDeleted)
+                        {
+                            // Log the warning but don't fail the request
+                            Console.WriteLine($"Warning: Failed to delete image {fileName} for item {itemId}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log the error but don't fail the request
+                        Console.WriteLine($"Error deleting image for item {itemId}: {ex.Message}");
+                    }
+                }
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in DeleteItem: {ex.Message}");
+                return StatusCode(500, "An error occurred while deleting the item.");
+            }
         }
     }
 

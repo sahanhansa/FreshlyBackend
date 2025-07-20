@@ -24,7 +24,6 @@ namespace FreshlyBackendNew.Controllers
         {
             try
             {
-                // By default, return the customer-focused list when no specific endpoint is provided
                 var dtoList = await _laundryService.GetLaundriesForCustomerAsync();
                 return Ok(dtoList);
             }
@@ -75,13 +74,10 @@ namespace FreshlyBackendNew.Controllers
                     return BadRequest("Laundry data is required.");
                 }
                 var createdLaundry = await _laundryService.CreateLaundryAsync(laundryDto);
-                
-                // Add null check before parsing
                 if (string.IsNullOrEmpty(createdLaundry.LaundryId))
                 {
                     return StatusCode(500, new { error = "Created laundry ID is missing" });
                 }
-                
                 return CreatedAtAction(nameof(GetLaundryById), new { id = Guid.Parse(createdLaundry.LaundryId) }, createdLaundry);
             }
             catch (Exception ex)
@@ -115,8 +111,6 @@ namespace FreshlyBackendNew.Controllers
         {
             if (dto == null)
                 return BadRequest("Laundry account data is required.");
-
-            // Create Owner
             var owner = new Owner
             {
                 FirstName = dto.OwnerFirstName,
@@ -127,8 +121,6 @@ namespace FreshlyBackendNew.Controllers
             };
             _context.Owners.Add(owner);
             await _context.SaveChangesAsync();
-
-            // Create Address
             var address = new Address
             {
                 HouseNo = dto.HouseNo,
@@ -138,8 +130,6 @@ namespace FreshlyBackendNew.Controllers
             };
             _context.Addresses.Add(address);
             await _context.SaveChangesAsync();
-
-            // Create Laundry
             var laundry = new Laundry
             {
                 LaundryName = dto.LaundryName,
@@ -152,7 +142,6 @@ namespace FreshlyBackendNew.Controllers
             };
             _context.Laundries.Add(laundry);
             await _context.SaveChangesAsync();
-
             return Ok(new {
                 LaundryId = laundry.LaundryId,
                 OwnerId = owner.OwnerId,
@@ -161,34 +150,47 @@ namespace FreshlyBackendNew.Controllers
             });
         }
 
-        // PATCH: api/Laundry/{id}/activate - Mark laundry as active
         [HttpPatch("{id}/activate")]
         public async Task<IActionResult> ActivateLaundry(Guid id)
         {
             var laundry = await _context.Laundries.FindAsync(id);
             if (laundry == null)
                 return NotFound(new { Error = "Laundry not found" });
-
             laundry.AccountStatus = "active";
             _context.Entry(laundry).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
             await _context.SaveChangesAsync();
-
             return Ok(new { Message = "Laundry marked as active" });
         }
 
-        // PATCH: api/Laundry/{id}/delete - Mark laundry as deleted
         [HttpPatch("{id}/delete")]
         public async Task<IActionResult> DeleteLaundryStatus(Guid id)
         {
             var laundry = await _context.Laundries.FindAsync(id);
             if (laundry == null)
                 return NotFound(new { Error = "Laundry not found" });
-
             laundry.AccountStatus = "deleted";
             _context.Entry(laundry).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
             await _context.SaveChangesAsync();
-
             return Ok(new { Message = "Laundry marked as deleted" });
+        }
+
+        [HttpGet("details/{laundryId}")]
+        public async Task<IActionResult> GetLaundryDetails(Guid laundryId)
+        {
+            try
+            {
+                var laundryDetails = await _laundryService.GetLaundryDetailsAsync(laundryId);
+                if (laundryDetails == null)
+                {
+                    return NotFound($"Laundry with ID {laundryId} not found.");
+                }
+                return Ok(laundryDetails);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetLaundryDetails: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while retrieving the laundry details", details = ex.Message });
+            }
         }
     }
 }

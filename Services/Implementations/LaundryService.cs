@@ -282,5 +282,60 @@ namespace FreshlyBackendNew.Services.Implementations
                 throw; // Rethrow to be handled by the controller
             }
         }
+
+        public async Task<LaundryDetailsDTO> GetLaundryDetailsAsync(Guid laundryId)
+        {
+            try
+            {
+                var laundry = await _context.Laundries
+                    .Include(l => l.Address)
+                    .Include(l => l.Owner)
+                    .FirstOrDefaultAsync(l => l.LaundryId == laundryId);
+
+                if (laundry == null)
+                {
+                    return null;
+                }
+
+                // Create full address
+                string fullAddress = string.Empty;
+                if (laundry.Address != null)
+                {
+                    var addressParts = new List<string>();
+                    if (!string.IsNullOrEmpty(laundry.Address.HouseNo)) addressParts.Add(laundry.Address.HouseNo);
+                    if (!string.IsNullOrEmpty(laundry.Address.Street)) addressParts.Add(laundry.Address.Street);
+                    if (!string.IsNullOrEmpty(laundry.Address.City)) addressParts.Add(laundry.Address.City);
+                    if (!string.IsNullOrEmpty(laundry.Address.PostalCode)) addressParts.Add(laundry.Address.PostalCode);
+
+                    fullAddress = string.Join(", ", addressParts);
+                }
+
+                // Create owner name
+                string ownerName = string.Empty;
+                if (laundry.Owner != null)
+                {
+                    var nameParts = new List<string>();
+                    if (!string.IsNullOrEmpty(laundry.Owner.FirstName)) nameParts.Add(laundry.Owner.FirstName);
+                    if (!string.IsNullOrEmpty(laundry.Owner.LastName)) nameParts.Add(laundry.Owner.LastName);
+
+                    ownerName = string.Join(" ", nameParts);
+                }
+
+                return new LaundryDetailsDTO
+                {
+                    LaundryId = laundry.LaundryId.ToString(),
+                    LaundryName = laundry.LaundryName,
+                    Email = laundry.Email,
+                    Address = fullAddress,
+                    ContactNumber = "+94 71 234 5678", // This could be stored in the database
+                    LogoUrl = null, // This would be stored in the database
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetLaundryDetailsAsync: {ex.Message}");
+                throw;
+            }
+        }
     }
 }
