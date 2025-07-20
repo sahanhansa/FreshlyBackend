@@ -139,6 +139,7 @@ namespace FreshlyBackendNew.Services.Implementations
                         ownerName = string.Join(" ", nameParts);
                     }
 
+                    string status = string.IsNullOrEmpty(laundry.AccountStatus) ? "inactive" : laundry.AccountStatus.ToLower() == "deleted" ? "deleted" : laundry.AccountStatus.ToLower() == "active" ? "active" : laundry.AccountStatus;
                     dtoList.Add(new LaundryAdminDTO
                     {
                         LaundryId = laundry.LaundryId.ToString(),
@@ -150,7 +151,8 @@ namespace FreshlyBackendNew.Services.Implementations
                         FullAddress = string.IsNullOrEmpty(fullAddress) ? null : fullAddress,
                         AverageRating = Math.Round(averageRating, 1),
                         TotalOrders = totalOrders,
-                        FeedbackCount = feedbackCount
+                        FeedbackCount = feedbackCount,
+                        AccountStatus = status
                     });
                 }
 
@@ -256,6 +258,7 @@ namespace FreshlyBackendNew.Services.Implementations
                     ownerName = string.Join(" ", nameParts);
                 }
 
+                string status = string.IsNullOrEmpty(laundry.AccountStatus) ? "inactive" : laundry.AccountStatus.ToLower() == "deleted" ? "deleted" : laundry.AccountStatus.ToLower() == "active" ? "active" : laundry.AccountStatus;
                 // Create and return the DTO
                 return new LaundryAdminDTO
                 {
@@ -268,7 +271,8 @@ namespace FreshlyBackendNew.Services.Implementations
                     FullAddress = string.IsNullOrEmpty(fullAddress) ? null : fullAddress,
                     AverageRating = Math.Round(averageRating, 1),
                     TotalOrders = totalOrders,
-                    FeedbackCount = feedbackCount
+                    FeedbackCount = feedbackCount,
+                    AccountStatus = status
                 };
             }
             catch (Exception ex)

@@ -18,21 +18,52 @@ public class FeedbackService : IFeedbackService
     }
 
    //Rohansi-Get Feddbacks from laundry side
-    public async Task<List<FeedbackDTO>> GetFeedbacksAsync(Guid laundryId)
-    {
-        return await _context.Feedbacks
-            .Include(f => f.Order)
-            .ThenInclude(o => o.Customer) // Include customer data
-            .Where(f => f.Order != null && f.Order.LaundryId == laundryId)
-            .Select(f => new FeedbackDTO
-            {
-                Description = f.Description ?? string.Empty,
-                Rating = f.Rating ?? 0,
-                CustomerFName= f.Order.Customer.FirstName ?? "Unknown" ,
-                CustomerLName = f.Order.Customer.LastName ?? "Unknown" 
-            })
-            .ToListAsync();
-    }
+   public async Task<List<FeedbackDTO>> GetFeedbacksAsync(Guid laundryId)
+   {
+       try
+       {
+           var feedbacks = await _context.Feedbacks
+               .Include(f => f.Order)
+               .ThenInclude(o => o.Customer)
+               .Where(f => f.LaundryId == laundryId || (f.Order != null && f.Order.LaundryId == laundryId))
+               .ToListAsync();
+
+           var result = new List<FeedbackDTO>();
+           
+           foreach (var f in feedbacks)
+           {
+               var dto = new FeedbackDTO
+               {
+                   FeedbackId = f.FeedbackId,
+                   Description = f.Description ?? string.Empty,
+                   Rating = f.Rating ?? 0,
+                   LaundryId = f.LaundryId,
+                   CustomerId = f.Order?.CustomerId,
+                   CustomerFName = f.Order?.Customer?.FirstName ?? "Unknown",
+                   CustomerLName = f.Order?.Customer?.LastName ?? "Unknown"
+               };
+               
+               // Set customer name
+               if (f.Order?.Customer != null)
+               {
+                   dto.CustomerName = $"{f.Order.Customer.FirstName ?? "Unknown"} {f.Order.Customer.LastName ?? "Unknown"}";
+               }
+               else
+               {
+                   dto.CustomerName = "Unknown";
+               }
+               
+               result.Add(dto);
+           }
+           
+           return result;
+       }
+       catch (Exception ex)
+       {
+           throw new Exception($"Error in GetFeedbacksAsync: {ex.Message}", ex);
+       }
+   }
+
         // Get all feedback with customer and laundry details
         public async Task<List<FeedbackDTO>> GetAllFeedbacksAsync()
         {

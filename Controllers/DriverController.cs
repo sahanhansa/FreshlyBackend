@@ -59,6 +59,61 @@ namespace FreshlyBackendNew.Controllers
             return CreatedAtAction(nameof(GetDrivers), new { id = driver.DriverId }, driver);
         }
 
+        // POST: api/Driver/add-driver-with-address
+        [HttpPost("add-driver-with-address")]
+        public async Task<IActionResult> AddDriverWithAddress([FromBody] CreateDriverRequestDTO dto)
+        {
+            if (dto == null)
+                return BadRequest();
+
+            // Create Address
+            var address = new Address
+            {
+                HouseNo = dto.HouseNo,
+                Street = dto.Street,
+                City = dto.City,
+                PostalCode = dto.PostalCode
+            };
+            _context.Addresses.Add(address);
+            await _context.SaveChangesAsync();
+
+            // Create Driver
+            var driver = new Driver
+            {
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                Username = dto.Username,
+                Password = dto.Password,
+                Email = dto.Email,
+                LicensNo = dto.LicensNo,
+                AddressId = address.AddressId,
+                AccountStatus = dto.AccountStatus ?? "active"
+            };
+            _context.Drivers.Add(driver);
+            await _context.SaveChangesAsync();
+
+            // Prepare response DTO
+            var response = new DriverProfileDTO
+            {
+                DriverId = driver.DriverId,
+                FirstName = driver.FirstName,
+                LastName = driver.LastName,
+                Email = driver.Email,
+                LicensNo = driver.LicensNo,
+                AddressId = address.AddressId,
+                Address = new AddressDTO
+                {
+                    AddressId = address.AddressId,
+                    HouseNo = address.HouseNo,
+                    Street = address.Street,
+                    City = address.City,
+                    PostalCode = address.PostalCode
+                },
+                AccountStatus = driver.AccountStatus
+            };
+            return CreatedAtAction(nameof(GetDrivers), new { id = driver.DriverId }, response);
+        }
+
         // PATCH: api/Driver/{id}/remove - Mark driver as deleted
         [HttpPatch("{id}/remove")]
         public async Task<IActionResult> RemoveDriver(Guid id)
