@@ -14,7 +14,7 @@ namespace FreshlyBackendNew.Services.Implementations
             _context = context;
         }
 
-        public async Task<ProfileDetailsByIdDto> GetDriverProfileDetailsAsync(Guid driverId)
+        public async Task<ProfileDetailsByIdDto?> GetDriverProfileDetailsAsync(Guid driverId)
         {
             var driver = await _context.Drivers
                 .AsNoTracking()
@@ -30,29 +30,11 @@ namespace FreshlyBackendNew.Services.Implementations
                 LastName = driver.LastName ?? "",
                 LicenseNumber = driver.LicensNo ?? "",
                 Email = driver.Email ?? "",
+                //ContactNumber = driver.ContactNumber ?? "",
+                //HomeAddress = driver.HomeAddress ?? "",
                 //VehicleNumber = driver.VehicleNumber ?? "",
+                //Location = driver.Location ?? ""
             };
-
-            var contacts = await _context.Contacts
-                .Where(d => d.UserId == dto.DriverID)
-                .Select(d => d.ContactNumber) 
-                .ToListAsync();
-
-            var address = await _context.Addresses
-                .Where(c => c.AddressId == driver.AddressId)
-                 .Select(d => new
-                 {
-                   d.HouseNo,
-                   d.Street,
-                   d.City,
-                   d.PostalCode
-                 })
-                .FirstOrDefaultAsync();
-
-
-            dto.ContactNumber = contacts.ToArray();
-            dto.HomeAddress = $"{address.HouseNo}, {address.Street}, {address.City}";
-            dto.Location = address.City;
 
             return dto;
         }
