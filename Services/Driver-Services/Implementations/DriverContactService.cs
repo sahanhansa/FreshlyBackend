@@ -34,5 +34,21 @@ namespace FreshlyBackendNew.Services.Implementations
 
             return dto;
         }
+
+        public async Task AddMessage(DriverContactDetailsDto driverContactDetailsDto)
+        {
+            var message = new Feedback
+            {
+                Description = driverContactDetailsDto.Message,
+                SubmittedByType="driver",
+                InquiryType=driverContactDetailsDto.SelectedSubject,
+                UserId=driverContactDetailsDto.DriverID
+
+
+            };
+
+            _context.Feedbacks.Add(message);
+            await _context.SaveChangesAsync();
+        }
     }
 }

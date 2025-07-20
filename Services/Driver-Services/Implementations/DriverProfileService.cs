@@ -31,10 +31,6 @@ namespace FreshlyBackendNew.Services.Implementations
                 LicenseNumber = driver.LicenseNo ?? "",
                 Email = driver.Email ?? "",
                 VehicleNumber = driver.VehicleNo ?? "",
-                //ContactNumber = driver.ContactNumber ?? "",
-                //HomeAddress = driver.HomeAddress ?? "",
-                //VehicleNumber = driver.VehicleNumber ?? "",
-                //Location = driver.Location ?? ""
             };
 
             var contacts = await _context.Contacts

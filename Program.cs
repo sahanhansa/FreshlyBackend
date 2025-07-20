@@ -95,7 +95,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ITemporaryOrderService, TemporaryOrderService>();
 builder.Services.AddScoped<ICompleteTasksService, CompleteTasksService>();
-
+builder.Services.AddScoped<IDriverProfileService, DriverProfileService>();
 
 
 builder.Services.AddScoped<ICustomerService, CustomerService>();
@@ -105,6 +105,7 @@ builder.Services.AddScoped<IServiceService, ServicesService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 // Add this line to your service registrations in Program.cs
 builder.Services.AddScoped<IOrderDetailService, OrderDetailService>();
+builder.Services.AddScoped<IDriverContactService, DriverContactService>();
 
 // Add controller services with improved JSON handling
 builder.Services.AddControllers()
