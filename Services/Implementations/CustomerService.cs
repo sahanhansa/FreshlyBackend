@@ -35,6 +35,7 @@ namespace FreshlyBackendNew.Services.Implementations
                     .Where(c => c.UserId == customer.CustomerId && c.UserType == "Customer")
                     .ToListAsync();
                 
+                string status = string.IsNullOrEmpty(customer.AccountStatus) ? "inactive" : customer.AccountStatus.ToLower() == "deleted" ? "deleted" : customer.AccountStatus.ToLower() == "active" ? "active" : customer.AccountStatus;
                 customerDtos.Add(new CustomerDto
                 {
                     CustomerId = customer.CustomerId,
@@ -44,7 +45,8 @@ namespace FreshlyBackendNew.Services.Implementations
                     Username = customer.Username,
                     AddressId = customer.AddressId,
                     Address = customer.Address != null ? $"{customer.Address.HouseNo}, {customer.Address.Street}, {customer.Address.City}, {customer.Address.PostalCode}" : null,
-                    Contacts = contacts.Select(ct => ct.ContactNumber).ToList()
+                    Contacts = contacts.Select(ct => ct.ContactNumber).ToList(),
+                    AccountStatus = status
                 });
             }
             
@@ -68,6 +70,7 @@ namespace FreshlyBackendNew.Services.Implementations
                 .Where(c => c.UserId == customer.CustomerId && c.UserType == "Customer")
                 .ToListAsync();
 
+            string status = string.IsNullOrEmpty(customer.AccountStatus) ? "inactive" : customer.AccountStatus.ToLower() == "deleted" ? "deleted" : customer.AccountStatus.ToLower() == "active" ? "active" : customer.AccountStatus;
             return new CustomerDto
             {
                 CustomerId = customer.CustomerId,
@@ -77,7 +80,8 @@ namespace FreshlyBackendNew.Services.Implementations
                 Username = customer.Username,
                 AddressId = customer.AddressId,
                 Address = customer.Address != null ? $"{customer.Address.HouseNo}, {customer.Address.Street}, {customer.Address.City}, {customer.Address.PostalCode}" : null,
-                Contacts = contacts.Select(ct => ct.ContactNumber).ToList()
+                Contacts = contacts.Select(ct => ct.ContactNumber).ToList(),
+                AccountStatus = status
             };
         }
 

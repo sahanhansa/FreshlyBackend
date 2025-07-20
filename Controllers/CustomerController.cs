@@ -122,5 +122,35 @@ namespace FreshlyBackendNew.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+        // PATCH: api/Customer/{id}/activate - Mark customer as active
+        [HttpPatch("{id}/activate")]
+        public async Task<IActionResult> ActivateCustomer(Guid id)
+        {
+            var customer = await _context.Customers.FindAsync(id);
+            if (customer == null)
+                return NotFound(new { Error = "Customer not found" });
+
+            customer.AccountStatus = "active";
+            _context.Entry(customer).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Message = "Customer marked as active" });
+        }
+
+        // PATCH: api/Customer/{id}/delete - Mark customer as deleted
+        [HttpPatch("{id}/delete")]
+        public async Task<IActionResult> DeleteCustomerStatus(Guid id)
+        {
+            var customer = await _context.Customers.FindAsync(id);
+            if (customer == null)
+                return NotFound(new { Error = "Customer not found" });
+
+            customer.AccountStatus = "deleted";
+            _context.Entry(customer).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Message = "Customer marked as deleted" });
+        }
     }
 }

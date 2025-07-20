@@ -1,6 +1,8 @@
 ﻿using FreshlyBackendNew.DTOs;
+using FreshlyBackendNew.Models;
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using FreshlyBackendNew.Data;
 
 namespace FreshlyBackendNew.Controllers
 {
@@ -9,10 +11,12 @@ namespace FreshlyBackendNew.Controllers
     public class LaundryController : ControllerBase
     {
         private readonly ILaundryService _laundryService;
+        private readonly ApplicationDbContext _context;
 
-        public LaundryController(ILaundryService laundryService)
+        public LaundryController(ILaundryService laundryService, ApplicationDbContext context)
         {
             _laundryService = laundryService;
+            _context = context;
         }
 
         [HttpGet]
@@ -20,7 +24,6 @@ namespace FreshlyBackendNew.Controllers
         {
             try
             {
-                // By default, return the customer-focused list when no specific endpoint is provided
                 var dtoList = await _laundryService.GetLaundriesForCustomerAsync();
                 return Ok(dtoList);
             }
@@ -71,13 +74,10 @@ namespace FreshlyBackendNew.Controllers
                     return BadRequest("Laundry data is required.");
                 }
                 var createdLaundry = await _laundryService.CreateLaundryAsync(laundryDto);
-                
-                // Add null check before parsing
                 if (string.IsNullOrEmpty(createdLaundry.LaundryId))
                 {
                     return StatusCode(500, new { error = "Created laundry ID is missing" });
                 }
-                
                 return CreatedAtAction(nameof(GetLaundryById), new { id = Guid.Parse(createdLaundry.LaundryId) }, createdLaundry);
             }
             catch (Exception ex)
@@ -104,6 +104,74 @@ namespace FreshlyBackendNew.Controllers
                 Console.WriteLine($"Error in GetLaundryById: {ex.Message}");
                 return StatusCode(500, new { error = "An error occurred while retrieving the laundry", details = ex.Message });
             }
+        }
+
+        [HttpPost("create-laundry-account")]
+        public async Task<IActionResult> CreateLaundryAccount([FromBody] CreateLaundryAccountDTO dto)
+        {
+            if (dto == null)
+                return BadRequest("Laundry account data is required.");
+            var owner = new Owner
+            {
+                FirstName = dto.OwnerFirstName,
+                LastName = dto.OwnerLastName,
+                Email = dto.OwnerEmail,
+                Password = dto.OwnerPassword,
+                Username = dto.OwnerUsername
+            };
+            _context.Owners.Add(owner);
+            await _context.SaveChangesAsync();
+            var address = new Address
+            {
+                HouseNo = dto.HouseNo,
+                Street = dto.Street,
+                City = dto.City,
+                PostalCode = dto.PostalCode
+            };
+            _context.Addresses.Add(address);
+            await _context.SaveChangesAsync();
+            var laundry = new Laundry
+            {
+                LaundryName = dto.LaundryName,
+                Username = dto.LaundryUsername,
+                Password = dto.LaundryPassword,
+                Email = dto.LaundryEmail,
+                AddressId = address.AddressId,
+                OwnerId = owner.OwnerId,
+                AccountStatus = "inactive"
+            };
+            _context.Laundries.Add(laundry);
+            await _context.SaveChangesAsync();
+            return Ok(new {
+                LaundryId = laundry.LaundryId,
+                OwnerId = owner.OwnerId,
+                AddressId = address.AddressId,
+                AccountStatus = laundry.AccountStatus
+            });
+        }
+
+        [HttpPatch("{id}/activate")]
+        public async Task<IActionResult> ActivateLaundry(Guid id)
+        {
+            var laundry = await _context.Laundries.FindAsync(id);
+            if (laundry == null)
+                return NotFound(new { Error = "Laundry not found" });
+            laundry.AccountStatus = "active";
+            _context.Entry(laundry).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return Ok(new { Message = "Laundry marked as active" });
+        }
+
+        [HttpPatch("{id}/delete")]
+        public async Task<IActionResult> DeleteLaundryStatus(Guid id)
+        {
+            var laundry = await _context.Laundries.FindAsync(id);
+            if (laundry == null)
+                return NotFound(new { Error = "Laundry not found" });
+            laundry.AccountStatus = "deleted";
+            _context.Entry(laundry).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return Ok(new { Message = "Laundry marked as deleted" });
         }
 
         [HttpGet("details/{laundryId}")]
