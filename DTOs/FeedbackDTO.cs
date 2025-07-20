@@ -10,4 +10,5 @@ namespace FreshlyBackendNew.DTOs;
         public string? LaundryName { get; set; } // Name of the laundry service, e.g., "Fresh Laundry"
         public string? CustomerFName { get; set; } 
         public string? CustomerLName { get; set; } 
+        public string? SubmittedByType { get; set; } // Add this property for submitted by type
     }
