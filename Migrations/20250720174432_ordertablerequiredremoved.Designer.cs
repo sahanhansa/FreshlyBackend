@@ -4,6 +4,7 @@ using FreshlyBackendNew.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FreshlyBackendNew.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250720174432_ordertablerequiredremoved")]
+    partial class ordertablerequiredremoved
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -98,7 +101,7 @@ namespace FreshlyBackendNew.Migrations
                         new
                         {
                             AdminId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedAt = new DateTime(2025, 7, 20, 20, 28, 46, 957, DateTimeKind.Utc).AddTicks(4489),
+                            CreatedAt = new DateTime(2025, 7, 20, 17, 44, 31, 295, DateTimeKind.Utc).AddTicks(3932),
                             Email = "admin@freshly.com",
                             FirstName = "System",
                             LastName = "Administrator",
@@ -397,6 +400,7 @@ namespace FreshlyBackendNew.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("PaymentMethod")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<DateTime?>("PickupAt")
@@ -474,52 +478,6 @@ namespace FreshlyBackendNew.Migrations
                     b.HasIndex("AddressId");
 
                     b.ToTable("Owners");
-                });
-
-            modelBuilder.Entity("FreshlyBackendNew.Models.RejectedItem", b =>
-                {
-                    b.Property<Guid>("RejectedItemId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid?>("ItemId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("ItemName")
-                        .HasColumnType("longtext");
-
-                    b.Property<Guid?>("LaundryId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid?>("OrderId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<int?>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Reason")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("RejectedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("RejectedBy")
-                        .HasColumnType("longtext");
-
-                    b.Property<Guid?>("ServiceId")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("RejectedItemId");
-
-                    b.HasIndex("ItemId");
-
-                    b.HasIndex("LaundryId");
-
-                    b.HasIndex("OrderId");
-
-                    b.HasIndex("ServiceId");
-
-                    b.ToTable("RejectedItems");
                 });
 
             modelBuilder.Entity("FreshlyBackendNew.Models.Service", b =>
@@ -801,33 +759,6 @@ namespace FreshlyBackendNew.Migrations
                         .HasForeignKey("AddressId");
 
                     b.Navigation("Address");
-                });
-
-            modelBuilder.Entity("FreshlyBackendNew.Models.RejectedItem", b =>
-                {
-                    b.HasOne("FreshlyBackendNew.Models.Item", "Item")
-                        .WithMany()
-                        .HasForeignKey("ItemId");
-
-                    b.HasOne("FreshlyBackendNew.Models.Laundry", "Laundry")
-                        .WithMany()
-                        .HasForeignKey("LaundryId");
-
-                    b.HasOne("FreshlyBackendNew.Models.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderId");
-
-                    b.HasOne("FreshlyBackendNew.Models.Item", "Service")
-                        .WithMany()
-                        .HasForeignKey("ServiceId");
-
-                    b.Navigation("Item");
-
-                    b.Navigation("Laundry");
-
-                    b.Navigation("Order");
-
-                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("FreshlyBackendNew.Models.Session", b =>

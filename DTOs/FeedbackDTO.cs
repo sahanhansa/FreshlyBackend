@@ -1,4 +1,5 @@
-namespace FreshlyBackendNew.DTOs; 
+namespace FreshlyBackendNew.DTOs
+{
  public class FeedbackDTO
     {
         public Guid FeedbackId { get; set; } // Unique identifier for the feedback
@@ -12,3 +13,13 @@ namespace FreshlyBackendNew.DTOs;
         public string? CustomerLName { get; set; } 
         public string? SubmittedByType { get; set; } // Add this property for submitted by type
     }
+
+    public class SubmitFeedbackDTO
+    {
+        public string? Description { get; set; }
+        public int? Rating { get; set; }
+        public Guid OrderId { get; set; }
+        public Guid LaundryId { get; set; }
+        public Guid CustomerId { get; set; }
+    }
+}

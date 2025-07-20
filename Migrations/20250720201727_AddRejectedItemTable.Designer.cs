@@ -4,6 +4,7 @@ using FreshlyBackendNew.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FreshlyBackendNew.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250720201727_AddRejectedItemTable")]
+    partial class AddRejectedItemTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -98,7 +101,7 @@ namespace FreshlyBackendNew.Migrations
                         new
                         {
                             AdminId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedAt = new DateTime(2025, 7, 20, 20, 28, 46, 957, DateTimeKind.Utc).AddTicks(4489),
+                            CreatedAt = new DateTime(2025, 7, 20, 20, 17, 25, 13, DateTimeKind.Utc).AddTicks(3258),
                             Email = "admin@freshly.com",
                             FirstName = "System",
                             LastName = "Administrator",
@@ -482,19 +485,20 @@ namespace FreshlyBackendNew.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid?>("ItemId")
+                    b.Property<Guid>("ItemId")
                         .HasColumnType("char(36)");
 
                     b.Property<string>("ItemName")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid?>("LaundryId")
+                    b.Property<Guid>("LaundryId")
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid?>("OrderId")
+                    b.Property<Guid>("OrderId")
                         .HasColumnType("char(36)");
 
-                    b.Property<int?>("Quantity")
+                    b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.Property<string>("Reason")
@@ -506,7 +510,7 @@ namespace FreshlyBackendNew.Migrations
                     b.Property<string>("RejectedBy")
                         .HasColumnType("longtext");
 
-                    b.Property<Guid?>("ServiceId")
+                    b.Property<Guid>("ServiceId")
                         .HasColumnType("char(36)");
 
                     b.HasKey("RejectedItemId");
@@ -807,19 +811,27 @@ namespace FreshlyBackendNew.Migrations
                 {
                     b.HasOne("FreshlyBackendNew.Models.Item", "Item")
                         .WithMany()
-                        .HasForeignKey("ItemId");
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("FreshlyBackendNew.Models.Laundry", "Laundry")
                         .WithMany()
-                        .HasForeignKey("LaundryId");
+                        .HasForeignKey("LaundryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("FreshlyBackendNew.Models.Order", "Order")
                         .WithMany()
-                        .HasForeignKey("OrderId");
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("FreshlyBackendNew.Models.Item", "Service")
                         .WithMany()
-                        .HasForeignKey("ServiceId");
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Item");
 

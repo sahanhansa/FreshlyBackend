@@ -25,6 +25,7 @@ namespace FreshlyBackendNew.Data
         public DbSet<Status> Statuses { get; set; }
         public DbSet<TemporaryOrder> TemporaryOrders { get; set; }
         public DbSet<TemporaryOrderDetail> TemporaryOrderDetails { get; set; }
+        public DbSet<RejectedItem> RejectedItems { get; set; }
 
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
