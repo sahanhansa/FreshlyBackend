@@ -92,7 +92,7 @@ namespace FreshlyBackendNew.Controllers
             return NoContent();
         }
 
-    // GET: api/Feedback
+        // GET: api/Feedback
         [HttpGet]
         public async Task<ActionResult<IEnumerable<FeedbackDTO>>> GetFeedbacks()
         {
