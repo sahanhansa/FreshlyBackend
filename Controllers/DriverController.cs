@@ -16,10 +16,12 @@ namespace FreshlyBackendNew.Controllers
     {
         private readonly IDriverContactService _driverContactService;
         private readonly IDriverProfileService _driverProfileService;
-        public DriverController(IDriverContactService driverContactService,IDriverProfileService driverProfileService)
+        private readonly ApplicationDbContext _context;
+        public DriverController(ApplicationDbContext context, IDriverContactService driverContactService, IDriverProfileService driverProfileService)
         {
             _driverContactService = driverContactService;
             _driverProfileService = driverProfileService;
+            _context = context;
         }
         [HttpGet("GetContactUsDetails/{driverId}")]
         public async Task<IActionResult> GetContactUsDetails(Guid driverId)
@@ -39,14 +41,14 @@ namespace FreshlyBackendNew.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("AddMessage")]
         public async Task<IActionResult> AddMessage(DriverContactDetailsDto driverContactDetailsDto)
         {
             try
             {
-                 await _driverContactService.AddMessage(driverContactDetailsDto);
+                await _driverContactService.AddMessage(driverContactDetailsDto);
 
-               
+
 
                 return Ok();
             }
@@ -143,5 +145,24 @@ namespace FreshlyBackendNew.Controllers
 
             return Ok(new { Message = "Driver restored to active status" });
         }
+
+        [HttpGet("DriverEdit/{driverId}")]
+        public async Task<IActionResult> DriverEdit(Guid driverId)
+        {
+            try
+            {
+                var driverProfile = await _driverProfileService.GetDriverEdit(driverId);
+
+                if (driverProfile == null)
+                    return NotFound($"No contact details found for driver with ID: {driverId}");
+
+                return Ok(driverProfile);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
     }
 }

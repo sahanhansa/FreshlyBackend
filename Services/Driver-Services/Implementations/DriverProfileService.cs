@@ -30,22 +30,22 @@ namespace FreshlyBackendNew.Services.Implementations
                 LastName = driver.LastName ?? "",
                 LicenseNumber = driver.LicensNo ?? "",
                 Email = driver.Email ?? "",
-                //VehicleNumber = driver.VehicleNumber ?? "",
+                VehicleNumber = driver.VehicleNo ?? "",
             };
 
             var contacts = await _context.Contacts
                 .Where(d => d.UserId == dto.DriverID)
-                .Select(d => d.ContactNumber) 
+                .Select(d => d.ContactNumber)
                 .ToListAsync();
 
             var address = await _context.Addresses
                 .Where(c => c.AddressId == driver.AddressId)
                  .Select(d => new
                  {
-                   d.HouseNo,
-                   d.Street,
-                   d.City,
-                   d.PostalCode
+                     d.HouseNo,
+                     d.Street,
+                     d.City,
+                     d.PostalCode
                  })
                 .FirstOrDefaultAsync();
 
@@ -53,6 +53,48 @@ namespace FreshlyBackendNew.Services.Implementations
             dto.ContactNumber = contacts.ToArray();
             dto.HomeAddress = $"{address.HouseNo}, {address.Street}, {address.City}";
             dto.Location = address.City;
+
+            return dto;
+        }
+
+        public async Task<DriverEditDto> GetDriverEdit(Guid driverId)
+        {
+            var driver = await _context.Drivers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.DriverId == driverId);
+
+            if (driver == null)
+                return null;
+
+            var dto = new DriverEditDto
+            {
+                DriverID = driver.DriverId,
+                FirstName = driver.FirstName ?? "",
+                LastName = driver.LastName ?? "",
+                Email = driver.Email ?? "",
+            };
+
+            var contacts = await _context.Contacts
+                .Where(d => d.UserId == dto.DriverID)
+                .Select(d => d.ContactNumber)
+                .ToListAsync();
+
+            var address = await _context.Addresses
+                .Where(c => c.AddressId == driver.AddressId)
+                 .Select(d => new
+                 {
+                     d.HouseNo,
+                     d.Street,
+                     d.City,
+                     d.PostalCode
+                 })
+                .FirstOrDefaultAsync();
+
+
+            dto.ContactNumber = contacts.ToArray();
+            dto.HouseNo = address.HouseNo;
+            dto.Street = address.Street;
+            dto.City = address.City;
 
             return dto;
         }

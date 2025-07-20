@@ -15,34 +15,54 @@ namespace FreshlyBackendNew.Services.Implementations
             _context = context;
         }
 
-        // Get all orders that are completed
+        /// <summary>
+        /// Get all completed tasks with basic details.
+        /// </summary>
         public async Task<List<CompleteTasksDetailsDto>> GetAllCompleteTasks()
         {
             try
             {
-                var completedTasks = await (
+                // Get base order details first
+                var baseOrders = await (
                     from ord in _context.Orders
                     join cust in _context.Customers on ord.CustomerId equals cust.CustomerId
                     join addr in _context.Addresses on cust.AddressId equals addr.AddressId
                     join laun in _context.Laundries on ord.LaundryId equals laun.LaundryId
                     join sta in _context.Statuses on ord.StatusId equals sta.StatusID
-                    where sta.StatusName == "Pickup Complete" || sta.StatusName == "Delivery Complete"
-                    select new CompleteTasksDetailsDto
+                    select new
                     {
-                        OrderId = ord.OrderId,
-                        CustomerId = cust.CustomerId,
+                        ord.OrderId,
+                        cust.CustomerId,
                         CustomerName = cust.FirstName + " " + cust.LastName,
                         Address = addr.HouseNo + " " + addr.Street + ", " + addr.City,
                         LaundryName = laun.LaundryName,
-                        Status = sta.StatusName,
-                        Contact = _context.Contacts
-                            .Where(c => c.UserId == cust.CustomerId && c.UserType == "Customer")
-                            .Select(c => c.ContactNumber)
-                            .ToList()
+                        Status = sta.StatusName
                     }
                 ).ToListAsync();
 
-                return completedTasks;
+                // Map contacts in-memory for each order
+                var result = new List<CompleteTasksDetailsDto>();
+
+                foreach (var order in baseOrders)
+                {
+                    var contacts = await _context.Contacts
+                        .Where(c => c.UserId == order.CustomerId && c.UserType == "Customer")
+                        .Select(c => c.ContactNumber)
+                        .ToListAsync();
+
+                    result.Add(new CompleteTasksDetailsDto
+                    {
+                        OrderId = order.OrderId,
+                        CustomerId = order.CustomerId,
+                        CustomerName = order.CustomerName,
+                        Address = order.Address,
+                        LaundryName = order.LaundryName,
+                        Status = order.Status,
+                        Contact = contacts
+                    });
+                }
+
+                return result;
             }
             catch (Exception ex)
             {
@@ -50,52 +70,68 @@ namespace FreshlyBackendNew.Services.Implementations
             }
         }
 
-        // Get details for a specific completed task by Order ID
+        /// <summary>
+        /// Get detailed info for a specific completed task.
+        /// </summary>
         public async Task<CompleteTasksDetailsByIdDto> GetAllCompleteTasksBYId(string orderID)
         {
             try
             {
-                var completedTaskDetails = await (
+                var order = await (
                     from ord in _context.Orders
                     join cust in _context.Customers on ord.CustomerId equals cust.CustomerId
                     join addr in _context.Addresses on cust.AddressId equals addr.AddressId
                     join laun in _context.Laundries on ord.LaundryId equals laun.LaundryId
                     join sta in _context.Statuses on ord.StatusId equals sta.StatusID
-                    where ord.OrderId.ToString() == orderID && (sta.StatusName == "Pickup Complete" || sta.StatusName == "Delivery Complete")
-                    select new CompleteTasksDetailsByIdDto
+                    where ord.OrderId.ToString() == orderID
+                    select new
                     {
-                        OrderId = ord.OrderId,
+                        ord.OrderId,
+                        cust.CustomerId,
                         CustomerName = cust.FirstName + " " + cust.LastName,
                         Address = addr.HouseNo + " " + addr.Street + ", " + addr.City,
                         LaundryName = laun.LaundryName,
-                        Status = sta.StatusName,
-                        Contact = _context.Contacts
-                            .Where(c => c.UserId == cust.CustomerId && c.UserType == "Customer")
-                            .Select(c => c.ContactNumber)
-                            .ToList(),
-                        OrderItems = _context.OrderDetails
-                            .Where(o => o.OrderId == ord.OrderId)
-                            .Join(_context.Items,
-                                  o => o.ItemId,
-                                  i => i.ItemId,
-                                  (o, i) => new OrderedItemsDto
-                                  {
-                                      ItemName = i.Name,
-                                      Quantity = (int)o.Quantity
-                                  })
-                            .ToList()
+                        Status = sta.StatusName
                     }
                 ).FirstOrDefaultAsync();
 
-                return completedTaskDetails;
+                if (order == null)
+                {
+                    throw new Exception($"Order with ID {orderID} not found.");
+                }
+
+                var contacts = await _context.Contacts
+                    .Where(c => c.UserId == order.CustomerId && c.UserType == "Customer")
+                    .Select(c => c.ContactNumber)
+                    .ToListAsync();
+
+                var items = await _context.OrderDetails
+                    .Where(o => o.OrderId == order.OrderId)
+                    .Join(_context.Items,
+                        o => o.ItemId,
+                        i => i.ItemId,
+                        (o, i) => new OrderedItemsDto
+                        {
+                            ItemName = i.Name,
+                            Quantity = (int)o.Quantity
+                        })
+                    .ToListAsync();
+
+                return new CompleteTasksDetailsByIdDto
+                {
+                    OrderId = order.OrderId,
+                    CustomerName = order.CustomerName,
+                    Address = order.Address,
+                    LaundryName = order.LaundryName,
+                    Status = order.Status,
+                    Contact = contacts,
+                    OrderItems = items
+                };
             }
             catch (Exception ex)
             {
                 throw new Exception($"An error occurred while retrieving completed task details for Order ID: {orderID}", ex);
             }
         }
-
-      
     }
 }
-
