@@ -43,7 +43,6 @@ namespace FreshlyBackendNew.Services.Implementations
 
                 var customer = await _context.Customers
                     .Include(c => c.Address)
-                    .Include(c => c.Contacts)
                     .FirstOrDefaultAsync(u => u.Username == loginData.Username);
 
                 if (customer == null || !BCrypt.Net.BCrypt.Verify(loginData.Password, customer.Password))
@@ -58,7 +57,6 @@ namespace FreshlyBackendNew.Services.Implementations
                     { "Street", customer.Address?.Street ?? string.Empty },
                     { "City", customer.Address?.City ?? string.Empty },
                     { "PostalCode", customer.Address?.PostalCode ?? string.Empty },
-                    { "ContactNumber", customer.Contacts?.FirstOrDefault()?.ContactNumber ?? string.Empty }
                 });
 
                 return new AuthResponse
@@ -83,7 +81,6 @@ namespace FreshlyBackendNew.Services.Implementations
 
                 var laundry = await _context.Laundries
                     .Include(l => l.Address)
-                    .Include(l => l.Contacts)
                     .FirstOrDefaultAsync(u => u.Username == loginData.Username);
 
                 if (laundry == null || !BCrypt.Net.BCrypt.Verify(loginData.Password, laundry.Password) || !(laundry.AccountStatus == "active"))
@@ -97,7 +94,6 @@ namespace FreshlyBackendNew.Services.Implementations
                     { "Street", laundry.Address?.Street ?? string.Empty },
                     { "City", laundry.Address?.City ?? string.Empty },
                     { "PostalCode", laundry.Address?.PostalCode ?? string.Empty },
-                    { "ContactNumbers", string.Join(",", laundry.Contacts?.Select(c => c.ContactNumber) ?? Array.Empty<string>()) }
                 });
 
                 return new AuthResponse
@@ -149,7 +145,6 @@ namespace FreshlyBackendNew.Services.Implementations
 
                 var driver = await _context.Drivers
                     .Include(d => d.Address)
-                    .Include(d => d.Contacts)
                     .FirstOrDefaultAsync(u => u.Username == loginData.Username);
 
                 if (driver == null || !BCrypt.Net.BCrypt.Verify(loginData.Password, driver.Password))
@@ -165,7 +160,6 @@ namespace FreshlyBackendNew.Services.Implementations
                     { "Street", driver.Address?.Street ?? string.Empty },
                     { "City", driver.Address?.City ?? string.Empty },
                     { "PostalCode", driver.Address?.PostalCode ?? string.Empty },
-                    { "ContactNumber", driver.Contacts?.FirstOrDefault()?.ContactNumber ?? string.Empty }
                 });
 
                 return new AuthResponse

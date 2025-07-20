@@ -285,7 +285,6 @@ namespace FreshlyBackendNew.Controllers
 
                 var customer = await _context.Customers
                     .Include(c => c.Address)
-                    .Include(c => c.Contacts)
                     .FirstOrDefaultAsync(c => c.CustomerId.ToString() == result.UserId);
 
                 if (customer == null)
@@ -294,27 +293,8 @@ namespace FreshlyBackendNew.Controllers
                 }
 
                 // Debugging: Check if Contacts are loaded
-                var contactCount = customer.Contacts?.Count ?? 0;
-                if (contactCount == 0)
-                {
-                    // Verify database directly
-                    var dbContacts = await _context.Contacts
-                        .Where(c => c.UserId.ToString() == result.UserId && c.UserType == "Customer")
-                        .ToListAsync();
-                    if (dbContacts.Any())
-                    {
-                        return BadRequest(new
-                        {
-                            Error = "Contacts exist in database but not loaded in model. Check relationship configuration.",
-                            DebugInfo = new
-                            {
-                                CustomerId = customer.CustomerId,
-                                DbContactCount = dbContacts.Count,
-                                DbContacts = dbContacts.Select(c => new { c.ContactId, c.ContactNumber, c.UserId, c.UserType })
-                            }
-                        });
-                    }
-                }
+                
+                
 
                 return Ok(new
                 {
@@ -328,7 +308,6 @@ namespace FreshlyBackendNew.Controllers
                     Street = customer.Address?.Street,
                     City = customer.Address?.City,
                     PostalCode = customer.Address?.PostalCode,
-                    ContactNumbers = customer.Contacts?.Select(c => c.ContactNumber).ToList() ?? new List<string>()
                 });
             }
             catch (Exception ex)
@@ -350,7 +329,6 @@ namespace FreshlyBackendNew.Controllers
 
                 var laundry = await _context.Laundries
                     .Include(l => l.Address)
-                    .Include(l => l.Contacts)
                     .FirstOrDefaultAsync(l => l.LaundryId.ToString() == result.UserId);
 
                 if (laundry == null || !(laundry.AccountStatus=="active"))
@@ -369,7 +347,6 @@ namespace FreshlyBackendNew.Controllers
                     Street = laundry.Address?.Street,
                     City = laundry.Address?.City,
                     PostalCode = laundry.Address?.PostalCode,
-                    ContactNumbers = laundry.Contacts?.Select(c => c.ContactNumber).ToList()
                 });
             }
             catch (Exception ex)
@@ -391,7 +368,6 @@ namespace FreshlyBackendNew.Controllers
 
                 var driver = await _context.Drivers
                     .Include(d => d.Address)
-                    .Include(d => d.Contacts)
                     .FirstOrDefaultAsync(d => d.DriverId.ToString() == result.UserId);
 
                 return Ok(new
@@ -407,7 +383,6 @@ namespace FreshlyBackendNew.Controllers
                     Street = driver.Address?.Street,
                     City = driver.Address?.City,
                     PostalCode = driver.Address?.PostalCode,
-                    ContactNumber = driver.Contacts?.FirstOrDefault()?.ContactNumber
                 });
             }
             catch (Exception ex)
