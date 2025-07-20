@@ -34,5 +34,12 @@ namespace FreshlyBackendNew.Services.Implementations
 
             return dto;
         }
+
+        public async Task AddMessage(DriverContactDetailsDto driverContactDetailsDto)
+        {
+            // Example: Save a message to a DriverMessages table (implement as needed)
+            // For now, just a stub to satisfy interface and controller
+            await Task.CompletedTask;
+        }
     }
 }
