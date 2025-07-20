@@ -1,4 +1,4 @@
-﻿namespace FreshlyBackendNew.DTOs
+namespace FreshlyBackendNew.DTOs
 {
     public class LaundryOwnerRegisterDTO
     {

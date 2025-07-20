@@ -1,4 +1,4 @@
-﻿using FreshlyBackendNew.DTOs;
+using FreshlyBackendNew.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FreshlyBackendNew.Services.Interfaces

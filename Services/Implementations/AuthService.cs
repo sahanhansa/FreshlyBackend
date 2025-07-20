@@ -1,4 +1,4 @@
-﻿using FreshlyBackendNew.Services.Interfaces;
+using FreshlyBackendNew.Services.Interfaces;
 using FreshlyBackendNew.Data;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
