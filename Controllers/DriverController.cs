@@ -12,11 +12,66 @@ namespace FreshlyBackendNew.Controllers
     [ApiController]
     public class DriverController : ControllerBase
     {
+
+        private readonly IDriverContactService _driverContactService;
+        private readonly IDriverProfileService _driverProfileService;
         private readonly ApplicationDbContext _context;
 
-        public DriverController(ApplicationDbContext context)
+        public DriverController(IDriverContactService driverContactService, IDriverProfileService driverProfileService)
         {
-            _context = context;
+            _driverContactService = driverContactService;
+            _driverProfileService = driverProfileService;
+        }
+
+        // GET: api/Driver/GetContactUsDetails/{driverId}
+        [HttpGet("GetContactUsDetails/{driverId}")]
+        public async Task<IActionResult> GetContactUsDetails(Guid driverId)
+        {
+            try
+            {
+                var driverContact = await _driverContactService.GetDriverContactDetailsAsync(driverId);
+                if (driverContact == null)
+                    return NotFound($"No contact details found for driver with ID: {driverId}");
+
+                return Ok(driverContact);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+        // POST: api/Driver/add-message
+        [HttpPost("add-message")]
+        public async Task<IActionResult> AddMessage(DriverContactDetailsDto driverContactDetailsDto)
+        {
+            try
+            {
+                await _driverContactService.AddMessage(driverContactDetailsDto);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+        // GET: api/Driver/DriverProfile/{driverId}
+        [HttpGet("DriverProfile/{driverId}")]
+        public async Task<IActionResult> DriverProfile(Guid driverId)
+        {
+            try
+            {
+                var driverProfile = await _driverProfileService.GetDriverProfileDetailsAsync(driverId);
+                if (driverProfile == null)
+                    return NotFound($"No profile found for driver with ID: {driverId}");
+
+                return Ok(driverProfile);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
         }
 
         // GET: api/Driver - Returns all drivers with required profile details
@@ -44,6 +99,7 @@ namespace FreshlyBackendNew.Controllers
                     AccountStatus = d.AccountStatus
                 })
                 .ToListAsync();
+
             return Ok(drivers);
         }
 

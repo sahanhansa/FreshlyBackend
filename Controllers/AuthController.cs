@@ -1,7 +1,10 @@
-﻿using FreshlyBackendNew.Services.Interfaces;
+using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using FreshlyBackendNew.DTOs;
-using Microsoft.Extensions.Logging;
+using FreshlyBackendNew.Models;
+using Microsoft.EntityFrameworkCore;
+using BCrypt.Net;
+using FreshlyBackendNew.Data;
 
 namespace FreshlyBackendNew.Controllers
 {
@@ -10,12 +13,263 @@ namespace FreshlyBackendNew.Controllers
     public class AuthController : Controller
     {
         private readonly IAuthService _auth;
-        private readonly ILogger<AuthController> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public AuthController(IAuthService auth, ILogger<AuthController> logger)
+        public AuthController(IAuthService auth, ApplicationDbContext context)
         {
             _auth = auth;
-            _logger = logger;
+            _context = context;
+        }
+
+        [HttpPost("customer/register")]
+        public async Task<IActionResult> CustomerRegister([FromBody] CustomerRegisterDTO data)
+        {
+            try
+            {
+                if (await _auth.IsUsernameTakenAsync(data.Username))
+                {
+                    return BadRequest(new { Error = "Username already exists" });
+                }
+
+                if (await _context.Customers.AnyAsync(c => c.Email == data.Email))
+                {
+                    return BadRequest(new { Error = "Email already exists" });
+                }
+
+                var address = new Address
+                {
+                    HouseNo = data.HouseNo,
+                    Street = data.Street,
+                    City = data.City,
+                    PostalCode = data.PostalCode
+                };
+                await _context.Addresses.AddAsync(address);
+
+                var customer = new Customer
+                {
+                    FirstName = data.FirstName,
+                    LastName = data.LastName,
+                    Username = data.Username,
+                    Password = BCrypt.Net.BCrypt.HashPassword(data.Password),
+                    Email = data.Email,
+                    Address = address
+                };
+                await _context.Customers.AddAsync(customer);
+
+                var contact = new Contact
+                {
+                    ContactNumber = data.ContactNumber,
+                    UserId = customer.CustomerId,
+                    UserType = "Customer"
+                };
+                await _context.Contacts.AddAsync(contact);
+
+                await _context.SaveChangesAsync();
+
+                var authResponse = await _auth.LoginCustomerAsync(new LoginData
+                {
+                    Username = data.Username,
+                    Password = data.Password
+                });
+
+                return Ok(new
+                {
+                    Token = authResponse.Token,
+                    Username = authResponse.Username,
+                    UserId = authResponse.UserId,
+                    FirstName = customer.FirstName,
+                    LastName = customer.LastName,
+                    Email = customer.Email,
+                    HouseNo = address.HouseNo,
+                    Street = address.Street,
+                    City = address.City,
+                    PostalCode = address.PostalCode,
+                    ContactNumber = contact.ContactNumber
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
+        [HttpPost("driver/register")]
+        public async Task<IActionResult> DriverRegister([FromBody] DriverRegisterDTO data)
+        {
+            try
+            {
+                if (await _auth.IsUsernameTakenAsync(data.Username))
+                {
+                    return BadRequest(new { Error = "Username already exists" });
+                }
+
+                if (await _context.Drivers.AnyAsync(d => d.Email == data.Email))
+                {
+                    return BadRequest(new { Error = "Email already exists" });
+                }
+
+                var address = new Address
+                {
+                    HouseNo = data.HouseNo,
+                    Street = data.Street,
+                    City = data.City,
+                    PostalCode = data.PostalCode
+                };
+                await _context.Addresses.AddAsync(address);
+
+                var driver = new Driver
+                {
+                    FirstName = data.FirstName,
+                    LastName = data.LastName,
+                    Username = data.Username,
+                    Password = BCrypt.Net.BCrypt.HashPassword(data.Password),
+                    Email = data.Email,
+                    LicenseNo = data.LicenseNo,
+                    Address = address
+                };
+                await _context.Drivers.AddAsync(driver);
+
+                var contact = new Contact
+                {
+                    ContactNumber = data.ContactNumber,
+                    UserId = driver.DriverId,
+                    UserType = "Driver"
+                };
+                await _context.Contacts.AddAsync(contact);
+
+                await _context.SaveChangesAsync();
+
+                var authResponse = await _auth.LoginDriverAsync(new LoginData
+                {
+                    Username = data.Username,
+                    Password = data.Password
+                });
+
+                return Ok(new
+                {
+                    Token = authResponse.Token,
+                    Username = authResponse.Username,
+                    UserId = authResponse.UserId,
+                    FirstName = driver.FirstName,
+                    LastName = driver.LastName,
+                    Email = driver.Email,
+                    LicenseNo = driver.LicenseNo,
+                    HouseNo = address.HouseNo,
+                    Street = address.Street,
+                    City = address.City,
+                    PostalCode = address.PostalCode,
+                    ContactNumber = contact.ContactNumber
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
+        [HttpPost("laundry-owner/register")]
+        public async Task<IActionResult> LaundryOwnerRegister([FromBody] LaundryOwnerRegisterDTO data)
+        {
+            try
+            {
+                if (await _auth.IsUsernameTakenAsync(data.Username))
+                {
+                    return BadRequest(new { Error = "Username already exists" });
+                }
+
+                if (await _context.Laundries.AnyAsync(l => l.Email == data.Email))
+                {
+                    return BadRequest(new { Error = "Laundry email already exists" });
+                }
+
+                if (await _context.Owners.AnyAsync(o => o.Email == data.OwnerEmail))
+                {
+                    return BadRequest(new { Error = "Owner email already exists" });
+                }
+
+                // Step 1: Save Owner Details
+                var ownerAddress = new Address
+                {
+                    HouseNo = data.HouseNo,
+                    Street = data.Street,
+                    City = data.City,
+                    PostalCode = data.PostalCode
+                };
+                await _context.Addresses.AddAsync(ownerAddress);
+
+                var owner = new Owner
+                {
+                    FirstName = data.OwnerName,
+                    LastName = data.LastName,
+                    Email = data.OwnerEmail,
+                    Address = ownerAddress
+                };
+                await _context.Owners.AddAsync(owner);
+
+                var ownerContact = new Contact
+                {
+                    ContactNumber = data.OwnerContact,
+                    UserId = owner.OwnerId,
+                    UserType = "Owner"
+                };
+                await _context.Contacts.AddAsync(ownerContact);
+
+                await _context.SaveChangesAsync(); // Save owner details to get OwnerId
+
+                // Step 2: Save Laundry Details
+                var laundryAddress = new Address
+                {
+                    HouseNo = data.StreetNumber,
+                    Street = data.Street,
+                    City = data.City,
+                    PostalCode = data.PostalCode
+                };
+                await _context.Addresses.AddAsync(laundryAddress);
+
+                var laundry = new Laundry
+                {
+                    LaundryName = data.LaundryName,
+                    Username = data.Username,
+                    Password = BCrypt.Net.BCrypt.HashPassword(data.Password),
+                    Email = data.Email,
+                    Address = laundryAddress,
+                    OwnerId = owner.OwnerId, // Use the saved OwnerId
+                    AccountStatus = "Not active"
+                };
+                await _context.Laundries.AddAsync(laundry);
+
+                var laundryContact = new Contact
+                {
+                    ContactNumber = data.ContactNumber1,
+                    UserId = laundry.LaundryId,
+                    UserType = "Laundry"
+                };
+                await _context.Contacts.AddAsync(laundryContact);
+
+                if (!string.IsNullOrEmpty(data.ContactNumber2))
+                {
+                    var secondaryContact = new Contact
+                    {
+                        ContactNumber = data.ContactNumber2,
+                        UserId = laundry.LaundryId,
+                        UserType = "Laundry"
+                    };
+                    await _context.Contacts.AddAsync(secondaryContact);
+                }
+
+                await _context.SaveChangesAsync(); // Save laundry details
+
+                return Ok(new
+                {
+                    Message = "Laundry and owner registered successfully. Awaiting admin approval for login.",
+                    LaundryId = laundry.LaundryId,
+                    OwnerId = owner.OwnerId
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
         }
 
         [HttpPost("customer/login")]
@@ -23,72 +277,63 @@ namespace FreshlyBackendNew.Controllers
         {
             try
             {
-                if (data == null || string.IsNullOrEmpty(data.Username) || string.IsNullOrEmpty(data.Password))
-                {
-                    return BadRequest(new { Error = "Username and password are required" });
-                }
-
                 var result = await _auth.LoginCustomerAsync(data);
-
                 if (result == null)
                 {
-                    return Unauthorized(new { Error = "Invalid username or password" });
+                    return BadRequest(new { Error = "Invalid username or password" });
                 }
 
-                if (result.Token.StartsWith("Error") || result.Username == "Error")
+                var customer = await _context.Customers
+                    .Include(c => c.Address)
+                    .Include(c => c.Contacts)
+                    .FirstOrDefaultAsync(c => c.CustomerId.ToString() == result.UserId);
+
+                if (customer == null)
                 {
-                    _logger.LogError($"Login error for user {data.Username}: {result.Token}");
-                    return StatusCode(500, new { Error = "An error occurred during login" });
+                    return BadRequest(new { Error = "Customer not found" });
+                }
+
+                // Debugging: Check if Contacts are loaded
+                var contactCount = customer.Contacts?.Count ?? 0;
+                if (contactCount == 0)
+                {
+                    // Verify database directly
+                    var dbContacts = await _context.Contacts
+                        .Where(c => c.UserId.ToString() == result.UserId && c.UserType == "Customer")
+                        .ToListAsync();
+                    if (dbContacts.Any())
+                    {
+                        return BadRequest(new
+                        {
+                            Error = "Contacts exist in database but not loaded in model. Check relationship configuration.",
+                            DebugInfo = new
+                            {
+                                CustomerId = customer.CustomerId,
+                                DbContactCount = dbContacts.Count,
+                                DbContacts = dbContacts.Select(c => new { c.ContactId, c.ContactNumber, c.UserId, c.UserType })
+                            }
+                        });
+                    }
                 }
 
                 return Ok(new
                 {
                     Token = result.Token,
                     Username = result.Username,
-                    UserId = result.UserId
+                    UserId = result.UserId,
+                    FirstName = customer.FirstName,
+                    LastName = customer.LastName,
+                    Email = customer.Email,
+                    HouseNo = customer.Address?.HouseNo,
+                    Street = customer.Address?.Street,
+                    City = customer.Address?.City,
+                    PostalCode = customer.Address?.PostalCode,
+                    ContactNumbers = customer.Contacts?.Select(c => c.ContactNumber).ToList() ?? new List<string>()
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Exception during customer login: {ex.Message}");
-                return StatusCode(500, new { Error = "An unexpected error occurred during login" });
-            }
-        }
-
-        [HttpPost("admin/login")]
-        public async Task<IActionResult> AdminLogin([FromBody] LoginData data)
-        {
-            try
-            {
-                if (data == null || string.IsNullOrEmpty(data.Username) || string.IsNullOrEmpty(data.Password))
-                {
-                    return BadRequest(new { Error = "Username and password are required" });
-                }
-
-                var result = await _auth.LoginAdminAsync(data);
-
-                if (result == null)
-                {
-                    return Unauthorized(new { Error = "Invalid username or password" });
-                }
-
-                if (result.Token.StartsWith("Error") || result.Username == "Error")
-                {
-                    _logger.LogError($"Login error for admin {data.Username}: {result.Token}");
-                    return StatusCode(500, new { Error = "An error occurred during login" });
-                }
-
-                return Ok(new
-                {
-                    Token = result.Token,
-                    Username = result.Username,
-                    UserId = result.UserId
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Exception during admin login: {ex.Message}");
-                return StatusCode(500, new { Error = "An unexpected error occurred during login" });
+                return BadRequest(new { Error = ex.Message });
             }
         }
 
@@ -97,35 +342,39 @@ namespace FreshlyBackendNew.Controllers
         {
             try
             {
-                if (data == null || string.IsNullOrEmpty(data.Username) || string.IsNullOrEmpty(data.Password))
-                {
-                    return BadRequest(new { Error = "Username and password are required" });
-                }
-
                 var result = await _auth.LoginLaundryAsync(data);
-
                 if (result == null)
                 {
-                    return Unauthorized(new { Error = "Invalid username or password" });
+                    return BadRequest(new { Error = "Invalid username or password or account not approved" });
                 }
 
-                if (result.Token.StartsWith("Error") || result.Username == "Error")
+                var laundry = await _context.Laundries
+                    .Include(l => l.Address)
+                    .Include(l => l.Contacts)
+                    .FirstOrDefaultAsync(l => l.LaundryId.ToString() == result.UserId);
+
+                if (laundry == null || !(laundry.AccountStatus=="active"))
                 {
-                    _logger.LogError($"Login error for laundry {data.Username}: {result.Token}");
-                    return StatusCode(500, new { Error = "An error occurred during login" });
+                    return BadRequest(new { Error = "Laundry account not approved by admin" });
                 }
 
                 return Ok(new
                 {
                     Token = result.Token,
                     Username = result.Username,
-                    UserId = result.UserId
+                    UserId = result.UserId,
+                    LaundryName = laundry.LaundryName,
+                    Email = laundry.Email,
+                    HouseNo = laundry.Address?.HouseNo,
+                    Street = laundry.Address?.Street,
+                    City = laundry.Address?.City,
+                    PostalCode = laundry.Address?.PostalCode,
+                    ContactNumbers = laundry.Contacts?.Select(c => c.ContactNumber).ToList()
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Exception during laundry login: {ex.Message}");
-                return StatusCode(500, new { Error = "An unexpected error occurred during login" });
+                return BadRequest(new { Error = ex.Message });
             }
         }
 
@@ -134,22 +383,55 @@ namespace FreshlyBackendNew.Controllers
         {
             try
             {
-                if (data == null || string.IsNullOrEmpty(data.Username) || string.IsNullOrEmpty(data.Password))
-                {
-                    return BadRequest(new { Error = "Username and password are required" });
-                }
-
                 var result = await _auth.LoginDriverAsync(data);
-
                 if (result == null)
                 {
-                    return Unauthorized(new { Error = "Invalid username or password" });
+                    return BadRequest(new { Error = "Invalid username or password" });
                 }
 
-                if (result.Token.StartsWith("Error") || result.Username == "Error")
+                var driver = await _context.Drivers
+                    .Include(d => d.Address)
+                    .Include(d => d.Contacts)
+                    .FirstOrDefaultAsync(d => d.DriverId.ToString() == result.UserId);
+
+                return Ok(new
                 {
-                    _logger.LogError($"Login error for driver {data.Username}: {result.Token}");
-                    return StatusCode(500, new { Error = "An error occurred during login" });
+                    Token = result.Token,
+                    Username = result.Username,
+                    UserId = result.UserId,
+                    FirstName = driver.FirstName,
+                    LastName = driver.LastName,
+                    Email = driver.Email,
+                    LicenseNo = driver.LicenseNo,
+                    HouseNo = driver.Address?.HouseNo,
+                    Street = driver.Address?.Street,
+                    City = driver.Address?.City,
+                    PostalCode = driver.Address?.PostalCode,
+                    ContactNumber = driver.Contacts?.FirstOrDefault()?.ContactNumber
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+        [HttpPost("admin/login")]
+        public async Task<IActionResult> AdminLogin([FromBody] LoginData data)
+        {
+            try
+            {
+                var result = await _auth.LoginAdminAsync(data);
+                if (result == null)
+                {
+                    return BadRequest(new { Error = "Invalid username or password" });
+                }
+
+                var admin = await _context.Admins
+                    .FirstOrDefaultAsync(a => a.AdminId.ToString() == result.UserId);
+
+                if (admin == null)
+                {
+                    return BadRequest(new { Error = "Admin not found" });
                 }
 
                 return Ok(new
@@ -161,8 +443,7 @@ namespace FreshlyBackendNew.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Exception during driver login: {ex.Message}");
-                return StatusCode(500, new { Error = "An unexpected error occurred during login" });
+                return BadRequest(new { Error = ex.Message });
             }
         }
     }
