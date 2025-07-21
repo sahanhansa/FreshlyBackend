@@ -98,6 +98,9 @@ builder.Services.AddScoped<ICompleteTasksService, CompleteTasksService>();
 builder.Services.AddScoped<IDriverProfileService, DriverProfileService>();
 builder.Services.AddScoped<ILaundryContactService, LaundryContactService>();
 builder.Services.AddScoped<IRejectedItemService, RejectedItemService>();
+builder.Services.AddScoped<PayHereService>();
+
+
 
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
