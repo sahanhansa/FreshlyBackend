@@ -115,15 +115,9 @@ namespace FreshlyBackendNew.Controllers
             if (driver == null)
                 return BadRequest();
 
+            driver.Password = BCrypt.Net.BCrypt.HashPassword(driver.Password); // Hash password
             _context.Drivers.Add(driver);
-            await _context.SaveChangesAsync(); // Save driver first to get DriverId
-
-            // If you want to add contacts, you should do so via a separate DTO/request
-            // and create Contact entities here using driver.DriverId
-            // Example:
-            // var contact = new Contact { UserId = driver.DriverId, UserType = "Driver", ContactNumber = "..." };
-            // _context.Contacts.Add(contact);
-            // await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetDrivers), new { id = driver.DriverId }, driver);
         }
@@ -152,7 +146,7 @@ namespace FreshlyBackendNew.Controllers
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 Username = dto.Username,
-                Password = dto.Password,
+                Password = BCrypt.Net.BCrypt.HashPassword(dto.Password), // Hash password
                 Email = dto.Email,
                 LicenseNo = dto.LicenseNo,
                 AddressId = address.AddressId,
