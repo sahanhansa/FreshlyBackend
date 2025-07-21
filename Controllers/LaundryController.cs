@@ -2,6 +2,7 @@
 using FreshlyBackendNew.Models;
 using FreshlyBackendNew.Services.Interfaces;
 using FreshlyBackendNew.Data;
+using FreshlyBackendNew.DTOs.Driver_DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,16 +14,16 @@ namespace FreshlyBackendNew.Controllers
     public class LaundryController : ControllerBase
     {
         private readonly ILaundryService _laundryService;
+        private readonly ILaundryContactService _laundryContactService;
         private readonly IOrderDetailService _orderDetailService;
         private readonly ApplicationDbContext _context;
 
-        public LaundryController(ILaundryService laundryService, IOrderDetailService orderDetailService, ApplicationDbContext context)
-        
+        public LaundryController(ILaundryService laundryService, IOrderDetailService orderDetailService, ApplicationDbContext context, ILaundryContactService laundryContactService)
         {
             _laundryService = laundryService;
             _orderDetailService = orderDetailService;
             _context = context;
-            _context = context;
+            _laundryContactService = laundryContactService;
         }
 
         [HttpGet]
@@ -254,5 +255,20 @@ namespace FreshlyBackendNew.Controllers
                 return StatusCode(500, new { error = "An error occurred while updating the order status", details = ex.Message });
             }
         }
+        
+        // POST: api/Laundry/add-message
+        [HttpPost("add-message")]
+        public async Task<IActionResult> AddMessage(LaundryContactDetailsDTO laundryContactDetailsDto)
+        {
+            try
+            {
+                await _laundryContactService.AddMessage(laundryContactDetailsDto);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+        }
     }
-}

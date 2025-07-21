@@ -124,7 +124,7 @@ namespace FreshlyBackendNew.Controllers
                     Username = data.Username,
                     Password = BCrypt.Net.BCrypt.HashPassword(data.Password),
                     Email = data.Email,
-                    LicenseNo = data.LicenseNo,
+                    VehicleNo = data.LicenseNo,
                     Address = address
                 };
                 await _context.Drivers.AddAsync(driver);
@@ -413,7 +413,8 @@ namespace FreshlyBackendNew.Controllers
                 {
                     Token = result.Token,
                     Username = result.Username,
-                    UserId = result.UserId
+                    UserId = result.UserId,
+                    Role = admin.Role // <-- Add role to response
                 });
             }
             catch (Exception ex)

@@ -24,7 +24,7 @@ namespace FreshlyBackendNew.Models
         // Navigation PropertiesgjdF
         [ForeignKey("AddressId")]
         public Address? Address { get; set; }
-        //public virtual ICollection<Contact> Contacts { get; set; }
         public string? CustomerImageLink { get; set; }
+
     }
 }

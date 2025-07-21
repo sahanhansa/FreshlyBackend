@@ -115,8 +115,10 @@ namespace FreshlyBackendNew.Controllers
             if (driver == null)
                 return BadRequest();
 
+            driver.Password = BCrypt.Net.BCrypt.HashPassword(driver.Password); // Hash password
             _context.Drivers.Add(driver);
             await _context.SaveChangesAsync();
+
             return CreatedAtAction(nameof(GetDrivers), new { id = driver.DriverId }, driver);
         }
 
@@ -144,7 +146,7 @@ namespace FreshlyBackendNew.Controllers
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 Username = dto.Username,
-                Password = dto.Password,
+                Password = BCrypt.Net.BCrypt.HashPassword(dto.Password), // Hash password
                 Email = dto.Email,
                 LicenseNo = dto.LicenseNo,
                 AddressId = address.AddressId,
