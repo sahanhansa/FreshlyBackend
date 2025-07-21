@@ -1,8 +1,10 @@
 ﻿using FreshlyBackendNew.DTOs;
 using FreshlyBackendNew.Models;
 using FreshlyBackendNew.Services.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 using FreshlyBackendNew.Data;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace FreshlyBackendNew.Controllers
 {
@@ -11,11 +13,15 @@ namespace FreshlyBackendNew.Controllers
     public class LaundryController : ControllerBase
     {
         private readonly ILaundryService _laundryService;
+        private readonly IOrderDetailService _orderDetailService;
         private readonly ApplicationDbContext _context;
 
-        public LaundryController(ILaundryService laundryService, ApplicationDbContext context)
+        public LaundryController(ILaundryService laundryService, IOrderDetailService orderDetailService, ApplicationDbContext context)
+        
         {
             _laundryService = laundryService;
+            _orderDetailService = orderDetailService;
+            _context = context;
             _context = context;
         }
 
@@ -190,6 +196,62 @@ namespace FreshlyBackendNew.Controllers
             {
                 Console.WriteLine($"Error in GetLaundryDetails: {ex.Message}");
                 return StatusCode(500, new { error = "An error occurred while retrieving the laundry details", details = ex.Message });
+            }
+        }
+
+        [HttpGet("order-details/{laundryId}/{orderId}/{statusId}")]
+        public async Task<IActionResult> GetOrderDetails(Guid laundryId, Guid orderId, Guid statusId)
+        {
+            try
+            {
+                // First verify that the order belongs to the specified laundry and has the specified status
+                var order = await _context.Orders
+                    .FirstOrDefaultAsync(o => o.OrderId == orderId && o.LaundryId == laundryId && o.StatusId == statusId);
+
+                if (order == null)
+                {
+                    return NotFound($"Order with ID {orderId} not found for laundry {laundryId} with status {statusId}.");
+                }
+
+                // Get order details using the existing service
+                var orderDetails = await _orderDetailService.GetOrderDetailsAsync(orderId);
+
+                if (orderDetails == null)
+                {
+                    return NotFound($"Order details for order ID {orderId} not found.");
+                }
+
+                return Ok(orderDetails);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetOrderDetails: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while retrieving the order details", details = ex.Message });
+            }
+        }
+
+        [HttpPatch("order-details/{laundryId}/{orderId}/{statusId}")]
+        public async Task<IActionResult> UpdateOrderStatus(Guid laundryId, Guid orderId, Guid statusId)
+        {
+            try
+            {
+                var order = await _context.Orders
+                    .FirstOrDefaultAsync(o => o.OrderId == orderId && o.LaundryId == laundryId);
+
+                if (order == null)
+                {
+                    return NotFound($"Order with ID {orderId} not found for laundry {laundryId}.");
+                }
+
+                order.StatusId = statusId;
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = $"Order status updated successfully to {statusId}." });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in UpdateOrderStatus: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while updating the order status", details = ex.Message });
             }
         }
     }
