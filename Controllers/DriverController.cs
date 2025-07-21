@@ -224,5 +224,22 @@ namespace FreshlyBackendNew.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+        [HttpGet("DriverHomePage/{driverId}")]
+        public async Task<IActionResult> DriverHomePage(Guid driverId)
+        {
+            try
+            {
+                var driverProfile = await _driverProfileService.DriverHomePage(driverId);
+
+                if (driverProfile == null)
+                    return NotFound($"No contact details found for driver with ID: {driverId}");
+
+                return Ok(driverProfile);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
     }
 }
