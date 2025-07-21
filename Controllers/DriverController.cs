@@ -116,7 +116,20 @@ namespace FreshlyBackendNew.Controllers
                 return BadRequest();
 
             _context.Drivers.Add(driver);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(); // Save driver first to get DriverId
+
+            // Add contact if provided
+            if (driver.Contacts != null && driver.Contacts.Any())
+            {
+                foreach (var contact in driver.Contacts)
+                {
+                    contact.UserId = driver.DriverId;
+                    contact.UserType = "Driver";
+                }
+                _context.Contacts.AddRange(driver.Contacts);
+                await _context.SaveChangesAsync(); // Save contacts after setting UserId/UserType
+            }
+
             return CreatedAtAction(nameof(GetDrivers), new { id = driver.DriverId }, driver);
         }
 
