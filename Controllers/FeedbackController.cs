@@ -26,9 +26,30 @@ namespace FreshlyBackendNew.Controllers
             return Guid.Parse(userIdClaim!);
         }
 
-        
+        //lasini-submit feedback
+        [HttpPost("order")]
+        public async Task<ActionResult<FeedbackDTO>> SubmitOrderFeedback([FromBody] SubmitFeedbackDTO dto)
+        {
+            if (dto == null || dto.Rating is < 1 or > 5)
+                return BadRequest("Invalid feedback data.");
+
+            var createdFeedback = await _feedbackService.SubmitOrderFeedbackAsync(dto);
+            return CreatedAtAction(nameof(GetFeedback), new { id = createdFeedback.FeedbackId }, createdFeedback);
+        }
+
+        //lasini-get feedback by order id
+        [HttpGet("order/{orderId}")]
+        public async Task<ActionResult<FeedbackDTO>> GetFeedbackByOrderId(Guid orderId)
+        {
+            var feedback = await _feedbackService.GetFeedbackByOrderIdAsync(orderId);
+            if (feedback == null)
+                return NotFound();
+            return Ok(feedback);
+        }
+
+
         //Rohansi-Get feedbacks from laundry side
-        
+
         [HttpGet("get-my-feedbacks/{laundryId}")]
         public async Task<ActionResult<List<FeedbackDTO>>> GetMyFeedbacks(Guid laundryId)
         {
@@ -92,7 +113,7 @@ namespace FreshlyBackendNew.Controllers
             return NoContent();
         }
 
-    // GET: api/Feedback
+        // GET: api/Feedback
         [HttpGet]
         public async Task<ActionResult<IEnumerable<FeedbackDTO>>> GetFeedbacks()
         {

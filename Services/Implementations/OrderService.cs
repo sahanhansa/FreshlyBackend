@@ -603,7 +603,10 @@ namespace FreshlyBackendNew.Services.Implementations
                     //PlacedAt = DateTime.UtcNow,
                     PlacedAt = DateTime.UtcNow.AddTicks(-(DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond)),
                     PickupAt = dto.PickupAt,
-                    StatusId = orderPlacedStatusId
+                    StatusId = orderPlacedStatusId,
+                    PaymentMethod = "COD", // or get from dto if you support online payment
+                    IsPaid = false         // or get from dto if you support online payment
+
                 };
                 _context.Orders.Add(order);
 

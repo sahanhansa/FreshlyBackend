@@ -25,6 +25,7 @@ namespace FreshlyBackendNew.Data
         public DbSet<Status> Statuses { get; set; }
         public DbSet<TemporaryOrder> TemporaryOrders { get; set; }
         public DbSet<TemporaryOrderDetail> TemporaryOrderDetails { get; set; }
+        public DbSet<RejectedItem> RejectedItems { get; set; }
 
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -34,7 +35,44 @@ namespace FreshlyBackendNew.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            //Composite primary keys
+            ////Composite primary keys
+            //modelBuilder.Entity<Laundry>()
+            //  .HasMany(l => l.Contacts)
+            //  .WithOne()
+            //  .HasForeignKey(c => c.UserId)
+            //  .HasPrincipalKey(l => l.LaundryId)
+            //  .IsRequired(false);
+
+            //// Configure Driver-Contact relationship
+            //modelBuilder.Entity<Driver>()
+            //    .HasMany(d => d.Contacts)
+            //    .WithOne()
+            //    .HasForeignKey(c => c.UserId)
+            //    .HasPrincipalKey(d => d.DriverId)
+            //    .IsRequired(false);
+            //modelBuilder.Entity<Customer>()
+            //    .HasMany(c => c.Contacts)
+            //    .WithOne() // No inverse navigation in Contact
+            //    .HasForeignKey(c => c.UserId)
+            //    .HasPrincipalKey(c => c.CustomerId)
+            //    .IsRequired(false);
+
+            // Configure property types to match database schema
+            modelBuilder.Entity<Contact>()
+                .Property(c => c.ContactId)
+                .HasColumnType("char(36)");
+            modelBuilder.Entity<Contact>()
+                .Property(c => c.UserId)
+                .HasColumnType("char(36)")
+                .IsRequired();
+            modelBuilder.Entity<Contact>()
+                .Property(c => c.UserType)
+                .HasColumnType("varchar(50)")
+                .IsRequired();
+            modelBuilder.Entity<Contact>()
+                .Property(c => c.ContactNumber)
+                .HasColumnType("varchar(20)");
+
 
             // Define composite primary key for LaundryItemService
             modelBuilder.Entity<LaundryItemService>()

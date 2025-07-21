@@ -103,5 +103,25 @@ namespace FreshlyBackendNew.Controllers
                     $"An error occurred while retrieving out for delivery orders: {ex.Message}");
             }
         }
+
+        //lasini- GET: api/OrderDetail/customer/{customerId}/completed
+        [HttpGet("customer/{customerId}/completed")]
+        public async Task<IActionResult> GetCompletedOrders(Guid customerId)
+        {
+            try
+            {
+                var completedOrders = await _orderDetailService.GetCompletedOrdersForCustomerAsync(customerId);
+
+                if (completedOrders == null || completedOrders.Count == 0)
+                    return Ok(new List<OrderDetailsDTO>()); // Return empty list for easier client handling
+
+                return Ok(completedOrders);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"An error occurred while retrieving completed orders: {ex.Message}");
+            }
+        }
     }
 }
