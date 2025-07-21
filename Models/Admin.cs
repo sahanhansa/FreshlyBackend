@@ -46,5 +46,7 @@ namespace FreshlyBackendNew.Models
         public string? PasswordResetToken { get; set; }
 
         public DateTime? PasswordResetExpiry { get; set; }
+
+        public string? LaundryImageLink { get; set; }
     }
 }
