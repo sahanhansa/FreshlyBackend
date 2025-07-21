@@ -125,6 +125,17 @@ namespace FreshlyBackendNew.Controllers
                 imageUrl = await _fileStorageService.UploadFileAsync(profileImage, "driver-profile-images");
             }
 
+            // Create and save Address
+            var address = new Address
+            {
+                HouseNo = dto.HouseNo,
+                Street = dto.Street,
+                City = dto.City,
+                PostalCode = dto.PostalCode
+            };
+            _context.Addresses.Add(address);
+            await _context.SaveChangesAsync();
+
             var driver = new Driver
             {
                 FirstName = dto.FirstName,
@@ -135,7 +146,8 @@ namespace FreshlyBackendNew.Controllers
                 LicenseNo = dto.LicenseNo,
                 AccountStatus = dto.AccountStatus ?? "active",
                 ProfileImage = imageUrl,
-                VehicleNo = dto.VehicleNo // Set VehicleNo from DTO
+                VehicleNo = dto.VehicleNo, // Set VehicleNo from DTO
+                AddressId = address.AddressId // Assign AddressId
             };
             _context.Drivers.Add(driver);
             await _context.SaveChangesAsync();
@@ -149,7 +161,16 @@ namespace FreshlyBackendNew.Controllers
                 LicenseNo = driver.LicenseNo,
                 AccountStatus = driver.AccountStatus,
                 ProfileImage = driver.ProfileImage,
-                VehicleNo = driver.VehicleNo // Return VehicleNo in response
+                VehicleNo = driver.VehicleNo, // Return VehicleNo in response
+                AddressId = address.AddressId,
+                Address = new AddressDTO
+                {
+                    AddressId = address.AddressId,
+                    HouseNo = address.HouseNo,
+                    Street = address.Street,
+                    City = address.City,
+                    PostalCode = address.PostalCode
+                }
             };
             return CreatedAtAction(nameof(GetDrivers), new { id = driver.DriverId }, response);
         }
