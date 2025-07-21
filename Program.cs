@@ -95,7 +95,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ITemporaryOrderService, TemporaryOrderService>();
 builder.Services.AddScoped<ICompleteTasksService, CompleteTasksService>();
-
+builder.Services.AddScoped<IDriverProfileService, DriverProfileService>();
 
 
 builder.Services.AddScoped<ICustomerService, CustomerService>();
