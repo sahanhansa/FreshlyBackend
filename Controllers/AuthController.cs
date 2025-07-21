@@ -124,7 +124,7 @@ namespace FreshlyBackendNew.Controllers
                     Username = data.Username,
                     Password = BCrypt.Net.BCrypt.HashPassword(data.Password),
                     Email = data.Email,
-                    LicenseNo = data.LicenseNo,
+                    VehicleNo = data.LicenseNo,
                     Address = address
                 };
                 await _context.Drivers.AddAsync(driver);

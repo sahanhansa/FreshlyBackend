@@ -12,5 +12,7 @@ namespace FreshlyBackendNew.Services.Interfaces
         Task<AuthResponse> LoginAdminAsync(LoginData loginData);
 
         string GenerateJwtToken(string userId, string username, Dictionary<string, string> additionalClaims);
+        Task<bool> EditCustomerProfileAsync(CustomerProfileEditDto editDto);
+        Task<bool> DeleteCustomerProfileAsync(Guid customerId);
     }
 }
