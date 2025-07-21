@@ -20,7 +20,7 @@ namespace FreshlyBackendNew.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IDriverContactService _driverContactService;
         private readonly IDriverProfileService _driverProfileService;
-        
+
         public DriverController(ApplicationDbContext context, IDriverContactService driverContactService, IDriverProfileService driverProfileService)
         {
             _context = context;
@@ -203,6 +203,24 @@ namespace FreshlyBackendNew.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { Message = "Driver restored to active status" });
+        }
+
+        [HttpGet("DriverEdit/{driverId}")]
+        public async Task<IActionResult> DriverEdit(Guid driverId)
+        {
+            try
+            {
+                var driverProfile = await _driverProfileService.GetDriverEdit(driverId);
+
+                if (driverProfile == null)
+                    return NotFound($"No contact details found for driver with ID: {driverId}");
+
+                return Ok(driverProfile);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
         }
     }
 }
