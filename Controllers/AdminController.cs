@@ -111,7 +111,7 @@ namespace FreshlyBackendNew.Controllers
                 var admin = new Admin
                 {
                     Username = adminDTO.Username,
-                    Password = adminDTO.Password, // Plain text password
+                    Password = BCrypt.Net.BCrypt.HashPassword(adminDTO.Password), // Hash the password
                     FirstName = adminDTO.FirstName,
                     LastName = adminDTO.LastName,
                     Email = adminDTO.Email,
