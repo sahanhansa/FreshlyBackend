@@ -168,7 +168,7 @@ namespace FreshlyBackendNew.Controllers
                 var orders = await _orderService.GetNewOrdersAsync(laundryId);
 
                 if (orders == null || orders.Count == 0)
-                    return NotFound($"No 'picked up' orders found for LaundryId: {laundryId}");
+                    return NotFound($"No 'new' orders found for LaundryId: {laundryId}");
 
                 return Ok(orders);
             }
@@ -187,7 +187,13 @@ namespace FreshlyBackendNew.Controllers
                 var orders = await _orderService.GetProcessingOrdersAsync(laundryId);
 
                 if (orders == null || orders.Count == 0)
-                    return NotFound($"No 'Processing' orders found for LaundryId: {laundryId}");
+                {
+                    // Return 200 OK with empty list or a custom message
+                    return Ok(new {
+                        message = $"No 'Processing' orders found for LaundryId: {laundryId}",
+                        orders = new List<OrderDTO>() // or whatever your order DTO type is
+                    });
+                }
 
                 return Ok(orders);
             }
@@ -196,6 +202,7 @@ namespace FreshlyBackendNew.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+
 
         //Rohansi-Get completed orders
         [HttpGet("{laundryId}/completed-orders")]
@@ -206,7 +213,7 @@ namespace FreshlyBackendNew.Controllers
                 var orders = await _orderService.GetCompletedOrdersAsync(laundryId);
 
                 if (orders == null || orders.Count == 0)
-                    return NotFound($"No 'Processing' orders found for LaundryId: {laundryId}");
+                    return NotFound($"No 'completed' orders found for LaundryId: {laundryId}");
 
                 return Ok(orders);
             }
