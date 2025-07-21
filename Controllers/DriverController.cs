@@ -20,12 +20,14 @@ namespace FreshlyBackendNew.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IDriverContactService _driverContactService;
         private readonly IDriverProfileService _driverProfileService;
+        private readonly IFileStorageService _fileStorageService;
 
-        public DriverController(ApplicationDbContext context, IDriverContactService driverContactService, IDriverProfileService driverProfileService)
+        public DriverController(ApplicationDbContext context, IDriverContactService driverContactService, IDriverProfileService driverProfileService, IFileStorageService fileStorageService)
         {
             _context = context;
             _driverContactService = driverContactService;
             _driverProfileService = driverProfileService;
+            _fileStorageService = fileStorageService;
         }
 
         // GET: api/Driver/GetContactUsDetails/{driverId}
@@ -101,61 +103,43 @@ namespace FreshlyBackendNew.Controllers
                         City = d.Address.City,
                         PostalCode = d.Address.PostalCode
                     },
-                    AccountStatus = d.AccountStatus
+                    AccountStatus = d.AccountStatus,
+                    ProfileImage = d.ProfileImage, // Include profile image URL
+                    VehicleNo = d.VehicleNo // Include vehicle number
                 })
                 .ToListAsync();
 
             return Ok(drivers);
         }
 
-        // POST: api/Driver - Adds a new driver
+        // POST: api/Driver - Adds a new driver with profile image upload
         [HttpPost]
-        public async Task<IActionResult> CreateDriver([FromBody] Driver driver)
-        {
-            if (driver == null)
-                return BadRequest();
-
-            driver.Password = BCrypt.Net.BCrypt.HashPassword(driver.Password); // Hash password
-            _context.Drivers.Add(driver);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetDrivers), new { id = driver.DriverId }, driver);
-        }
-
-        // POST: api/Driver/add-driver-with-address
-        [HttpPost("add-driver-with-address")]
-        public async Task<IActionResult> AddDriverWithAddress([FromBody] CreateDriverRequestDTO dto)
+        public async Task<IActionResult> CreateDriver([FromForm] CreateDriverRequestDTO dto, IFormFile profileImage)
         {
             if (dto == null)
                 return BadRequest();
 
-            // Create Address
-            var address = new Address
+            string imageUrl = null;
+            if (profileImage != null && profileImage.Length > 0)
             {
-                HouseNo = dto.HouseNo,
-                Street = dto.Street,
-                City = dto.City,
-                PostalCode = dto.PostalCode
-            };
-            _context.Addresses.Add(address);
-            await _context.SaveChangesAsync();
+                imageUrl = await _fileStorageService.UploadFileAsync(profileImage, "driver-profile-images");
+            }
 
-            // Create Driver
             var driver = new Driver
             {
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 Username = dto.Username,
-                Password = BCrypt.Net.BCrypt.HashPassword(dto.Password), // Hash password
+                Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
                 Email = dto.Email,
                 LicenseNo = dto.LicenseNo,
-                AddressId = address.AddressId,
-                AccountStatus = dto.AccountStatus ?? "active"
+                AccountStatus = dto.AccountStatus ?? "active",
+                ProfileImage = imageUrl,
+                VehicleNo = dto.VehicleNo // Set VehicleNo from DTO
             };
             _context.Drivers.Add(driver);
             await _context.SaveChangesAsync();
 
-            // Prepare response DTO
             var response = new DriverProfileDTO
             {
                 DriverId = driver.DriverId,
@@ -163,16 +147,9 @@ namespace FreshlyBackendNew.Controllers
                 LastName = driver.LastName,
                 Email = driver.Email,
                 LicenseNo = driver.LicenseNo,
-                AddressId = address.AddressId,
-                Address = new AddressDTO
-                {
-                    AddressId = address.AddressId,
-                    HouseNo = address.HouseNo,
-                    Street = address.Street,
-                    City = address.City,
-                    PostalCode = address.PostalCode
-                },
-                AccountStatus = driver.AccountStatus
+                AccountStatus = driver.AccountStatus,
+                ProfileImage = driver.ProfileImage,
+                VehicleNo = driver.VehicleNo // Return VehicleNo in response
             };
             return CreatedAtAction(nameof(GetDrivers), new { id = driver.DriverId }, response);
         }
