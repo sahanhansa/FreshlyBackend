@@ -10,6 +10,8 @@ namespace FreshlyBackendNew.Services.Interfaces
         // Retrieves a single item by laundry id and item id
         Task<ItemWithServicesDTO> GetItemByLaundryIdAsync(Guid laundryId, Guid itemId);
         
+        // Retrieves a single item with services by laundry id and item id
+        Task<ItemWithServicesDTO?> GetItemByLaundryIdAndItemIdAsync(Guid laundryId, Guid itemId);
        //Add an item
        Task<(bool success, string message)> AddItemAsync(AddItemDTO itemDto, Guid laundryId);
        

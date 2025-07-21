@@ -63,7 +63,7 @@ namespace FreshlyBackendNew.Services.Implementations
 
             return result;
         }
-
+        
         public async Task<ItemWithServicesDTO> GetItemByLaundryIdAsync(Guid laundryId, Guid itemId)
         {
             var itemsWithServices = await (from item in _context.Items
@@ -109,9 +109,49 @@ namespace FreshlyBackendNew.Services.Implementations
             return result;
         }
         
-        
+        public async Task<ItemWithServicesDTO?> GetItemByLaundryIdAndItemIdAsync(Guid laundryId, Guid itemId)
+        {
+            var itemsWithServices = await (from item in _context.Items
+                join laundryItemService in _context.LaundryItemServices
+                    on item.ItemId equals laundryItemService.ItemId
+                join service in _context.Services
+                    on laundryItemService.ServiceId equals service.ServiceId into serviceGroup
+                from service in serviceGroup.DefaultIfEmpty()
+                join category in _context.ItemCategories
+                    on item.CategoryId equals category.CategoryId into categoryGroup
+                from category in categoryGroup.DefaultIfEmpty()
+                where laundryItemService.LaundryId == laundryId && item.ItemId == itemId
+                select new
+                {
+                    Item = item,
+                    CategoryName = category != null ? category.CategoryName : "Other",
+                    Service = service,
+                    Price = laundryItemService.Price
+                }).ToListAsync();
 
-        
+            if (!itemsWithServices.Any())
+                return null;
+
+            var group = itemsWithServices.GroupBy(i => i.Item.ItemId).First();
+            return new ItemWithServicesDTO
+            {
+                ItemId = group.Key,
+                ItemName = group.First().Item.Name,
+                CategoryName = group.First().CategoryName,
+                ImageUrl = group.First().Item.ItemImageLink,
+                Services = group
+                    .Where(g => g.Service != null)
+                    .Select(g => new ServiceWithPriceDTO
+                    {
+                        ServiceId = g.Service.ServiceId,
+                        ServiceName = g.Service.ServiceName,
+                        Price = g.Price ?? 0
+                    })
+                    .ToList()
+            };
+        }
+
+
         //Rohansi-Delete an item
         public async Task<bool> DeleteItemAsync(Guid itemId, Guid laundryId)
         {
