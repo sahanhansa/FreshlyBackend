@@ -162,7 +162,7 @@ namespace FreshlyBackendNew.Services.Implementations
                     { "FirstName", driver.FirstName ?? string.Empty },
                     { "LastName", driver.LastName ?? string.Empty },
                     { "Email", driver.Email ?? string.Empty },
-                    { "LicenseNo", driver.LicenseNo ?? string.Empty },
+                    { "LicenseNo", driver.VehicleNo ?? string.Empty },
                     { "HouseNo", driver.Address?.HouseNo ?? string.Empty },
                     { "Street", driver.Address?.Street ?? string.Empty },
                     { "City", driver.Address?.City ?? string.Empty },
@@ -201,6 +201,85 @@ namespace FreshlyBackendNew.Services.Implementations
                 };
                 _context.Admins.Add(admin);
                 await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<bool> EditCustomerProfileAsync(CustomerProfileEditDto editDto)
+        {
+            try
+            {
+                var customer = await _context.Customers
+                    .Include(c => c.Address)
+                    .FirstOrDefaultAsync(c => c.CustomerId == editDto.CustomerId);
+
+                if (customer == null)
+                    return false;
+
+                // Check if username is taken by another user
+                if (customer.Username != editDto.Username && await IsUsernameTakenAsync(editDto.Username))
+                    return false;
+
+                // Update Customer fields
+                customer.FirstName = editDto.FirstName;
+                customer.LastName = editDto.LastName;
+                customer.Username = editDto.Username;
+                customer.Email = editDto.Email;
+                if (!string.IsNullOrEmpty(editDto.Password))
+                    customer.Password = BCrypt.Net.BCrypt.HashPassword(editDto.Password);
+
+                // Update or create Address
+                if (customer.Address == null && !string.IsNullOrEmpty(editDto.HouseNo))
+                {
+                    customer.Address = new Address
+                    {
+                        AddressId = Guid.NewGuid(),
+                        HouseNo = editDto.HouseNo,
+                        Street = editDto.Street,
+                        City = editDto.City,
+                        PostalCode = editDto.PostalCode
+                    };
+                    _context.Addresses.Add(customer.Address);
+                }
+                else if (customer.Address != null)
+                {
+                    customer.Address.HouseNo = editDto.HouseNo;
+                    customer.Address.Street = editDto.Street;
+                    customer.Address.City = editDto.City;
+                    customer.Address.PostalCode = editDto.PostalCode;
+                }
+
+                // Update or create Contact
+                
+                
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteCustomerProfileAsync(Guid customerId)
+        {
+            try
+            {
+                var customer = await _context.Customers
+                    .Include(c => c.Address)
+                    .FirstOrDefaultAsync(c => c.CustomerId == customerId);
+
+                if (customer == null)
+                    return false;
+
+                // Cascade deletion is handled by EF Core (Address and Contact will be deleted due to OnDelete.Cascade)
+                _context.Customers.Remove(customer);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
 
