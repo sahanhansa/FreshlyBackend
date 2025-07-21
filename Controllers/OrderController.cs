@@ -28,6 +28,7 @@ namespace FreshlyBackendNew.Controllers
             _pickupService = pickupService;
             _deliveryService = deliveryService;
         }
+
         // lasini-get cutomer address when confirming order
         // GET: api/Order/Customer/{customerId}/address
         [HttpGet("Customer/{customerId}/address")]
@@ -168,7 +169,7 @@ namespace FreshlyBackendNew.Controllers
                 var orders = await _orderService.GetNewOrdersAsync(laundryId);
 
                 if (orders == null || orders.Count == 0)
-                    return NotFound($"No 'picked up' orders found for LaundryId: {laundryId}");
+                    return NotFound($"No 'new' orders found for LaundryId: {laundryId}");
 
                 return Ok(orders);
             }
@@ -187,7 +188,13 @@ namespace FreshlyBackendNew.Controllers
                 var orders = await _orderService.GetProcessingOrdersAsync(laundryId);
 
                 if (orders == null || orders.Count == 0)
-                    return NotFound($"No 'Processing' orders found for LaundryId: {laundryId}");
+                {
+                    // Return 200 OK with empty list or a custom message
+                    return Ok(new {
+                        message = $"No 'Processing' orders found for LaundryId: {laundryId}",
+                        orders = new List<OrderDTO>() // or whatever your order DTO type is
+                    });
+                }
 
                 return Ok(orders);
             }
@@ -197,6 +204,26 @@ namespace FreshlyBackendNew.Controllers
             }
         }
 
+
+        //Rohansi-Get completed orders
+        [HttpGet("{laundryId}/completed-orders")]
+        public async Task<IActionResult> GetCompletedOrders(Guid laundryId)
+        {
+            try
+            {
+                var orders = await _orderService.GetCompletedOrdersAsync(laundryId);
+
+                if (orders == null || orders.Count == 0)
+                    return NotFound($"No 'completed' orders found for LaundryId: {laundryId}");
+
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+        
         // GET: api/Order/{laundryId}/all-orders
         [HttpGet("{laundryId}/all-orders")]
         public async Task<IActionResult> GetAllOrders(Guid laundryId)

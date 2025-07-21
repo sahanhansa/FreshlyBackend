@@ -20,7 +20,7 @@ namespace FreshlyBackendNew.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IDriverContactService _driverContactService;
         private readonly IDriverProfileService _driverProfileService;
-        
+
         public DriverController(ApplicationDbContext context, IDriverContactService driverContactService, IDriverProfileService driverProfileService)
         {
             _context = context;
@@ -118,17 +118,12 @@ namespace FreshlyBackendNew.Controllers
             _context.Drivers.Add(driver);
             await _context.SaveChangesAsync(); // Save driver first to get DriverId
 
-            // Add contact if provided
-            if (driver.Contacts != null && driver.Contacts.Any())
-            {
-                foreach (var contact in driver.Contacts)
-                {
-                    contact.UserId = driver.DriverId;
-                    contact.UserType = "Driver";
-                }
-                _context.Contacts.AddRange(driver.Contacts);
-                await _context.SaveChangesAsync(); // Save contacts after setting UserId/UserType
-            }
+            // If you want to add contacts, you should do so via a separate DTO/request
+            // and create Contact entities here using driver.DriverId
+            // Example:
+            // var contact = new Contact { UserId = driver.DriverId, UserType = "Driver", ContactNumber = "..." };
+            // _context.Contacts.Add(contact);
+            // await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetDrivers), new { id = driver.DriverId }, driver);
         }
@@ -216,6 +211,24 @@ namespace FreshlyBackendNew.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { Message = "Driver restored to active status" });
+        }
+
+        [HttpGet("DriverEdit/{driverId}")]
+        public async Task<IActionResult> DriverEdit(Guid driverId)
+        {
+            try
+            {
+                var driverProfile = await _driverProfileService.GetDriverEdit(driverId);
+
+                if (driverProfile == null)
+                    return NotFound($"No contact details found for driver with ID: {driverId}");
+
+                return Ok(driverProfile);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
         }
     }
 }

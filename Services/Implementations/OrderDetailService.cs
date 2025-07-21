@@ -254,5 +254,50 @@ namespace FreshlyBackendNew.Services.Implementations
                 return new List<OrderDetailsDTO>();
             }
         }
+
+        //lasini
+        public async Task<List<OrderDetailsDTO>> GetCompletedOrdersForCustomerAsync(Guid customerId)
+        {
+            try
+            {
+                // Get the "delivered" status ID
+                var deliveredStatusId = await _context.Statuses
+                    .Where(s => s.StatusName != null && s.StatusName.ToLower().Trim() == "delivered")
+                    .Select(s => s.StatusID)
+                    .FirstOrDefaultAsync();
+
+                if (deliveredStatusId == Guid.Empty)
+                    return new List<OrderDetailsDTO>();
+
+                // Get orders with "delivered" status for this customer
+                var orderIds = await _context.Orders
+                    .Where(o => o.CustomerId == customerId &&
+                           o.StatusId.HasValue &&
+                           o.StatusId.Value == deliveredStatusId)
+                    .Select(o => o.OrderId)
+                    .ToListAsync();
+
+                var result = new List<OrderDetailsDTO>();
+
+                // Get full details for each order
+                foreach (var orderId in orderIds)
+                {
+                    var orderDetails = await GetOrderDetailsAsync(orderId);
+                    if (orderDetails != null)
+                    {
+                        result.Add(orderDetails);
+                    }
+                }
+
+                // Order by most recent first
+                return result.OrderByDescending(o => o.OrderDate).ToList();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error getting completed orders: {ex.Message}");
+                return new List<OrderDetailsDTO>();
+            }
+        }
     }
 }

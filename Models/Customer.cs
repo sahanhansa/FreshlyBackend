@@ -8,7 +8,7 @@ namespace FreshlyBackendNew.Models
         public Customer()
         {
             CustomerId = Guid.NewGuid();
-            Contacts = new List<Contact>();
+            //Contacts = new List<Contact>();
         }
 
         [Key]
@@ -24,6 +24,6 @@ namespace FreshlyBackendNew.Models
         // Navigation PropertiesgjdF
         [ForeignKey("AddressId")]
         public Address? Address { get; set; }
-        public virtual ICollection<Contact> Contacts { get; set; }
+        //public virtual ICollection<Contact> Contacts { get; set; }
     }
 }
