@@ -35,7 +35,5 @@ namespace FreshlyBackendNew.Models
 
         //public virtual ICollection<Contact>? Contacts { get; set; }
 
-        public string? DriverImageLink { get; set; }
-
     }
 }
