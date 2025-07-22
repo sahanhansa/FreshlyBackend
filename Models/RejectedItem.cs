@@ -50,7 +50,7 @@ namespace FreshlyBackendNew.Models
         public Item? Item { get; set; }
 
         [ForeignKey("ServiceId")]
-        public Item? Service { get; set; }
+        public Service? Service { get; set; }
 
         [ForeignKey("LaundryId")]
         public Laundry? Laundry { get; set; }
