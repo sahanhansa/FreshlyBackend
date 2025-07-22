@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
 
 namespace FreshlyBackendNew.Services.Interfaces
 {
@@ -6,14 +7,13 @@ namespace FreshlyBackendNew.Services.Interfaces
     {
         // CREATE - Upload a new image and return its public URL
         Task<string> UploadImageAsync(IFormFile file);
-
         // READ - Get the public URL of an image
         Task<string> GetImageUrlAsync(string fileName);
-
         // UPDATE - Replace an existing image and return the new public URL
         Task<string> UpdateImageAsync(string existingFileNameOrUrl, IFormFile newFile);
-
         // DELETE - Remove an image from storage
         Task<bool> DeleteImageAsync(string fileNameOrUrl);
+        // CREATE - Upload a new file and return its public URL
+        Task<string> UploadFileAsync(IFormFile file, string folder);
     }
 }

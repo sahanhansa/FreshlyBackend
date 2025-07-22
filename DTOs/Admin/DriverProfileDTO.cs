@@ -20,6 +20,8 @@ namespace FreshlyBackendNew.DTOs.Admin
         public Guid? AddressId { get; set; }
         public AddressDTO? Address { get; set; }
         public string AccountStatus { get; set; }
+        public string? ProfileImage { get; set; } // S3 image URL
+        public string? VehicleNo { get; set; } // Add VehicleNo to DTO
     }
 
     public class CreateDriverRequestDTO
@@ -32,6 +34,8 @@ namespace FreshlyBackendNew.DTOs.Admin
         public string? Email { get; set; }
         public string? LicenseNo { get; set; } // Use LicenseNo everywhere
         public string? AccountStatus { get; set; } = "active";
+        public string? ProfileImage { get; set; } // S3 image URL
+        public string? VehicleNo { get; set; } // Add VehicleNo to DTO
 
         // Address fields
         public string? HouseNo { get; set; }
