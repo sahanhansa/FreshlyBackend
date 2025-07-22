@@ -5,6 +5,7 @@ using FreshlyBackendNew.Services;
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace FreshlyBackendNew.Controllers
@@ -127,21 +128,30 @@ namespace FreshlyBackendNew.Controllers
             return Ok(deliveryDetails);
         }
 
-        [HttpGet("GetAllCompleteTasks")]
-        public async Task<IActionResult> GetAllCompleteTask()
+        [HttpGet("GetAllCompleteTasks/{driverId}")]
+        public async Task<IActionResult> GetAllCompleteTask(Guid driverId)
         {
-            var completetasks = await _completetasksservice.GetAllCompleteTasks();
-
-            if (completetasks == null)
+            try
             {
-                return NotFound("No orders found.");
-            }
+                var completetasks = await _completetasksservice.GetAllCompleteTasks(driverId);
 
-            return Ok(completetasks);
+                if (completetasks == null)
+                {
+                    return NotFound("No orders found.");
+                }
+
+                return Ok(completetasks);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception here as needed
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
 
-        [HttpGet("GetAllCompleteTasks/{orderId}")]
+
+        [HttpGet("GetAllCompleteTasksByOrderId/{orderId}")]
         public async Task<IActionResult> GetAllCompleteTaskDetails(string orderId)
         {
             var completetasksDetails = await _completetasksservice.GetAllCompleteTasksBYId(orderId);
