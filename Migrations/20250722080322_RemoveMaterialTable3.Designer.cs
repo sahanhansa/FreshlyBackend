@@ -4,6 +4,7 @@ using FreshlyBackendNew.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FreshlyBackendNew.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250722080322_RemoveMaterialTable3")]
+    partial class RemoveMaterialTable3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -101,7 +104,7 @@ namespace FreshlyBackendNew.Migrations
                         new
                         {
                             AdminId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedAt = new DateTime(2025, 7, 22, 8, 19, 9, 852, DateTimeKind.Utc).AddTicks(5875),
+                            CreatedAt = new DateTime(2025, 7, 22, 8, 3, 22, 211, DateTimeKind.Utc).AddTicks(188),
                             Email = "admin@freshly.com",
                             FirstName = "System",
                             LastName = "Administrator",
@@ -282,20 +285,6 @@ namespace FreshlyBackendNew.Migrations
                     b.ToTable("Feedbacks");
                 });
 
-            modelBuilder.Entity("FreshlyBackendNew.Models.GarmentType", b =>
-                {
-                    b.Property<Guid>("GarmentTypeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("GarmentTypeName")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("GarmentTypeId");
-
-                    b.ToTable("GarmentTypes");
-                });
-
             modelBuilder.Entity("FreshlyBackendNew.Models.Item", b =>
                 {
                     b.Property<Guid>("ItemId")
@@ -387,15 +376,10 @@ namespace FreshlyBackendNew.Migrations
                     b.Property<Guid?>("ServiceId")
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid?>("GarmentTypeId")
-                        .HasColumnType("char(36)");
-
                     b.Property<decimal?>("Price")
                         .HasColumnType("decimal(65,30)");
 
-                    b.HasKey("LaundryId", "ItemId", "ServiceId", "GarmentTypeId");
-
-                    b.HasIndex("GarmentTypeId");
+                    b.HasKey("LaundryId", "ItemId", "ServiceId");
 
                     b.HasIndex("ItemId");
 
@@ -732,12 +716,6 @@ namespace FreshlyBackendNew.Migrations
 
             modelBuilder.Entity("FreshlyBackendNew.Models.LaundryItemService", b =>
                 {
-                    b.HasOne("FreshlyBackendNew.Models.GarmentType", "GarmentType")
-                        .WithMany()
-                        .HasForeignKey("GarmentTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("FreshlyBackendNew.Models.Item", "Item")
                         .WithMany()
                         .HasForeignKey("ItemId")
@@ -755,8 +733,6 @@ namespace FreshlyBackendNew.Migrations
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("GarmentType");
 
                     b.Navigation("Item");
 

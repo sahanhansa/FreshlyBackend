@@ -20,8 +20,7 @@ namespace FreshlyBackendNew.DTOs
         public string Email { get; set; }
 
         // Optional password update
-        [StringLength(100, MinimumLength = 6)]
-        public string? Password { get; set; }
+       
 
         // Address fields
         public string? HouseNo { get; set; }

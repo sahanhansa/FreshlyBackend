@@ -98,5 +98,64 @@ namespace FreshlyBackendNew.Services.Implementations
 
             return dto;
         }
+
+        public async Task<DriverHomaDto> DriverHomePage(Guid driverId)
+        {
+            var driver = await _context.Drivers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.DriverId == driverId);
+
+            if (driver == null)
+                return null;
+
+            var orders = await _context.Orders.ToListAsync();
+
+            var statuses = await _context.Statuses.ToListAsync();
+
+            var statusPlaced = statuses.FirstOrDefault(s => s.StatusName == "order placed")?.StatusID
+                ?? throw new InvalidOperationException("Status 'order placed' not found.");
+
+            var statusPickedUp = statuses.FirstOrDefault(s => s.StatusName == "order picked up ")?.StatusID
+                ?? throw new InvalidOperationException("Status 'order picked up' not found.");
+
+            var finishedProcessing = statuses.FirstOrDefault(s => s.StatusName == "finished processing")?.StatusID
+                ?? throw new InvalidOperationException("Status 'finished processing' not found.");
+
+            var outDelivery = statuses.FirstOrDefault(s => s.StatusName == "out for delivery")?.StatusID
+                ?? throw new InvalidOperationException("Status 'out for delivery' not found.");
+
+
+            var allPickups = orders.Count(o =>
+                o.PickupDriverId == driverId &&
+                (o.StatusId != statusPlaced && o.StatusId != statusPickedUp)
+            );
+
+            var pendingPickups = orders.Count(o =>
+                o.PickupDriverId == driverId &&
+                (o.StatusId == statusPlaced || o.StatusId == statusPickedUp)
+            );
+
+            var allDeliveries = orders.Count(o =>
+                o.DeliveryDriverId == driverId &&
+                (o.StatusId != finishedProcessing && o.StatusId != outDelivery)
+            );
+
+            var pendingDeliveries = orders.Count(o =>
+                o.DeliveryDriverId == driverId &&
+                (o.StatusId == finishedProcessing || o.StatusId == outDelivery)
+            );
+
+            var dto = new DriverHomaDto
+            {
+                FullName = $"{driver.FirstName} {driver.LastName}",
+                AllPickups = allPickups,
+                PendingPickups = pendingPickups,
+                AllDelivery = allDeliveries,
+                PendingDelivery = pendingDeliveries
+            };
+
+            return dto;
+        }
+
     }
 }
