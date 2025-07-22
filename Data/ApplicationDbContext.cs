@@ -28,6 +28,8 @@ namespace FreshlyBackendNew.Data
         public DbSet<TemporaryOrder> TemporaryOrders { get; set; }
         public DbSet<TemporaryOrderDetail> TemporaryOrderDetails { get; set; }
         public DbSet<RejectedItem> RejectedItems { get; set; }
+        public DbSet<GarmentType> GarmentTypes { get; set; }
+        //public DbSet<Material> Materials { get; set; }
 
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -78,7 +80,7 @@ namespace FreshlyBackendNew.Data
 
             // Define composite primary key for LaundryItemService
             modelBuilder.Entity<LaundryItemService>()
-                .HasKey(lis => new { lis.LaundryId, lis.ItemId, lis.ServiceId });
+                .HasKey(lis => new { lis.LaundryId, lis.ItemId, lis.ServiceId, lis.GarmentTypeId });
 
             // Define composite primary key for OrderDetail
             modelBuilder.Entity<OrderDetail>()
