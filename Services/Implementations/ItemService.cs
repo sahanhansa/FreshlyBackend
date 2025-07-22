@@ -38,7 +38,8 @@ namespace FreshlyBackendNew.Services.Implementations
                     Item = item,
                     CategoryName = category != null ? category.CategoryName : "Other",
                     Service = service,
-                    Price = laundryItemService.Price
+                    Price = laundryItemService.Price,
+                    GarmentType = laundryItemService.GarmentType,
                 }).ToListAsync();
 
             var result = itemsWithServices
@@ -55,9 +56,11 @@ namespace FreshlyBackendNew.Services.Implementations
                         {
                             ServiceId = g.Service.ServiceId,
                             ServiceName = g.Service.ServiceName,
-                            Price = g.Price ?? 0
+                            Price = g.Price ?? 0,
+                            GarmentTypeId = g.GarmentType?.GarmentTypeId,
+                            GarmentTypeName = g.GarmentType?.GarmentTypeName
                         })
-                        .ToList()
+                        .ToList(),
                 })
                 .ToList();
 
@@ -151,7 +154,61 @@ namespace FreshlyBackendNew.Services.Implementations
             };
         }
 
-        
+        public async Task<List<ItemWithServicesDTO>> GetItemsByLaundryIdAsync(Guid laundryId, Guid garmentTypeId)
+        {
+            var itemsWithServices = await (from item in _context.Items
+                                           join laundryItemService in _context.LaundryItemServices
+                                               on item.ItemId equals laundryItemService.ItemId
+                                           join service in _context.Services
+                                               on laundryItemService.ServiceId equals service.ServiceId
+                                           join category in _context.ItemCategories
+                                               on item.CategoryId equals category.CategoryId
+                                           join garmentType in _context.GarmentTypes
+                                               on laundryItemService.GarmentTypeId equals garmentType.GarmentTypeId
+                                           where laundryItemService.LaundryId == laundryId
+                                               && laundryItemService.GarmentTypeId == garmentTypeId
+                                           select new
+                                           {
+                                               Item = item,
+                                               CategoryName = category.CategoryName,
+                                               Service = service,
+                                               Price = laundryItemService.Price,
+                                               GarmentType = garmentType
+                                           }).ToListAsync();
+
+            var result = itemsWithServices
+                .GroupBy(i => i.Item.ItemId)
+                .Select(group => new ItemWithServicesDTO
+                {
+                    ItemId = group.Key,
+                    ItemName = group.First().Item.Name,
+                    CategoryName = group.First().CategoryName,
+                    ImageUrl = group.First().Item.ItemImageLink,
+                    Services = group
+                        .Select(g => new ServiceWithPriceDTO
+                        {
+                            ServiceId = g.Service.ServiceId,
+                            ServiceName = g.Service.ServiceName,
+                            Price = g.Price ?? 0,
+                            GarmentTypeId = g.GarmentType.GarmentTypeId,
+                            GarmentTypeName = g.GarmentType.GarmentTypeName
+                        })
+                        .ToList(),
+                    GarmentTypes = group
+                        .Select(g => new GarmentTypeDTO
+                        {
+                            GarmentTypeId = g.GarmentType.GarmentTypeId,
+                            GarmentTypeName = g.GarmentType.GarmentTypeName
+                        })
+                        .Distinct()
+                        .ToList()
+                })
+                .ToList();
+
+            return result;
+        }
+
+
         //Rohansi-Delete an item
         public async Task<bool> DeleteItemAsync(Guid itemId, Guid laundryId)
         {

@@ -7,6 +7,8 @@
         public string? CategoryName { get; set; }
         public string? ImageUrl { get; set; }
         public List<ServiceWithPriceDTO> Services { get; set; } = new List<ServiceWithPriceDTO>();
+        public List<GarmentTypeDTO> GarmentTypes { get; set; } = new(); // Add this
+
     }
 
     public class ServiceWithPriceDTO
@@ -14,8 +16,16 @@
         public Guid ServiceId { get; set; }
         public string? ServiceName { get; set; }
         public decimal? Price { get; set; }
+        public Guid? GarmentTypeId { get; set; }
+        public string? GarmentTypeName { get; set; }
     }
-    
+
+    public class GarmentTypeDTO
+    {
+        public Guid GarmentTypeId { get; set; }
+        public string? GarmentTypeName { get; set; }
+    }
+
     public class UpdateItemDTO
     {
         public string? Name { get; set; }
