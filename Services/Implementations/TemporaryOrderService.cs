@@ -45,11 +45,19 @@ namespace FreshlyBackendNew.Services.Implementations
             foreach (var item in dto.Items)
             {
                 // Check if item already exists in basket
+                //var existingDetail = await _context.TemporaryOrderDetails
+                //    .FirstOrDefaultAsync(d =>
+                //        d.TemporaryOrderId == tempOrder.TemporaryOrderId &&
+                //        d.ItemId == item.ItemId &&
+                //        d.ServiceId == item.ServiceId);
+
                 var existingDetail = await _context.TemporaryOrderDetails
                     .FirstOrDefaultAsync(d =>
                         d.TemporaryOrderId == tempOrder.TemporaryOrderId &&
                         d.ItemId == item.ItemId &&
-                        d.ServiceId == item.ServiceId);
+                        d.ServiceId == item.ServiceId &&
+                        d.GarmentTypeId == item.GarmentTypeId); // <-- Add this check
+
 
                 if (existingDetail != null)
                 {
@@ -62,6 +70,7 @@ namespace FreshlyBackendNew.Services.Implementations
                         TemporaryOrderId = tempOrder.TemporaryOrderId,
                         ItemId = item.ItemId,
                         ServiceId = item.ServiceId,
+                        GarmentTypeId = item.GarmentTypeId,
                         Quantity = item.Quantity
                     });
                 }
