@@ -151,7 +151,7 @@ namespace FreshlyBackendNew.Services.Implementations
             };
         }
 
-
+        
         //Rohansi-Delete an item
         public async Task<bool> DeleteItemAsync(Guid itemId, Guid laundryId)
         {
