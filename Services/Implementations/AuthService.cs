@@ -217,9 +217,7 @@ namespace FreshlyBackendNew.Services.Implementations
                 customer.LastName = editDto.LastName;
                 customer.Username = editDto.Username;
                 customer.Email = editDto.Email;
-                if (!string.IsNullOrEmpty(editDto.Password))
-                    customer.Password = BCrypt.Net.BCrypt.HashPassword(editDto.Password);
-
+               
                 // Update or create Address
                 if (customer.Address == null && !string.IsNullOrEmpty(editDto.HouseNo))
                 {
