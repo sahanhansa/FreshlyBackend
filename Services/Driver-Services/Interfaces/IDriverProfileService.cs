@@ -8,5 +8,6 @@ namespace FreshlyBackendNew.Services.Interfaces
         Task<DriverEditDto> GetDriverEdit(Guid driverId);
         Task<DriverHomaDto> DriverHomePage(Guid driverId);
         Task<string> UpdateProfile(DriverEditDto dto);
+        Task UpdatePassword(UpdatePasswordDto dto);
     }
 }

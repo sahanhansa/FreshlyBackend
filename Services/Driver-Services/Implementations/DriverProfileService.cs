@@ -216,7 +216,11 @@ namespace FreshlyBackendNew.Services.Implementations
             }
         }
 
+        public async Task UpdatePassword(UpdatePasswordDto dto)
+        {
+                var driver = _context.Drivers.FirstOrDefaultAsync(d => d.DriverId == dto.DriverId);
 
-
+            
+        }
     }
 }

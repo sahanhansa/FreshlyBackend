@@ -246,8 +246,6 @@ namespace FreshlyBackendNew.Controllers
         [HttpPatch("update-profile")]
         public async Task<IActionResult> UpdateProfile([FromForm] DriverEditDto dto)
         {
-            
-
             try
             {
                 Debug.WriteLine(dto);
@@ -260,6 +258,23 @@ namespace FreshlyBackendNew.Controllers
                 {
                     return BadRequest();
                 }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
+        }
+
+        [HttpPatch("update-password")]
+        public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordDto dto)
+        {
+            try
+            {
+                Debug.WriteLine(dto);
+                await _driverProfileService.UpdatePassword(dto);
+                
+                    return Ok();
+                
             }
             catch (Exception e)
             {
