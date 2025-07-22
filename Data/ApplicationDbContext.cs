@@ -11,6 +11,8 @@ namespace FreshlyBackendNew.Data
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Driver> Drivers { get; set; }
+        public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; }
+
         public DbSet<DriverNote> DriverNotes { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<Item> Items { get; set; }

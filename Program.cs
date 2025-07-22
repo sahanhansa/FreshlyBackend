@@ -97,6 +97,7 @@ builder.Services.AddScoped<ITemporaryOrderService, TemporaryOrderService>();
 builder.Services.AddScoped<ICompleteTasksService, CompleteTasksService>();
 builder.Services.AddScoped<IDriverProfileService, DriverProfileService>();
 builder.Services.AddScoped<PayHereService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 
 
