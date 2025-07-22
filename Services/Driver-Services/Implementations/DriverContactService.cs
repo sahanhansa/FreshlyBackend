@@ -21,16 +21,22 @@ namespace FreshlyBackendNew.Services.Implementations
                 .AsNoTracking()
                 .FirstOrDefaultAsync(d => d.DriverId == driverId);
 
-            if (driver == null)
-                return null;
+
+            var contact = await _context.Contacts
+                    .FirstOrDefaultAsync(c => c.UserId == driverId);
+
+           
+
 
             var dto = new DriverContactDetailsDto
             {
                 DriverID = driver.DriverId,
                 FirstName = driver.FirstName ?? "",
                 LastName = driver.LastName ?? "",
-                Email = driver.Email ?? ""
+                Email = driver.Email ?? "",
+                PhoneNumber = contact?.ContactNumber ?? ""
             };
+
 
             return dto;
         }
