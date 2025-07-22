@@ -10,6 +10,9 @@ namespace FreshlyBackendNew.Models
         public Guid? ItemId { get; set; }
         public Guid? ServiceId { get; set; }
 
+        // Add MaterialId for material-service association
+        public Guid? MaterialId { get; set; }
+
         // Service Details
         public decimal? Price { get; set; }
 

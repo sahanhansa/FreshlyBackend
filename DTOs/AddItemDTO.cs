@@ -6,6 +6,12 @@ namespace FreshlyBackendNew.DTOs
         public string? Description { get; set; }
         public Guid CategoryId { get; set; }
         public string ImageUrl { get; set; }
+        public List<MaterialWithServicesDTO> Materials { get; set; } // Changed from Services
+    }
+
+    public class MaterialWithServicesDTO
+    {
+        public Guid MaterialId { get; set; }
         public List<ServiceDTO> Services { get; set; }
     }
 

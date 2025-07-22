@@ -227,17 +227,21 @@ namespace FreshlyBackendNew.Services.Implementations
 
             _context.Items.Add(item);
 
-            foreach (var service in itemDto.Services)
+            // Add LaundryItemService records for each material and its services
+            foreach (var material in itemDto.Materials)
             {
-                var laundryItemService = new LaundryItemService
+                foreach (var service in material.Services)
                 {
-                    LaundryId = laundryId,
-                    ItemId = item.ItemId,
-                    ServiceId = service.ServiceId,
-                    Price = service.Price ?? 0
-                };
-
-                _context.LaundryItemServices.Add(laundryItemService);
+                    var laundryItemService = new LaundryItemService
+                    {
+                        LaundryId = laundryId,
+                        ItemId = item.ItemId,
+                        MaterialId = material.MaterialId,
+                        ServiceId = service.ServiceId,
+                        Price = service.Price ?? 0
+                    };
+                    _context.LaundryItemServices.Add(laundryItemService);
+                }
             }
 
             var result = await _context.SaveChangesAsync();

@@ -46,7 +46,7 @@ namespace FreshlyBackendNew.Controllers
         [HttpPost("add-item/{laundryId}")]
         public async Task<IActionResult> AddItem([FromBody] AddItemDTO itemDto, Guid laundryId)
         {
-            if (itemDto == null || itemDto.Services == null || !itemDto.Services.Any())
+            if (itemDto == null || itemDto.Materials == null || !itemDto.Materials.Any() || itemDto.Materials.Any(m => m.Services == null || !m.Services.Any()))
             {
                 return BadRequest("Item details or services are missing.");
             }
