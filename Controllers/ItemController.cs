@@ -46,16 +46,15 @@ namespace FreshlyBackendNew.Controllers
         [HttpPost("add-item/{laundryId}")]
         public async Task<IActionResult> AddItem([FromBody] AddItemDTO itemDto, Guid laundryId)
         {
-            if (itemDto == null || itemDto.Materials == null || !itemDto.Materials.Any() || itemDto.Materials.Any(m => m.Services == null || !m.Services.Any()))
+            if (itemDto == null || itemDto.GarmentTypes == null || !itemDto.GarmentTypes.Any() || itemDto.GarmentTypes.Any(g => g.Services == null || !g.Services.Any()))
             {
-                return BadRequest("Item details or services are missing.");
+                return BadRequest("Item details or garment type services are missing.");
             }
 
             // Use the provided laundryId parameter from the route
             var (success, message) = await _itemService.AddItemAsync(itemDto, laundryId);
 
             return success ? Ok(message) : StatusCode(500, message);
-
         }
 
         
@@ -90,6 +89,30 @@ namespace FreshlyBackendNew.Controllers
             if (result == null)
                 return NotFound($"Item with ID {itemId} not found for laundry {laundryId}.");
             return Ok(result);
+        }
+
+        // Add new garment type
+        [HttpPost("add-garment-type")]
+        public async Task<IActionResult> AddGarmentType([FromBody] AddGarmentTypeDTO garmentTypeDto)
+        {
+            if (garmentTypeDto == null || string.IsNullOrWhiteSpace(garmentTypeDto.Name))
+            {
+                return BadRequest("Garment type name is required.");
+            }
+            var (success, message) = await _itemService.AddGarmentTypeAsync(garmentTypeDto);
+            return success ? Ok(message) : StatusCode(500, message);
+        }
+
+        // GET: api/Item/garment-type-id-by-name/{name}
+        [HttpGet("garment-type-id-by-name/{name}")]
+        public async Task<IActionResult> GetGarmentTypeIdByName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return BadRequest("Garment type name is required.");
+            var garmentTypeId = await _itemService.GetGarmentTypeIdByNameAsync(name);
+            if (garmentTypeId == null)
+                return NotFound($"Garment type '{name}' not found.");
+            return Ok(new { garmentTypeId });
         }
     }
 
