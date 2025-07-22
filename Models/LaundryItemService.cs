@@ -9,6 +9,8 @@ namespace FreshlyBackendNew.Models
         public Guid? LaundryId { get; set; }
         public Guid? ItemId { get; set; }
         public Guid? ServiceId { get; set; }
+        public Guid? GarmentTypeId { get; set; }
+        //public Guid? MaterialId { get; set; }
 
         // Add MaterialId for material-service association
         public Guid? MaterialId { get; set; }
@@ -25,5 +27,11 @@ namespace FreshlyBackendNew.Models
 
         [ForeignKey("ServiceId")]
         public Service? Service { get; set; }
+
+        [ForeignKey("GarmentTypeId")]
+        public GarmentType? GarmentType { get; set; }
+
+        //[ForeignKey("MaterialId")]
+        //public Material? Material { get; set; }
     }
 }

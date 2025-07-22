@@ -1,122 +1,77 @@
-﻿using Azure.Core;
-using FreshlyBackendNew.Models;
-using FreshlyBackendNew.Services.Implementations;
+﻿using System.Security.Cryptography;
+using System.Text;
+using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Mvc;
+using FreshlyBackendNew.DTOs;
 
-namespace FreshlyBackendNew.Controllers
+[ApiController]
+[Route("api/[controller]")]
+public class PaymentController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class PaymentController : ControllerBase
+    private readonly IConfiguration _config;
+
+    public PaymentController(IConfiguration config)
     {
-        private readonly PayHereService _payHereService;
-        private readonly ILogger<PaymentController> _logger;
+        _config = config;
+    }
 
-        public PaymentController(PayHereService payHereService, ILogger<PaymentController> logger)
+    [HttpPost("generate-hash")]
+    public IActionResult GenerateHash([FromBody] PaymentRequestDto data)
+    {
+        var merchantId = _config["PayHere:MerchantId"];
+        var merchantSecret = _config["PayHere:MerchantSecret"];
+        var amount = data.Amount.ToString("F2"); // e.g., "1000.00"
+        var currency = "LKR";
+
+        // md5(secret) first
+        using var md5 = MD5.Create();
+        var secretMd5Bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(merchantSecret));
+        var secretMd5 = BitConverter.ToString(secretMd5Bytes).Replace("-", "").ToUpper();
+
+        var raw = merchantId + data.OrderId + amount + currency + secretMd5;
+
+        var rawBytes = Encoding.UTF8.GetBytes(raw);
+        var hashBytes = md5.ComputeHash(rawBytes);
+        var hash = BitConverter.ToString(hashBytes).Replace("-", "").ToUpper();
+
+        return Ok(new
         {
-            _payHereService = payHereService;
-            _logger = logger;
+            MerchantId = merchantId,
+            Amount = amount,
+            Currency = currency,
+            Hash = hash
+        });
+    }
+
+    // [Optional] Payment notify_url for verification
+    [HttpPost("payhere/notify")]
+    public IActionResult PayHereNotify([FromForm] PayHereNotificationDto notification)
+    {
+        var merchantSecret = _config["PayHere:MerchantSecret"];
+        var secretMd5 = CreateMd5(merchantSecret).ToUpper();
+
+        var localMd5 = CreateMd5(
+            notification.merchant_id + notification.order_id +
+            notification.payhere_amount + notification.payhere_currency +
+            notification.status_code + secretMd5).ToUpper();
+
+        if (localMd5 == notification.md5sig && notification.status_code == "2")
+        {
+            // Payment success, update your DB
+        }
+        else
+        {
+            // Payment failed or invalid
         }
 
-        [HttpPost("initiate")]
-        public IActionResult InitiatePayment([FromBody] PayHerePaymentRequest request)
-        {
-            try
-            {
-                // Set URLs
-                request.ReturnUrl = $"{Request.Scheme}://{Request.Host}/api/payment/return";
-                request.CancelUrl = $"{Request.Scheme}://{Request.Host}/api/payment/cancel";
-                request.NotifyUrl = "https://d106-45-121-88-32.ngrok-free.app/api/sessions/payment-webhook";
+        return Ok();
+    }
 
-                var response = _payHereService.InitiatePayment(request);
-
-                if (response.Success)
-                {
-                    var hash = _payHereService.GenerateHash(request);
-
-                    var paymentData = new
-                    {
-                        merchant_id = request.MerchantId,
-                        return_url = request.ReturnUrl,
-                        cancel_url = request.CancelUrl,
-                        notify_url = request.NotifyUrl,
-                        order_id = request.OrderId,
-                        items = request.ItemNumber,
-                        currency = request.Currency,
-                        amount = request.Amount.ToString("F2"),
-                        first_name = request.FirstName,
-                        last_name = request.LastName,
-                        email = request.Email,
-                        phone = request.Phone,
-                        address = request.Address,
-                        city = request.City,
-                        country = request.Country,
-                        hash = hash
-                    };
-
-                    return Ok(new { success = true, paymentData, paymentUrl = response.PaymentUrl });
-                }
-
-                return BadRequest(response);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error initiating payment");
-                return StatusCode(500, new { success = false, message = "Internal server error" });
-            }
-        }
-
-        [HttpPost("notify")]
-        public IActionResult PaymentNotify([FromForm] PayHereNotification notification)
-        {
-            try
-            {
-                _logger.LogInformation("Payment notification received: {OrderId}", notification.OrderId);
-
-                if (_payHereService.ValidateNotification(notification))
-                {
-                    // Update payment status in database
-                    // notification.StatusCode: 2 = Success, -1 = Canceled, -2 = Failed, -3 = Chargedback
-
-                    if (notification.StatusCode == "2")
-                    {
-                        // Payment successful
-                        _logger.LogInformation("Payment successful for order: {OrderId}", notification.OrderId);
-                        // Update order status, send confirmation emails, etc.
-                    }
-                    else
-                    {
-                        _logger.LogWarning("Payment failed/canceled for order: {OrderId}, Status: {Status}",
-                            notification.OrderId, notification.StatusCode);
-                    }
-
-                    return Ok();
-                }
-                else
-                {
-                    _logger.LogWarning("Invalid payment notification received");
-                    return BadRequest("Invalid notification");
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error processing payment notification");
-                return StatusCode(500);
-            }
-        }
-
-        [HttpGet("return")]
-        public IActionResult PaymentReturn([FromQuery] string order_id, [FromQuery] string payment_id)
-        {
-            // Redirect to frontend success page
-            return Redirect($"https://yourfrontend.com/payment-success?orderId={order_id}&paymentId={payment_id}");
-        }
-
-        [HttpGet("cancel")]
-        public IActionResult PaymentCancel([FromQuery] string order_id)
-        {
-            // Redirect to frontend cancel page
-            return Redirect($"https://yourfrontend.com/payment-cancel?orderId={order_id}");
-        }
+    private string CreateMd5(string input)
+    {
+        using var md5 = MD5.Create();
+        var inputBytes = Encoding.UTF8.GetBytes(input);
+        var hashBytes = md5.ComputeHash(inputBytes);
+        return BitConverter.ToString(hashBytes).Replace("-", "");
     }
 }
