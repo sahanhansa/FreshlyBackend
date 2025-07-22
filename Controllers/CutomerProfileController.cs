@@ -30,7 +30,8 @@ namespace FreshlyBackendNew.Controllers
             if (!result)
                 return BadRequest("Failed to update profile.");
 
-            return Ok("Profile updated successfully.");
+            return Ok(new { message = "Profile updated successfully." });
+
         }
 
         [HttpDelete("profile")]
@@ -45,7 +46,8 @@ namespace FreshlyBackendNew.Controllers
             if (!result)
                 return BadRequest("Failed to delete profile.");
 
-            return Ok("Profile deleted successfully.");
+            return Ok(new { message = "Profile delete successfully." });
+
         }
     }
 }
