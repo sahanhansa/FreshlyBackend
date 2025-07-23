@@ -17,6 +17,16 @@ namespace FreshlyBackendNew.Controllers
             _rejectedItemService = rejectedItemService;
         }
 
+        //lasini-get rejecteditems by orderid
+        [HttpGet("order/{orderId}/rejected-items")]
+        public async Task<IActionResult> GetRejectedItemsByOrderId(Guid orderId)
+        {
+            var items = await _rejectedItemService.GetRejectedItemsByOrderIdAsync(orderId);
+            return Ok(items);
+        }
+
+
+
         // GET: api/RejectedItem/{laundryId}/{rejectedItemId}
         [HttpGet("{laundryId:guid}/{rejectedItemId:guid}")]
         public async Task<IActionResult> GetRejectedItemById(Guid laundryId, Guid rejectedItemId)
