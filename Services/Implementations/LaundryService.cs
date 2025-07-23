@@ -23,6 +23,7 @@ namespace FreshlyBackendNew.Services.Implementations
                 // Fetch the basic laundry information with addresses
                 var laundries = await _context.Laundries
                     .Include(l => l.Address)
+                    .OrderBy(l => l.LaundryName)
                     .ToListAsync();
 
                 var dtoList = new List<LaundryWithAddressDTO>();
@@ -58,7 +59,9 @@ namespace FreshlyBackendNew.Services.Implementations
                         LaundryId = laundry.LaundryId.ToString(),
                         LaundryName = laundry.LaundryName ?? string.Empty,
                         City = laundry.Address?.City,
-                        AverageRating = Math.Round(averageRating, 1)
+                        AverageRating = Math.Round(averageRating, 1),
+                        // 🆕 Set the image link here:
+                        LaundryImageLink = laundry.LaundryImageLink
                     });
                 }
 
