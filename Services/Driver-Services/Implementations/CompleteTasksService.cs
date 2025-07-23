@@ -25,6 +25,8 @@ namespace FreshlyBackendNew.Services.Implementations
             {
                 var statuses = await _context.Statuses.ToListAsync();
 
+                var basket = statuses.FirstOrDefault(s => s.StatusName == "order in basket")?.StatusID
+                    ?? throw new InvalidOperationException("Status 'order in basket' not found.");
                 var statusPlaced = statuses.FirstOrDefault(s => s.StatusName == "order placed")?.StatusID
                     ?? throw new InvalidOperationException("Status 'order placed' not found.");
 
@@ -36,6 +38,9 @@ namespace FreshlyBackendNew.Services.Implementations
 
                 var outDelivery = statuses.FirstOrDefault(s => s.StatusName == "out for delivery")?.StatusID
                     ?? throw new InvalidOperationException("Status 'out for delivery' not found.");
+
+                var delivered = statuses.FirstOrDefault(s => s.StatusName == "delivered")?.StatusID
+                    ?? throw new InvalidOperationException("Status 'delivered' not found.");
 
                 var baseOrders = await (
                     from ord in _context.Orders
@@ -64,12 +69,11 @@ namespace FreshlyBackendNew.Services.Implementations
 
                 var allPickupsRecords = baseOrders
                     .Where(o => o.PickupDriverId == driverId &&
-                                (o.StatusId != statusPlaced && o.StatusId != statusPickedUp))
+                                (o.StatusId != statusPlaced && o.StatusId != statusPickedUp && o.StatusId != basket))
                     .ToList();
 
                 var allDeliveriesRecords = baseOrders
-                    .Where(o => o.DeliveryDriverId == driverId &&
-                                (o.StatusId != finishedProcessing && o.StatusId != outDelivery))
+                    .Where(o => o.DeliveryDriverId == driverId &&  o.StatusId == delivered)
                     .ToList();
 
                 var pickupsResult = new List<CompleteTasksDetailsDto>();

@@ -86,6 +86,7 @@ builder.Services.AddCors(options =>
         });
 });
 
+
 // Register application services
 builder.Services.AddScoped<IAllPickupService, AllPickupService>();
 builder.Services.AddScoped<IAllDeliveryService, AllDeliveryService>();
@@ -95,7 +96,6 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ITemporaryOrderService, TemporaryOrderService>();
 builder.Services.AddScoped<ICompleteTasksService, CompleteTasksService>();
-builder.Services.AddScoped<IDriverProfileService, DriverProfileService>();
 builder.Services.AddScoped<ILaundryContactService, LaundryContactService>();
 builder.Services.AddScoped<IRejectedItemService, RejectedItemService>();
 builder.Services.AddScoped<PayHereService>();
@@ -136,10 +136,8 @@ if (app.Environment.IsDevelopment())
     // Add detailed error pages in development
     app.UseDeveloperExceptionPage();
 }
-else
-{
     app.UseHttpsRedirection();
-}
+
 
 // Use CORS middleware
 app.UseCors("AllowAngularApp");
@@ -149,6 +147,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+
 
 // Ensure default admin exists on startup
 using (var scope = app.Services.CreateScope())

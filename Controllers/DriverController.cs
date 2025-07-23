@@ -268,10 +268,26 @@ namespace FreshlyBackendNew.Controllers
         {
             try
             {
-                Debug.WriteLine(dto);
-                await _driverProfileService.UpdatePassword(dto);
-                
+                Debug.WriteLine($"DriverId: {dto.DriverId} == Guid.Empty? {dto.DriverId == Guid.Empty}");
+                Debug.WriteLine($"CurrentPassword: {dto.CurrentPassword}");
+                Debug.WriteLine($"NewPassword: {dto.NewPassword}");
+
+
+
+                var result = await _driverProfileService.UpdatePassword(dto);
+
+                if (result == "success")
+                {
                     return Ok();
+                }
+                else if (result == null)
+                {
+                    return Conflict();
+                }
+                else
+                {
+                   return BadRequest();
+                }
                 
             }
             catch (Exception e)
@@ -280,5 +296,39 @@ namespace FreshlyBackendNew.Controllers
             }
         }
 
+        [HttpGet("DriverReportDash/{driverId}")]
+        public async Task<IActionResult> DriverReportDash(Guid driverId)
+        {
+            try
+            {
+                var driverProfile = await _driverProfileService.DriverReportDash(driverId);
+
+                if (driverProfile == null)
+                    return NotFound($"No contact details found for driver with ID: {driverId}");
+
+                return Ok(driverProfile);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+        [HttpGet("DriverReportDashRevenue/{driverId}")]
+        public async Task<IActionResult> DriverReportRevenue(Guid driverId)
+        {
+            try
+            {
+                var totalAmount = await _driverProfileService.DriverReportRevenue(driverId);
+
+                if (totalAmount == null)
+                    return NotFound($"No contact details found for driver with ID: {driverId}");
+
+                return Ok(totalAmount);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
     }
 }

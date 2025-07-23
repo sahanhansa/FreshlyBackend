@@ -23,11 +23,13 @@ namespace FreshlyBackendNew.Controllers
         public OrderController(
             IOrderService orderService,
             IAllPickupService pickupService,
-            IAllDeliveryService deliveryService)
+            IAllDeliveryService deliveryService,
+             ICompleteTasksService completetasksservice)
         {
             _orderService = orderService;
             _pickupService = pickupService;
             _deliveryService = deliveryService;
+            _completetasksservice = completetasksservice;
         }
 
         // lasini-get cutomer address when confirming order
@@ -131,6 +133,7 @@ namespace FreshlyBackendNew.Controllers
         [HttpGet("GetAllCompleteTasks/{driverId}")]
         public async Task<IActionResult> GetAllCompleteTask(Guid driverId)
         {
+            Debug.WriteLine(driverId);
             try
             {
                 var completetasks = await _completetasksservice.GetAllCompleteTasks(driverId);

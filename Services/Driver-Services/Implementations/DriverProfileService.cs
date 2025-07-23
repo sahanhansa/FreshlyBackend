@@ -3,6 +3,8 @@ using FreshlyBackendNew.Data;
 using Microsoft.EntityFrameworkCore;
 using FreshlyBackendNew.Services.Interfaces;
 using System.Diagnostics;
+using FreshlyBackendNew.DTOs;
+using FreshlyBackendNew.Models;
 
 namespace FreshlyBackendNew.Services.Implementations
 {
@@ -10,10 +12,13 @@ namespace FreshlyBackendNew.Services.Implementations
     {
         private readonly ApplicationDbContext _context;
         private readonly IFileStorageService _fileStorageService;
-        public DriverProfileService(ApplicationDbContext context, IFileStorageService fileStorageService)
+        private readonly IOrderDetailService _orderDetailService;
+        public DriverProfileService(ApplicationDbContext context, IFileStorageService fileStorageService, IOrderDetailService orderDetailService)
         {
             _context = context;
-            _fileStorageService = fileStorageService ;
+            _fileStorageService = fileStorageService;
+            _orderDetailService = orderDetailService;
+            _orderDetailService = orderDetailService;
         }
 
         public async Task<ProfileDetailsByIdDto?> GetDriverProfileDetailsAsync(Guid driverId)
@@ -164,6 +169,153 @@ namespace FreshlyBackendNew.Services.Implementations
             return dto;
         }
 
+        public async Task<DriverReportDto> DriverReportDash(Guid driverId)
+        {
+            var driver = await _context.Drivers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.DriverId == driverId);
+
+            if (driver == null)
+                return null;
+
+            var orders = await _context.Orders.ToListAsync();
+            var statuses = await _context.Statuses.ToListAsync();
+
+            var statusPlaced = statuses.FirstOrDefault(s => s.StatusName == "order placed")?.StatusID
+                ?? throw new InvalidOperationException("Status 'order placed' not found.");
+
+            var statusPickedUp = statuses.FirstOrDefault(s => s.StatusName == "order picked up")?.StatusID
+                ?? throw new InvalidOperationException("Status 'order picked up' not found.");
+
+            var finishedProcessing = statuses.FirstOrDefault(s => s.StatusName == "finished processing")?.StatusID
+                ?? throw new InvalidOperationException("Status 'finished processing' not found.");
+
+            var outDelivery = statuses.FirstOrDefault(s => s.StatusName == "out for delivery")?.StatusID
+                ?? throw new InvalidOperationException("Status 'out for delivery' not found.");
+
+            var allPickups = orders.Count(o =>
+                o.PickupDriverId == driverId &&
+                o.StatusId != statusPlaced && o.StatusId != statusPickedUp
+            );
+
+            var pendingPickups = orders.Count(o =>
+                o.PickupDriverId == driverId &&
+                (o.StatusId == statusPlaced || o.StatusId == statusPickedUp)
+            );
+
+            var allDeliveries = orders.Count(o =>
+                o.DeliveryDriverId == driverId &&
+                o.StatusId != finishedProcessing && o.StatusId != outDelivery
+            );
+
+            var pendingDeliveries = orders.Count(o =>
+                o.DeliveryDriverId == driverId &&
+                (o.StatusId == finishedProcessing || o.StatusId == outDelivery)
+            );
+
+
+            var mostEngagedLaundry = orders
+    .GroupBy(o => o.LaundryId)
+    .Select(group => new
+    {
+        LaundryId = group.Key,
+        Count = group.Count()
+    })
+    .OrderByDescending(x => x.Count)
+    .FirstOrDefault();
+            var laundry = await _context.Laundries
+        .Where(d => d.LaundryId == mostEngagedLaundry.LaundryId)
+        .Select(d => new
+        {
+            d.LaundryId,
+            d.LaundryName
+        })
+        .FirstOrDefaultAsync();
+
+            var mostEngagedCustomer = orders
+    .GroupBy(o => o.CustomerId)
+    .Select(group => new
+    {
+        CustomerId = group.Key,
+        Count = group.Count()
+    })
+    .OrderByDescending(x => x.Count)
+    .FirstOrDefault();
+
+            var customer = await _context.Customers
+                .Where(c => c.CustomerId == mostEngagedCustomer.CustomerId)
+                .Select(c => new
+                {
+                    c.CustomerId,
+                    c.FirstName,
+                    c.LastName
+                })
+                .FirstOrDefaultAsync();
+
+            return new DriverReportDto
+            {
+                TotalPickups = allPickups + pendingPickups,
+                TotalDelivery = allDeliveries + pendingDeliveries,
+                PendingOrders = pendingDeliveries + pendingPickups,
+                CompletedDelivery = allDeliveries,
+                CompletedPickups = allPickups,
+                MostEngagedLaundryId=laundry.LaundryId,
+                MostEngagedLaundryName=laundry.LaundryName,
+                MostEngagedCustomerId=customer.CustomerId,
+                MostEngagedCustomerName=customer.FirstName+" "+customer.LastName
+
+            };
+        }
+
+        public async Task<decimal> DriverReportRevenue(Guid driverId)
+        {
+            var driver = await _context.Drivers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.DriverId == driverId);
+
+            if (driver == null)
+                return 0;
+
+            var orders = await _context.Orders.ToListAsync();
+            var statuses = await _context.Statuses.ToListAsync();
+
+            var basket = statuses.FirstOrDefault(s => s.StatusName == "order in basket")?.StatusID
+                ?? throw new InvalidOperationException("Status 'order placed' not found.");
+
+            var statusPlaced = statuses.FirstOrDefault(s => s.StatusName == "order placed")?.StatusID
+                ?? throw new InvalidOperationException("Status 'order placed' not found.");
+
+            var statusPickedUp = statuses.FirstOrDefault(s => s.StatusName == "order picked up")?.StatusID
+                ?? throw new InvalidOperationException("Status 'order picked up' not found.");
+
+            var finishedProcessing = statuses.FirstOrDefault(s => s.StatusName == "finished processing")?.StatusID
+                ?? throw new InvalidOperationException("Status 'finished processing' not found.");
+
+            var Delivered = statuses.FirstOrDefault(s => s.StatusName == "delivered")?.StatusID
+                ?? throw new InvalidOperationException("Status 'out for delivery' not found.");
+
+
+            var deliveryOrderIds = orders
+                .Where(o => o.DeliveryDriverId == driverId && o.PaymentMethod == "COD" && o.StatusId==Delivered)
+                .Select(o => o.OrderId)
+                .ToList();
+
+            var pickupOrderIds = orders
+                .Where(o => o.PickupDriverId == driverId && o.PaymentMethod == "COD" && (o.StatusId!=statusPlaced && o.StatusId!=statusPlaced  && o.StatusId!=basket))
+                .Select(o => o.OrderId)
+                .ToList();
+
+            decimal totalRevenue = 0;
+
+            foreach (var orderId in deliveryOrderIds.Concat(pickupOrderIds))
+            {
+                var details = await _orderDetailService.GetOrderDetailsAsync(orderId);
+                totalRevenue += details.TotalAmount;
+            }
+
+            return totalRevenue;
+        }
+
         public async Task<string> UpdateProfile(DriverEditDto dto)
         {
             if (dto.File != null)
@@ -217,11 +369,37 @@ namespace FreshlyBackendNew.Services.Implementations
             }
         }
 
-        public async Task UpdatePassword(UpdatePasswordDto dto)
+        public async Task<string> UpdatePassword(UpdatePasswordDto dto)
         {
-                var driver = _context.Drivers.FirstOrDefaultAsync(d => d.DriverId == dto.DriverId);
+            try
+            {
+                var driver = await _context.Drivers.FirstOrDefaultAsync(d => d.DriverId == dto.DriverId);
 
-            
+                if (driver == null || !BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, driver.Password))
+                {
+                    return null;
+                }
+
+                var hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+                driver.Password = hashedPassword;
+
+                var result = await _context.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    return "success";
+                }
+                else
+                {
+                    return "error";
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"UpdatePassword EXCEPTION: {ex}");
+                throw; // rethrow to bubble up to your controller
+            }
         }
+
     }
 }
