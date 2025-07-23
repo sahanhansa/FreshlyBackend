@@ -49,7 +49,8 @@ namespace FreshlyBackendNew.Services.Implementations
                     .FirstOrDefaultAsync(d =>
                         d.TemporaryOrderId == tempOrder.TemporaryOrderId &&
                         d.ItemId == item.ItemId &&
-                        d.ServiceId == item.ServiceId);
+                        d.ServiceId == item.ServiceId &&
+                        d.GarmentTypeId == item.GarmentTypeId);
 
                 if (existingDetail != null)
                 {
@@ -62,6 +63,7 @@ namespace FreshlyBackendNew.Services.Implementations
                         TemporaryOrderId = tempOrder.TemporaryOrderId,
                         ItemId = item.ItemId,
                         ServiceId = item.ServiceId,
+                        GarmentTypeId = item.GarmentTypeId, // Set GarmentTypeId
                         Quantity = item.Quantity
                     });
                 }

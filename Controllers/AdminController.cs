@@ -423,7 +423,8 @@ namespace FreshlyBackendNew.Controllers
                 Email = admin.Email,
                 Role = admin.Role,
                 CreatedAt = admin.CreatedAt,
-                LastLogin = admin.LastLogin
+                LastLogin = admin.LastLogin,
+                LaundryImageLink = admin.LaundryImageLink // Include profile image link
             });
         }
     }

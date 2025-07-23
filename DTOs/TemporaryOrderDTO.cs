@@ -11,6 +11,7 @@
     {
         public Guid ItemId { get; set; }
         public Guid ServiceId { get; set; }
+        public Guid GarmentTypeId { get; set; } // Added to support garment type
         public int Quantity { get; set; }
     }
 
