@@ -46,7 +46,8 @@ namespace FreshlyBackendNew.Services.Implementations
                     AddressId = customer.AddressId,
                     Address = customer.Address != null ? $"{customer.Address.HouseNo}, {customer.Address.Street}, {customer.Address.City}, {customer.Address.PostalCode}" : null,
                     Contacts = contacts.Select(ct => ct.ContactNumber).ToList(),
-                    AccountStatus = status
+                    AccountStatus = status,
+                    ProfilePic = customer.CustomerImageLink // Add profile image link
                 });
             }
             
@@ -81,7 +82,8 @@ namespace FreshlyBackendNew.Services.Implementations
                 AddressId = customer.AddressId,
                 Address = customer.Address != null ? $"{customer.Address.HouseNo}, {customer.Address.Street}, {customer.Address.City}, {customer.Address.PostalCode}" : null,
                 Contacts = contacts.Select(ct => ct.ContactNumber).ToList(),
-                AccountStatus = status
+                AccountStatus = status,
+                ProfilePic = customer.CustomerImageLink // Add profile image link
             };
         }
 
@@ -131,7 +133,8 @@ namespace FreshlyBackendNew.Services.Implementations
                 Email = customer.Email,
                 Username = customer.Username,
                 AddressId = customer.AddressId,
-                Contacts = customerDto.Contacts ?? new List<string>()
+                Contacts = customerDto.Contacts ?? new List<string>(),
+                ProfilePic = customer.CustomerImageLink // Add profile image link
             };
         }
 

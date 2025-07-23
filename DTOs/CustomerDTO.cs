@@ -11,5 +11,6 @@
         public string? Address { get; set; } // Formatted address (e.g., "123 Main St, Colombo, 10100")
         public List<string> Contacts { get; set; } = new List<string>(); // List of contact details (e.g., phone numbers)
         public string AccountStatus { get; set; } // Added for frontend status logic
+        public string? ProfilePic { get; set; } // S3 profile image URL
     }
 }
