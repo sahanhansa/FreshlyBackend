@@ -10,4 +10,5 @@ namespace FreshlyBackendNew.DTOs
         public string? LogoUrl { get; set; }
        
     }
+    
 } 

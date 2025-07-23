@@ -28,9 +28,21 @@ namespace FreshlyBackendNew.DTOs.Order_DTOs
         public DateTime? PickupDate { get; set; }
         public string? PickupDateFormatted { get; set; }
         public bool ShouldShowPickupDetails { get; set; }
+        
+        public List<ModifiedItemDTO> ModifiedItems { get; set; } = new List<ModifiedItemDTO>();
     }
     
     public class OrderItemDTO
+    {
+        public string? ItemName { get; set; }
+        public int Quantity { get; set; }
+        public decimal Price { get; set; }
+        public Guid ItemId { get; set; }
+        public Guid ServiceId { get; set; }
+        public string? ServiceName { get; set; }
+    }
+    
+    public class ModifiedItemDTO
     {
         public string? ItemName { get; set; }
         public int Quantity { get; set; }

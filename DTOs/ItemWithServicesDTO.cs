@@ -32,7 +32,13 @@
         public string? Description { get; set; }
         public Guid CategoryId { get; set; }
         public string? ImageUrl { get; set; }
-        public List<ServiceWithPriceDTO> Services { get; set; } = new List<ServiceWithPriceDTO>();
+        public List<UpdateGarmentTypeWithServicesDTO> GarmentTypes { get; set; } = new List<UpdateGarmentTypeWithServicesDTO>();
+    }
+
+    public class UpdateGarmentTypeWithServicesDTO
+    {
+        public Guid GarmentTypeId { get; set; }
+        public List<ServiceWithPriceDTO> Services { get; set; }
     }
 
 }

@@ -10,7 +10,6 @@ namespace FreshlyBackendNew.Models
         public Guid? ItemId { get; set; }
         public Guid? ServiceId { get; set; }
         public Guid? GarmentTypeId { get; set; }
-        //public Guid? MaterialId { get; set; }
 
         // Service Details
         public decimal? Price { get; set; }
@@ -27,8 +26,5 @@ namespace FreshlyBackendNew.Models
 
         [ForeignKey("GarmentTypeId")]
         public GarmentType? GarmentType { get; set; }
-
-        //[ForeignKey("MaterialId")]
-        //public Material? Material { get; set; }
     }
 }

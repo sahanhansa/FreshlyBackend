@@ -8,32 +8,35 @@ namespace FreshlyBackendNew.Services.Implementations
 {
     public class EmailService : IEmailService
     {
-        private readonly IConfiguration _configuration;
-        public EmailService(IConfiguration configuration)
+        private readonly IConfiguration _config;
+
+        public EmailService(IConfiguration config)
         {
-            _configuration = configuration;
+            _config = config;
         }
 
-        public async Task SendEmailAsync(string toEmail, string subject, string body)
+        public async Task SendEmailAsync(string to, string subject, string body)
         {
-            var smtpSection = _configuration.GetSection("Smtp");
-            var smtpClient = new SmtpClient(smtpSection["Host"])
+            var smtpClient = new SmtpClient(_config["Email:SmtpHost"])
             {
-                Port = int.Parse(smtpSection["Port"]),
-                Credentials = new NetworkCredential(smtpSection["User"], smtpSection["Password"]),
-                EnableSsl = bool.Parse(smtpSection["EnableSsl"])
+                Port = int.Parse(_config["Email:SmtpPort"]),
+                Credentials = new NetworkCredential(
+                    _config["Email:Username"],
+                    _config["Email:Password"]
+                ),
+                EnableSsl = true,
             };
 
-            var mailMessage = new MailMessage
+            var mail = new MailMessage
             {
-                From = new MailAddress(smtpSection["User"]),
+                From = new MailAddress(_config["Email:From"]),
                 Subject = subject,
                 Body = body,
-                IsBodyHtml = true
+                IsBodyHtml = false
             };
-            mailMessage.To.Add(toEmail);
+            mail.To.Add(to);
 
-            await smtpClient.SendMailAsync(mailMessage);
+            await smtpClient.SendMailAsync(mail);
         }
     }
 }

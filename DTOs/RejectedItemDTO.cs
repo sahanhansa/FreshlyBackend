@@ -9,6 +9,7 @@ namespace FreshlyBackendNew.DTOs
         public Guid? ItemId { get; set; }
         public Guid? ServiceId { get; set; }
         public Guid? LaundryId { get; set; }
+        public Guid? StatusId { get; set; }
 
         public string? ItemName { get; set; }
         public int? Quantity { get; set; }
@@ -30,6 +31,8 @@ namespace FreshlyBackendNew.DTOs
         public string? Reason { get; set; }
         public string? RejectedBy { get; set; }
         public DateTime RejectedAt { get; set; }
+        
+        public Guid? StatusId { get; set; }
     }
 
 }

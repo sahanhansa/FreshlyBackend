@@ -308,6 +308,8 @@ namespace FreshlyBackendNew.Services.Implementations
                 Console.WriteLine($"Error getting completed orders: {ex.Message}");
                 return new List<OrderDetailsDTO>();
             }
+            
+           
         }
     }
 }

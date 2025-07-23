@@ -100,9 +100,6 @@ builder.Services.AddScoped<ILaundryContactService, LaundryContactService>();
 builder.Services.AddScoped<IRejectedItemService, RejectedItemService>();
 builder.Services.AddScoped<PayHereService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
-
-
-
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IFileStorageService, S3StorageService>();
