@@ -272,6 +272,32 @@ namespace FreshlyBackendNew.Controllers
             }
         }
 
+        // DELETE: api/Admin/delete-if-not-superadmin/{id}
+        [HttpDelete("delete-if-not-superadmin/{id}")]
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> DeleteAdminIfNotSuperAdmin(string id)
+        {
+            if (!Guid.TryParse(id, out Guid adminId))
+            {
+                return BadRequest(new { Error = "Invalid admin ID format" });
+            }
+
+            var admin = await _context.Admins.FindAsync(adminId);
+            if (admin == null)
+            {
+                return NotFound(new { Error = "Admin not found" });
+            }
+
+            if (admin.Role == "SuperAdmin")
+            {
+                return Forbid(); // Do not allow deleting SuperAdmin
+            }
+
+            _context.Admins.Remove(admin);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
         // POST: api/Admin/ResetPassword
         [HttpPost("ResetPassword")]
         [Authorize(Roles = "SuperAdmin")]

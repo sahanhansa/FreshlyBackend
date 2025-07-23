@@ -152,7 +152,8 @@ namespace FreshlyBackendNew.Services.Implementations
                         AverageRating = Math.Round(averageRating, 1),
                         TotalOrders = totalOrders,
                         FeedbackCount = feedbackCount,
-                        AccountStatus = status
+                        AccountStatus = status,
+                        ProfilePic = laundry.LaundryImageLink // Add profile image link
                     });
                 }
 
