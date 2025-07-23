@@ -14,11 +14,13 @@ namespace FreshlyBackendNew.Controllers
     {
         private readonly IAuthService _auth;
         private readonly ApplicationDbContext _context;
+        private readonly IEmailService _email;
 
-        public AuthController(IAuthService auth, ApplicationDbContext context)
+        public AuthController(IAuthService auth, ApplicationDbContext context, IEmailService email)
         {
             _auth = auth;
             _context = context;
+            _email = email;
         }
 
         [HttpPost("customer/register")]
@@ -390,6 +392,106 @@ namespace FreshlyBackendNew.Controllers
                 return BadRequest(new { Error = ex.Message });
             }
         }
+
+        [HttpPost("request-password-reset")]
+        public async Task<IActionResult> RequestPasswordReset([FromBody] RequestPasswordResetDTO data)
+        {
+            try
+            {
+                bool userExists = false;
+                switch (data.UserType)
+                {
+                    case "Customer":
+                        userExists = await _context.Customers.AnyAsync(c => c.Email == data.Email);
+                        break;
+                    case "Driver":
+                        userExists = await _context.Drivers.AnyAsync(d => d.Email == data.Email);
+                        break;
+                    case "Laundry":
+                        userExists = await _context.Laundries.AnyAsync(l => l.Email == data.Email);
+                        break;
+                    case "Admin":
+                        userExists = await _context.Admins.AnyAsync(a => a.Email == data.Email);
+                        break;
+                }
+
+                if (!userExists)
+                    return BadRequest(new { Error = "User not found" });
+
+                var code = new Random().Next(100000, 999999).ToString();
+
+                var resetRequest = new PasswordResetRequest
+                {
+                    Email = data.Email,
+                    Code = code,
+                    ExpiresAt = DateTime.UtcNow.AddMinutes(10),
+                    UserType = data.UserType
+                };
+
+                await _context.PasswordResetRequests.AddAsync(resetRequest);
+                await _context.SaveChangesAsync();
+
+                await _email.SendEmailAsync(data.Email, "Password Reset Code", $"Your password reset code is: {code}");
+
+                return Ok(new { Message = "Reset code sent to email" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
+        [HttpPost("verify-reset-code")]
+        public async Task<IActionResult> VerifyResetCode([FromBody] VerifyResetCodeDTO data)
+        {
+            try
+            {
+                var resetRequest = await _context.PasswordResetRequests
+                    .FirstOrDefaultAsync(r =>
+                        r.Email == data.Email &&
+                        r.Code == data.Code &&
+                        r.UserType == data.UserType &&
+                        r.ExpiresAt > DateTime.UtcNow);
+
+                if (resetRequest == null)
+                    return BadRequest(new { Error = "Invalid or expired code" });
+
+                switch (data.UserType)
+                {
+                    case "Customer":
+                        var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Email == data.Email);
+                        if (customer == null) return BadRequest(new { Error = "User not found" });
+                        customer.Password = BCrypt.Net.BCrypt.HashPassword(data.NewPassword);
+                        break;
+                    case "Driver":
+                        var driver = await _context.Drivers.FirstOrDefaultAsync(d => d.Email == data.Email);
+                        if (driver == null) return BadRequest(new { Error = "User not found" });
+                        driver.Password = BCrypt.Net.BCrypt.HashPassword(data.NewPassword);
+                        break;
+                    case "Laundry":
+                        var laundry = await _context.Laundries.FirstOrDefaultAsync(l => l.Email == data.Email);
+                        if (laundry == null) return BadRequest(new { Error = "User not found" });
+                        laundry.Password = BCrypt.Net.BCrypt.HashPassword(data.NewPassword);
+                        break;
+                    case "Admin":
+                        var admin = await _context.Admins.FirstOrDefaultAsync(a => a.Email == data.Email);
+                        if (admin == null) return BadRequest(new { Error = "User not found" });
+                        admin.Password = BCrypt.Net.BCrypt.HashPassword(data.NewPassword);
+                        break;
+                }
+
+                _context.PasswordResetRequests.Remove(resetRequest); // cleanup
+                await _context.SaveChangesAsync();
+
+                return Ok(new { Message = "Password reset successful" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
+
         [HttpPost("admin/login")]
         public async Task<IActionResult> AdminLogin([FromBody] LoginData data)
         {
@@ -423,4 +525,5 @@ namespace FreshlyBackendNew.Controllers
             }
         }
     }
+
 }

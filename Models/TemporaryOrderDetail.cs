@@ -13,6 +13,7 @@ namespace FreshlyBackendNew.Models
         public Guid? TemporaryOrderId { get; set; }
         public Guid? ItemId { get; set; }
         public Guid? ServiceId { get; set; }
+        public Guid? GarmentTypeId { get; set; } // 🆕 Add this
 
         // Order Details
         public int? Quantity { get; set; }
@@ -26,5 +27,8 @@ namespace FreshlyBackendNew.Models
 
         [ForeignKey("ServiceId")]
         public Service? Service { get; set; }
+
+        [ForeignKey("GarmentTypeId")]
+        public GarmentType? GarmentType { get; set; } // 🆕 Add this
     }
 }

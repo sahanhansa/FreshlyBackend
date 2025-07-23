@@ -43,15 +43,15 @@ namespace FreshlyBackendNew.Controllers
 
         //Rohansi-Add new item to a list
         
-        [HttpPost("add-item")]
-        public async Task<IActionResult> AddItem([FromBody] AddItemDTO itemDto)
+        [HttpPost("add-item/{laundryId}")]
+        public async Task<IActionResult> AddItem([FromBody] AddItemDTO itemDto, Guid laundryId)
         {
             if (itemDto == null || itemDto.Services == null || !itemDto.Services.Any())
             {
                 return BadRequest("Item details or services are missing.");
             }
 
-            var laundryId = GetLaundryIdFromToken();
+            // Use the provided laundryId parameter from the route
             var (success, message) = await _itemService.AddItemAsync(itemDto, laundryId);
 
             return success ? Ok(message) : StatusCode(500, message);
@@ -60,11 +60,9 @@ namespace FreshlyBackendNew.Controllers
 
         
         //Rohansi-Edit an item from list
-        [HttpPut("update-item/{itemId}")]
-        public async Task<IActionResult> UpdateItem(Guid itemId, [FromBody] UpdateItemDTO itemDto)
+        [HttpPut("update-item/{itemId}/{laundryId}")]
+        public async Task<IActionResult> UpdateItem(Guid itemId, Guid laundryId, [FromBody] UpdateItemDTO itemDto)
         {
-            var laundryId = GetLaundryIdFromToken();
-
             var result = await _itemService.UpdateItemAsync(itemId, itemDto, laundryId);
             if (!result)
                 return Unauthorized("You cannot update this item or item not found.");
@@ -75,16 +73,30 @@ namespace FreshlyBackendNew.Controllers
         
         //Rohansi-Delete an item from list
             
-        [HttpDelete("delete-item/{itemId}")]
-        public async Task<IActionResult> DeleteItem(Guid itemId)
+        [HttpDelete("delete-item/{itemId}/{laundryId}")]
+        public async Task<IActionResult> DeleteItem(Guid itemId, Guid laundryId)
         {
-            var laundryId = GetLaundryIdFromToken();
-
             var result = await _itemService.DeleteItemAsync(itemId, laundryId);
             if (!result)
                 return NotFound($"Item with ID {itemId} not found or not owned by your laundry.");
 
             return NoContent();
+        }
+
+        [HttpGet("GetItemByLaundryId/{laundryId}/{itemId}")]
+        public async Task<IActionResult> GetItemByLaundryIdAndItemId(Guid laundryId, Guid itemId)
+        {
+            var result = await _itemService.GetItemByLaundryIdAndItemIdAsync(laundryId, itemId);
+            if (result == null)
+                return NotFound($"Item with ID {itemId} not found for laundry {laundryId}.");
+            return Ok(result);
+        }
+
+        [HttpGet("GetItemsByLaundryId/{laundryId}/{garmentTypeId}")]
+        public async Task<IActionResult> GetItemsByLaundryId(Guid laundryId, Guid garmentTypeId)
+        {
+            var result = await _itemService.GetItemsByLaundryIdAsync(laundryId, garmentTypeId);
+            return Ok(result);
         }
     }
 
