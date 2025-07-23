@@ -19,6 +19,7 @@ namespace FreshlyBackendNew.Models
         public string Password { get; set; }
         public string Email { get; set; }
         public string AccountStatus { get; set; } = "active";
+        public string? CustomerImageLink { get; set; }
         public Guid? AddressId { get; set; }
 
         // Navigation PropertiesgjdF

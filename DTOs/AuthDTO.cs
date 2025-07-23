@@ -31,6 +31,7 @@ namespace FreshlyBackendNew.DTOs
         public string? Street { get; set; }
         public string? City { get; set; }
         public string? PostalCode { get; set; }
+        public IFormFile ProfileImage { get; set; }
     }
 
     public class DriverRegisterDTO
