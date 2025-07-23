@@ -82,7 +82,7 @@ namespace FreshlyBackendNew.Services.Implementations
         public async Task<List<OrderDetailsDTO>> GetOngoingOrdersForCustomerAsync(Guid customerId)
         {
             // Define statuses for "ongoing" orders - modify these based on your business logic
-            var ongoingStatuses = new[] { "order placed", "order picked up", "processing in laundry", "finished processing", "out for delivery" };
+            var ongoingStatuses = new[] { "order placed", "order picked up", "processing in laundry"};
 
             var ongoingStatusIds = await _context.Statuses
                 .Where(s => ongoingStatuses.Contains(s.StatusName.ToLower()))
@@ -216,19 +216,29 @@ namespace FreshlyBackendNew.Services.Implementations
             try
             {
                 // Get the "out for delivery" status ID
-                var outForDeliveryStatusId = await _context.Statuses
-                    .Where(s => s.StatusName != null && s.StatusName.ToLower().Trim() == "out for delivery")
-                    .Select(s => s.StatusID)
-                    .FirstOrDefaultAsync();
+                //var outForDeliveryStatusId = await _context.Statuses
+                //    .Where(s => s.StatusName != null && s.StatusName.ToLower().Trim() == "out for delivery")
+                //    .Select(s => s.StatusID)
+                //    .FirstOrDefaultAsync();
 
-                if (outForDeliveryStatusId == Guid.Empty)
-                    return new List<OrderDetailsDTO>();
+                //if (outForDeliveryStatusId == Guid.Empty)
+                //    return new List<OrderDetailsDTO>();
+                var toPayStatusIds = await _context.Statuses
+                    .Where(s => s.StatusName != null &&
+                               (s.StatusName.ToLower().Trim() == "finished processing" ||
+                                s.StatusName.ToLower().Trim() == "out for delivery"))
+                    .Select(s => s.StatusID)
+                    .ToListAsync();
+
+                        if (toPayStatusIds == null || !toPayStatusIds.Any())
+                            return new List<OrderDetailsDTO>();
 
                 // Get orders with "out for delivery" status for this customer
                 var orderIds = await _context.Orders
                     .Where(o => o.CustomerId == customerId &&
                            o.StatusId.HasValue &&
-                           o.StatusId.Value == outForDeliveryStatusId)
+                           //o.StatusId.Value == outForDeliveryStatusId)
+                           toPayStatusIds.Contains(o.StatusId.Value))
                     .Select(o => o.OrderId)
                     .ToListAsync();
 
