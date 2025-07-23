@@ -35,10 +35,10 @@ namespace FreshlyBackendNew.Controllers
         }
 
         // lasini-delete item from a temporary order (order summary)
-        [HttpDelete("{temporaryOrderId}/item/{itemId}/service/{serviceId}")]
-        public async Task<IActionResult> DeleteItemFromOrder(Guid temporaryOrderId, Guid itemId, Guid serviceId)
+        [HttpDelete("{temporaryOrderId}/item/{itemId}/service/{serviceId}/garment/{garmentTypeId}")]
+        public async Task<IActionResult> DeleteItemFromOrder(Guid temporaryOrderId, Guid itemId, Guid serviceId, Guid garmentTypeId)
         {
-            var result = await _temporaryOrderService.DeleteItemFromTemporaryOrderAsync(temporaryOrderId, itemId, serviceId);
+            var result = await _temporaryOrderService.DeleteItemFromTemporaryOrderAsync(temporaryOrderId, itemId, serviceId, garmentTypeId);
             if (!result)
                 return NotFound("Item not found in the order.");
             return NoContent();
