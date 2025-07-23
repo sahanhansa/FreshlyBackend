@@ -13,5 +13,6 @@ namespace FreshlyBackendNew.DTOs
         public DateTime? LastLogin { get; set; }
         public string? PasswordResetToken { get; set; }
         public DateTime? PasswordResetExpiry { get; set; }
+        public string? LaundryImageLink { get; set; } // Add this property for profile image
     }
 }

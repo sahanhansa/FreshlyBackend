@@ -186,6 +186,40 @@ namespace FreshlyBackendNew.Controllers
             await _emailService.SendEmailAsync(toEmail, request.Subject, request.Body);
             return Ok(new { message = "Email sent successfully." });
         }
+
+        // GET: api/Feedback/laundry-ratings
+        [HttpGet("laundry-ratings")]
+        public async Task<ActionResult<IEnumerable<LaundryRatingDTO>>> GetLaundryRatings()
+        {
+            // Get all feedbacks with non-null rating and UserId that is a customer
+            var customerIds = await _context.Customers.Select(c => c.CustomerId).ToListAsync();
+            var feedbacks = await _context.Feedbacks
+                .Where(f => f.Rating != null && f.UserId != null && customerIds.Contains(f.UserId.Value))
+                .ToListAsync();
+
+            // Group by LaundryId and calculate average
+            var grouped = feedbacks
+                .GroupBy(f => f.LaundryId)
+                .ToDictionary(g => g.Key, g => g.Average(f => f.Rating.Value));
+
+            // Get all laundries
+            var laundries = await _context.Laundries.ToListAsync();
+
+            // Build result
+            var result = laundries
+                .Where(l => grouped.ContainsKey(l.LaundryId))
+                .Select(l => new LaundryRatingDTO
+                {
+                    LaundryId = l.LaundryId,
+                    LaundryName = l.LaundryName,
+                    Email = l.Email,
+                    LaundryImageLink = l.LaundryImageLink,
+                    AverageRating = grouped[l.LaundryId]
+                })
+                .ToList();
+
+            return Ok(result);
+        }
     }
 
     public class ReplyEmailRequest
@@ -194,5 +228,14 @@ namespace FreshlyBackendNew.Controllers
         public string UserType { get; set; } = string.Empty; // "Customer", "Driver", "Laundry"
         public string Subject { get; set; } = string.Empty;
         public string Body { get; set; } = string.Empty;
+    }
+
+    public class LaundryRatingDTO
+    {
+        public Guid LaundryId { get; set; }
+        public string LaundryName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string LaundryImageLink { get; set; } = string.Empty;
+        public double AverageRating { get; set; }
     }
 }

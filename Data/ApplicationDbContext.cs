@@ -100,15 +100,14 @@ namespace FreshlyBackendNew.Data
             modelBuilder.Entity<Admin>().HasData(
                 new Admin
                 {
-                    AdminId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
-                    Username = "admin",
-                    // Plain text password for testing
-                    Password = "admin123",
-                    FirstName = "System",
-                    LastName = "Administrator",
-                    Email = "admin@freshly.com",
+                    AdminId = Guid.Parse("af901ac5-4e1a-42fd-a861-f0d444c83b2b"),
+                    Username = "Sahan",
+                    Password = "$2a$11$QJaprhObdDnV1UX87e.Ef.avrEdy29ywB337joSNdrqnY3LszunAW",
+                    FirstName = "Sahan",
+                    LastName = string.Empty,
+                    Email = string.Empty,
                     Role = "SuperAdmin",
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.Parse("2025-07-21T19:29:35.207401Z")
                 }
             );
         }
