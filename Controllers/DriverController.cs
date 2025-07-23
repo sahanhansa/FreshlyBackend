@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FreshlyBackendNew.Services.Interfaces;
+using System.Diagnostics;
 
 namespace FreshlyBackendNew.Controllers
 {
@@ -239,5 +240,45 @@ namespace FreshlyBackendNew.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+
+        [HttpPatch("update-profile")]
+        public async Task<IActionResult> UpdateProfile([FromForm] DriverEditDto dto)
+        {
+            try
+            {
+                Debug.WriteLine(dto);
+                var image = await _driverProfileService.UpdateProfile(dto);
+                if (image == "success")
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
+        }
+
+        [HttpPatch("update-password")]
+        public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordDto dto)
+        {
+            try
+            {
+                Debug.WriteLine(dto);
+                await _driverProfileService.UpdatePassword(dto);
+                
+                    return Ok();
+                
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
+        }
+
     }
 }

@@ -15,5 +15,7 @@
         public string PaymenthMethod { get; set; }
         public Guid? DeliverDriver { get; set; }
         public string? note { get; set; }
+        public bool? IsPaid { get; set; }
+        public decimal TotalAmount { get; set; }
     }
 }
