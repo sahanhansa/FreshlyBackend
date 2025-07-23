@@ -15,13 +15,13 @@ namespace FreshlyBackendNew.Migrations
             //    name: "PK_LaundryItemServices",
             //    table: "LaundryItemServices");
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "GarmentTypeId",
-                table: "LaundryItemServices",
-                type: "char(36)",
-                nullable: false,
-                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"),
-                collation: "ascii_general_ci");
+            //migrationBuilder.AddColumn<Guid>(
+            //    name: "GarmentTypeId",
+            //    table: "LaundryItemServices",
+            //    type: "char(36)",
+            //    nullable: false,
+            //    defaultValue: new Guid("00000000-0000-0000-0000-000000000000"),
+            //    collation: "ascii_general_ci");
 
             //migrationBuilder.AddPrimaryKey(
             //    name: "PK_LaundryItemServices",
@@ -34,19 +34,28 @@ namespace FreshlyBackendNew.Migrations
                   ADD PRIMARY KEY (`LaundryId`, `ItemId`, `ServiceId`, `GarmentTypeId`);"
             );
 
-            migrationBuilder.CreateTable(
-                name: "GarmentTypes",
-                columns: table => new
-                {
-                    GarmentTypeId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    GarmentTypeName = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_GarmentTypes", x => x.GarmentTypeId);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
+            //migrationBuilder.CreateTable(
+            //    name: "GarmentTypes",
+            //    columns: table => new
+            //    {
+            //        GarmentTypeId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+            //        GarmentTypeName = table.Column<string>(type: "longtext", nullable: true)
+            //            .Annotation("MySql:CharSet", "utf8mb4")
+            //    },
+            //    constraints: table =>
+            //    {
+            //        table.PrimaryKey("PK_GarmentTypes", x => x.GarmentTypeId);
+            //    })
+            //    .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.Sql(@"
+    CREATE TABLE IF NOT EXISTS `GarmentTypes` (
+        `GarmentTypeId` char(36) COLLATE ascii_general_ci NOT NULL,
+        `GarmentTypeName` longtext CHARACTER SET utf8mb4 NULL,
+        CONSTRAINT `PK_GarmentTypes` PRIMARY KEY (`GarmentTypeId`)
+    ) CHARACTER SET=utf8mb4;
+");
+
 
             migrationBuilder.UpdateData(
                 table: "Admins",
@@ -55,10 +64,10 @@ namespace FreshlyBackendNew.Migrations
                 column: "CreatedAt",
                 value: new DateTime(2025, 7, 22, 8, 19, 9, 852, DateTimeKind.Utc).AddTicks(5875));
 
-            migrationBuilder.CreateIndex(
-                name: "IX_LaundryItemServices_GarmentTypeId",
-                table: "LaundryItemServices",
-                column: "GarmentTypeId");
+            //migrationBuilder.CreateIndex(
+            //    name: "IX_LaundryItemServices_GarmentTypeId",
+            //    table: "LaundryItemServices",
+            //    column: "GarmentTypeId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_LaundryItemServices_GarmentTypes_GarmentTypeId",

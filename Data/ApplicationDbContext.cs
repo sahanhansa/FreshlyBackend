@@ -84,11 +84,11 @@ namespace FreshlyBackendNew.Data
 
             // Define composite primary key for OrderDetail
             modelBuilder.Entity<OrderDetail>()
-                .HasKey(od => new { od.OrderId, od.ItemId, od.ServiceId });
+                .HasKey(od => new { od.OrderId, od.ItemId, od.ServiceId, od.GarmentTypeId });
 
             // Define composite primary key for TemporaryOrderDetail
             modelBuilder.Entity<TemporaryOrderDetail>()
-                .HasKey(tod => new { tod.TemporaryOrderId, tod.ItemId, tod.ServiceId });
+                .HasKey(tod => new { tod.TemporaryOrderId, tod.ItemId, tod.ServiceId, tod.GarmentTypeId });
             
             // Define the relationship between Feedback and Laundry
             modelBuilder.Entity<Feedback>()
