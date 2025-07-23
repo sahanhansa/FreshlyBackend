@@ -147,5 +147,37 @@ namespace FreshlyBackendNew.Services.Implementations
         {
             return _s3Client.Config.RegionEndpoint?.SystemName ?? "eu-north-1";
         }
+
+        // ✅ CREATE - Upload a file to a specific folder and return its public URL
+        public async Task<string> UploadFileAsync(IFormFile file, string folder)
+        {
+            if (file == null || file.Length == 0)
+                throw new ArgumentException("No file was provided");
+
+            var fileName = $"{Guid.NewGuid()}_{file.FileName}";
+            var key = string.IsNullOrEmpty(folder) ? fileName : $"{folder}/{fileName}";
+
+            using var stream = file.OpenReadStream();
+            var request = new PutObjectRequest
+            {
+                BucketName = _bucketName,
+                Key = key,
+                InputStream = stream,
+                ContentType = file.ContentType,
+                CannedACL = S3CannedACL.PublicRead
+            };
+
+            var response = await _s3Client.PutObjectAsync(request);
+
+            if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var url = $"https://{_bucketName}.s3.{GetRegionFromClient()}.amazonaws.com/{key}";
+                _logger.LogInformation("Uploaded to S3: {Key}", key);
+                return url;
+            }
+
+            _logger.LogError("S3 upload failed with status: {StatusCode}", response.HttpStatusCode);
+            throw new Exception($"Upload failed. Status: {response.HttpStatusCode}");
+        }
     }
 }

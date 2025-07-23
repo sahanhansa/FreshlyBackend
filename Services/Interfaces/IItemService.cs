@@ -19,7 +19,10 @@ namespace FreshlyBackendNew.Services.Interfaces
        
    
 
-        
+        Task<List<ItemWithServicesDTO>> GetItemsByLaundryIdAsync(Guid laundryId, Guid garmentTypeId);
+
+
+
         //Delete an item
         Task<bool> DeleteItemAsync(Guid itemId, Guid laundryId);
    

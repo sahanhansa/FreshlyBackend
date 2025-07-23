@@ -1,4 +1,4 @@
-﻿using FreshlyBackendNew.Services.Interfaces;
+using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using System.Net;
 using System.Net.Mail;

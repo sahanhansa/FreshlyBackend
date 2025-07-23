@@ -410,5 +410,23 @@ namespace FreshlyBackendNew.Controllers
             }
         }
 
+        [HttpGet("{laundryId}/filtered-orders")]
+        public async Task<IActionResult> GetFilteredOrders(Guid laundryId)
+        {
+            try
+            {
+                var orders = await _orderService.GetFilteredOrdersAsync(laundryId);
+
+                if (orders == null || orders.Count == 0)
+                    return NotFound("No orders found with the specified statuses.");
+
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
     }
 }

@@ -114,6 +114,13 @@ namespace FreshlyBackendNew.Controllers
                 return NotFound($"Garment type '{name}' not found.");
             return Ok(new { garmentTypeId });
         }
+
+        [HttpGet("GetItemsByLaundryId/{laundryId}/{garmentTypeId}")]
+        public async Task<IActionResult> GetItemsByLaundryId(Guid laundryId, Guid garmentTypeId)
+        {
+            var result = await _itemService.GetItemsByLaundryIdAsync(laundryId, garmentTypeId);
+            return Ok(result);
+        }
     }
 
     }
