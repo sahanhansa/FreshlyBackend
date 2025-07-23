@@ -618,7 +618,8 @@ namespace FreshlyBackendNew.Services.Implementations
                         OrderId = order.OrderId,
                         ItemId = tempDetail.ItemId,
                         ServiceId = tempDetail.ServiceId,
-                        Quantity = tempDetail.Quantity
+                        Quantity = tempDetail.Quantity,
+                        GarmentTypeId = tempDetail.GarmentTypeId
                     });
                 }
 

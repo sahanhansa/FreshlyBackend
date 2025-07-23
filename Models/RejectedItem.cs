@@ -28,9 +28,10 @@ namespace FreshlyBackendNew.Models
 
         
         public Guid? LaundryId { get; set; }
+        public Guid? GarmentTypeId { get; set; }
 
         // Item Info
-        
+
         public string? ItemName { get; set; } = string.Empty;
 
         
@@ -54,5 +55,8 @@ namespace FreshlyBackendNew.Models
 
         [ForeignKey("LaundryId")]
         public Laundry? Laundry { get; set; }
+
+        [ForeignKey("GarmentTypeId")]
+        public GarmentType? GarmentType { get; set; }
     }
 }
