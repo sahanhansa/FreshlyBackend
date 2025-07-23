@@ -45,12 +45,19 @@ namespace FreshlyBackendNew.Services.Implementations
             foreach (var item in dto.Items)
             {
                 // Check if item already exists in basket
+                //var existingDetail = await _context.TemporaryOrderDetails
+                //    .FirstOrDefaultAsync(d =>
+                //        d.TemporaryOrderId == tempOrder.TemporaryOrderId &&
+                //        d.ItemId == item.ItemId &&
+                //        d.ServiceId == item.ServiceId);
+
                 var existingDetail = await _context.TemporaryOrderDetails
                     .FirstOrDefaultAsync(d =>
                         d.TemporaryOrderId == tempOrder.TemporaryOrderId &&
                         d.ItemId == item.ItemId &&
                         d.ServiceId == item.ServiceId &&
-                        d.GarmentTypeId == item.GarmentTypeId);
+                        d.GarmentTypeId == item.GarmentTypeId); // <-- Add this check
+
 
                 if (existingDetail != null)
                 {
@@ -63,7 +70,7 @@ namespace FreshlyBackendNew.Services.Implementations
                         TemporaryOrderId = tempOrder.TemporaryOrderId,
                         ItemId = item.ItemId,
                         ServiceId = item.ServiceId,
-                        GarmentTypeId = item.GarmentTypeId, // Set GarmentTypeId
+                        GarmentTypeId = item.GarmentTypeId,
                         Quantity = item.Quantity
                     });
                 }
@@ -142,6 +149,7 @@ namespace FreshlyBackendNew.Services.Implementations
                     .Include(d => d.Item)
                         //.ThenInclude(item => item.Category)
                     .Include(d => d.Service)
+                    .Include(d => d.GarmentType)
                     .ToListAsync();
 
                 var items = new List<TemporaryOrderItemDTO>();
@@ -150,7 +158,8 @@ namespace FreshlyBackendNew.Services.Implementations
                 foreach (var d in details)
                 {
                     var price = await _context.LaundryItemServices
-                        .Where(lis => lis.LaundryId == tempOrder.LaundryId && lis.ItemId == d.ItemId && lis.ServiceId == d.ServiceId)
+                        .Where(lis => lis.LaundryId == tempOrder.LaundryId && lis.ItemId == d.ItemId && lis.ServiceId == d.ServiceId &&
+                  lis.GarmentTypeId == d.GarmentTypeId)
                         .Select(lis => lis.Price ?? 0)
                         .FirstOrDefaultAsync();
 
@@ -162,6 +171,8 @@ namespace FreshlyBackendNew.Services.Implementations
                         //CategoryName = d.Item?.Category?.CategoryName,
                         ServiceId = d.ServiceId,
                         ServiceName = d.Service?.ServiceName ?? "",
+                        GarmentTypeId = d.GarmentTypeId,
+                        GarmentTypeName = d.GarmentType?.GarmentTypeName ?? "",
                         Price = price,
                         Quantity = d.Quantity ?? 0
                     };
@@ -185,13 +196,14 @@ namespace FreshlyBackendNew.Services.Implementations
             return summaries;
         }
 
-        public async Task<bool> DeleteItemFromTemporaryOrderAsync(Guid temporaryOrderId, Guid itemId, Guid serviceId)
+        public async Task<bool> DeleteItemFromTemporaryOrderAsync(Guid temporaryOrderId, Guid itemId, Guid serviceId, Guid garmentTypeId)
         {
             var detail = await _context.TemporaryOrderDetails
                 .FirstOrDefaultAsync(d =>
                     d.TemporaryOrderId == temporaryOrderId &&
                     d.ItemId == itemId &&
-                    d.ServiceId == serviceId);
+                    d.ServiceId == serviceId &&
+                    d.GarmentTypeId == garmentTypeId);
 
             if (detail == null)
                 return false;
@@ -236,7 +248,8 @@ namespace FreshlyBackendNew.Services.Implementations
             foreach (var d in details)
             {
                 var price = await _context.LaundryItemServices
-                    .Where(lis => lis.LaundryId == tempOrder.LaundryId && lis.ItemId == d.ItemId && lis.ServiceId == d.ServiceId)
+                    .Where(lis => lis.LaundryId == tempOrder.LaundryId && lis.ItemId == d.ItemId && lis.ServiceId == d.ServiceId &&
+                  lis.GarmentTypeId == d.GarmentTypeId)
                     .Select(lis => lis.Price ?? 0)
                     .FirstOrDefaultAsync();
                 total += price * (d.Quantity ?? 0);

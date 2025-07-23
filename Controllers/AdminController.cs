@@ -47,7 +47,8 @@ namespace FreshlyBackendNew.Controllers
                     CreatedAt = a.CreatedAt,
                     LastLogin = a.LastLogin,
                     PasswordResetToken = a.PasswordResetToken,
-                    PasswordResetExpiry = a.PasswordResetExpiry
+                    PasswordResetExpiry = a.PasswordResetExpiry,
+                    LaundryImageLink = a.LaundryImageLink // Include profile image link
                 }));
             }
             catch (Exception ex)
@@ -85,7 +86,8 @@ namespace FreshlyBackendNew.Controllers
                     Email = admin.Email,
                     Role = admin.Role,
                     CreatedAt = admin.CreatedAt,
-                    LastLogin = admin.LastLogin
+                    LastLogin = admin.LastLogin,
+                    LaundryImageLink = admin.LaundryImageLink // Include profile image link
                 });
             }
             catch (Exception ex)
