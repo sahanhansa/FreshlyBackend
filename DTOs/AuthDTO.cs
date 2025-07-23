@@ -17,6 +17,7 @@ namespace FreshlyBackendNew.DTOs
         public string? OwnerEmail { get; set; }
         public string? OwnerContact { get; set; }
         public string? HouseNo { get; set; }
+        public IFormFile ProfileImage { get; set; }
     }
 
     public class CustomerRegisterDTO
@@ -31,6 +32,7 @@ namespace FreshlyBackendNew.DTOs
         public string? Street { get; set; }
         public string? City { get; set; }
         public string? PostalCode { get; set; }
+        public IFormFile ProfileImage { get; set; }
     }
 
     public class DriverRegisterDTO

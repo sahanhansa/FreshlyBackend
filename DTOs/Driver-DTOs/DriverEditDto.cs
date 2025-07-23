@@ -1,4 +1,6 @@
-﻿namespace FreshlyBackendNew.DTOs.Driver_DTOs
+﻿using Amazon.Util.Internal;
+
+namespace FreshlyBackendNew.DTOs.Driver_DTOs
 {
     public class DriverEditDto
     {
@@ -6,10 +8,12 @@
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public string? Email { get; set; }
-        public string[]? ContactNumber { get; set; }
+        public string? ContactNumber { get; set; }
         public string? HouseNo { get; set; }
         public string? Street { get; set; }
         public string? City { get; set; }
         public string? PostalCode { get; set; }
+        public string? ProfilePhoto { get; set; }
+        public IFormFile? File { get; set; }
     }
 }
