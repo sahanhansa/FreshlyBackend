@@ -23,6 +23,7 @@ namespace FreshlyBackendNew.Services.Implementations
                 // Fetch the basic laundry information with addresses
                 var laundries = await _context.Laundries
                     .Include(l => l.Address)
+                    .OrderBy(l => l.LaundryName)
                     .ToListAsync();
 
                 var dtoList = new List<LaundryWithAddressDTO>();

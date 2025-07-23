@@ -167,7 +167,7 @@ namespace FreshlyBackendNew.Services.Implementations
                     {
                         ItemId = d.ItemId ?? Guid.Empty,
                         ItemName = d.Item?.Name ?? "Item", // Replace with actual property if available
-                        ItemImageUrl = null, // Add if you have image URLs
+                        ItemImageUrl = d.Item?.ItemImageLink, // Add if you have image URLs
                         //CategoryName = d.Item?.Category?.CategoryName,
                         ServiceId = d.ServiceId,
                         ServiceName = d.Service?.ServiceName ?? "",
