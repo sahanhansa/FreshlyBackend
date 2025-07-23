@@ -5,6 +5,7 @@ using FreshlyBackendNew.Data;
 using FreshlyBackendNew.DTOs.Driver_DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using FreshlyBackendNew.DTOs.Order_DTOs;
 
 
 namespace FreshlyBackendNew.Controllers
@@ -24,6 +25,7 @@ namespace FreshlyBackendNew.Controllers
             _orderDetailService = orderDetailService;
             _context = context;
             _laundryContactService = laundryContactService;
+           
         }
 
         [HttpGet]
@@ -270,5 +272,60 @@ namespace FreshlyBackendNew.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+        
+        
+         [HttpGet("modified-order-details/{laundryId}/{orderId}/{statusId}")]
+        public async Task<IActionResult> GetModifiedOrderDetails(Guid laundryId, Guid orderId, Guid statusId)
+        {
+            // Verify order exists and belongs to laundry with correct status
+            var order = await _context.Orders
+                .FirstOrDefaultAsync(o => o.OrderId == orderId && o.LaundryId == laundryId && o.StatusId == statusId);
+            if (order == null)
+            {
+                return NotFound($"Order with ID {orderId} not found for laundry {laundryId} with status {statusId}.");
+            }
+
+            // Get order details using the existing service
+            var orderDetails = await _orderDetailService.GetOrderDetailsAsync(orderId);
+            if (orderDetails == null)
+            {
+                return NotFound($"Order details for order ID {orderId} not found.");
+            }
+
+            // Get rejected items for this order
+            var rejectedItems = await _context.RejectedItems
+                .Include(r => r.Service)
+                .Include(r => r.Item)
+                .Where(r => r.OrderId == orderId)
+                .ToListAsync();
+
+            // Map to ModifiedItemDTO with price
+            orderDetails.ModifiedItems = new List<DTOs.Order_DTOs.ModifiedItemDTO>();
+            foreach (var r in rejectedItems)
+            {
+                decimal price = 0;
+                if (r.ItemId.HasValue && r.ServiceId.HasValue)
+                {
+                    var lis = await _context.LaundryItemServices.FirstOrDefaultAsync(lis =>
+                        lis.LaundryId == laundryId &&
+                        lis.ItemId == r.ItemId &&
+                        lis.ServiceId == r.ServiceId);
+                    price = lis?.Price ?? 0;
+                }
+                orderDetails.ModifiedItems.Add(new DTOs.Order_DTOs.ModifiedItemDTO
+                {
+                    ItemName = r.ItemName ?? r.Item?.Name,
+                    Quantity = r.Quantity ?? 0,
+                    Price = price,
+                    ItemId = r.ItemId ?? Guid.Empty,
+                    ServiceId = r.ServiceId ?? Guid.Empty,
+                    ServiceName = r.Service?.ServiceName
+                });
+            }
+
+            return Ok(orderDetails);
         }
-    }
+        
+        }
+    
+        }

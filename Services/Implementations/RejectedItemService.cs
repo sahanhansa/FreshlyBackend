@@ -5,6 +5,8 @@ using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace FreshlyBackendNew.Services
 {
@@ -46,10 +48,10 @@ namespace FreshlyBackendNew.Services
             };
         }
 
-
         public async Task<RejectedItemDTO?> GetRejectedItemByIdAsync(Guid rejectedItemId)
         {
             var rejectedItem = await _context.RejectedItems
+                .Include(r => r.Order)
                 .FirstOrDefaultAsync(r => r.RejectedItemId == rejectedItemId);
 
             if (rejectedItem == null) return null;
@@ -61,10 +63,10 @@ namespace FreshlyBackendNew.Services
         {
             var rejectedItem = new RejectedItem
             {
-                RejectedItemId = dto.RejectedItemId != Guid.Empty ? dto.RejectedItemId : Guid.NewGuid(),
+                RejectedItemId = Guid.NewGuid(), // Always generate in backend
                 OrderId = dto.OrderId,
                 ItemId = dto.ItemId,
-                ServiceId = dto.ServiceId,
+                ServiceId = dto.ServiceId, // ServiceId must exist in the correct table (see model/DB schema)
                 LaundryId = dto.LaundryId,
                 ItemName = dto.ItemName,
                 Quantity = dto.Quantity,
@@ -74,9 +76,41 @@ namespace FreshlyBackendNew.Services
             };
 
             _context.RejectedItems.Add(rejectedItem);
+
+            // Update OrderDetail quantity
+            if (dto.OrderId.HasValue && dto.ItemId.HasValue && dto.ServiceId.HasValue && dto.Quantity.HasValue)
+            {
+                var orderDetail = await _context.OrderDetails.FirstOrDefaultAsync(od =>
+                    od.OrderId == dto.OrderId &&
+                    od.ItemId == dto.ItemId &&
+                    od.ServiceId == dto.ServiceId);
+
+                if (orderDetail != null && orderDetail.Quantity.HasValue)
+                {
+                    orderDetail.Quantity -= dto.Quantity.Value;
+                    if (orderDetail.Quantity <= 0)
+                    {
+                        _context.OrderDetails.Remove(orderDetail);
+                    }
+                    else
+                    {
+                        _context.OrderDetails.Update(orderDetail);
+                    }
+                }
+            }
+
             await _context.SaveChangesAsync();
 
             return MapToDTO(rejectedItem);
+        }
+
+        public async Task<IEnumerable<RejectedItemDTO>> GetRejectedItemsByLaundryIdAsync(Guid laundryId)
+        {
+            var rejectedItems = await _context.RejectedItems
+                .Include(r => r.Order)
+                .Where(r => r.LaundryId == laundryId)
+                .ToListAsync();
+            return rejectedItems.Select(MapToDTO);
         }
 
         private RejectedItemDTO MapToDTO(RejectedItem entity)
@@ -92,8 +126,10 @@ namespace FreshlyBackendNew.Services
                 Quantity = entity.Quantity,
                 Reason = entity.Reason,
                 RejectedBy = entity.RejectedBy,
-                RejectedAt = entity.RejectedAt
+                RejectedAt = entity.RejectedAt,
+                StatusId = entity.Order != null ? entity.Order.StatusId : null
             };
         }
     }
-}
+    }
+
