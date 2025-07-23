@@ -532,13 +532,21 @@ namespace FreshlyBackendNew.Services.Implementations
             if (customer == null || customer.Address == null)
                 return null;
 
+            // Fetch contact numbers for this customer
+            var contactNumbers = await _context.Contacts
+                .Where(c => c.UserId == customerId && c.UserType == "customer")
+                .Select(c => c.ContactNumber)
+                .ToListAsync();
+
             return new DTOs.Order_DTOs.AddressDTO
             {
                 AddressId = customer.Address.AddressId,
                 HouseNo = customer.Address.HouseNo,
                 Street = customer.Address.Street,
                 City = customer.Address.City,
-                PostalCode = customer.Address.PostalCode
+                PostalCode = customer.Address.PostalCode,
+                ContactNumbers = contactNumbers // Set the contact numbers
+
             };
         }
 
@@ -591,6 +599,41 @@ namespace FreshlyBackendNew.Services.Implementations
                         address.Street = dto.Address.Street ?? address.Street;
                         address.City = dto.Address.City ?? address.City;
                         address.PostalCode = dto.Address.PostalCode ?? address.PostalCode;
+                    }
+                }
+
+                // Update contacts if provided
+                if (dto.Contacts != null)
+                {
+                    foreach (var contactDto in dto.Contacts)
+                    {
+                        if (contactDto.ContactId.HasValue)
+                        {
+                            // Existing contact: update or delete
+                            var contact = await _context.Contacts.FindAsync(contactDto.ContactId.Value);
+                            if (contact != null && contact.UserId == tempOrder.CustomerId && contact.UserType == "customer")
+                            {
+                                if (contactDto.IsDeleted)
+                                {
+                                    _context.Contacts.Remove(contact);
+                                }
+                                else
+                                {
+                                    contact.ContactNumber = contactDto.ContactNumber;
+                                }
+                            }
+                        }
+                        else if (!contactDto.IsDeleted)
+                        {
+                            // New contact: add
+                            _context.Contacts.Add(new Contact
+                            {
+                                ContactId = Guid.NewGuid(),
+                                ContactNumber = contactDto.ContactNumber,
+                                UserId = tempOrder.CustomerId,
+                                UserType = "customer"
+                            });
+                        }
                     }
                 }
 
