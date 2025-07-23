@@ -181,7 +181,7 @@ namespace FreshlyBackendNew.Controllers
         }
 
         [HttpPost("laundry-owner/register")]
-        public async Task<IActionResult> LaundryOwnerRegister([FromBody] LaundryOwnerRegisterDTO data)
+        public async Task<IActionResult> LaundryOwnerRegister([FromForm] LaundryOwnerRegisterDTO data)
         {
             try
             {
@@ -198,6 +198,12 @@ namespace FreshlyBackendNew.Controllers
                 if (await _context.Owners.AnyAsync(o => o.Email == data.OwnerEmail))
                 {
                     return BadRequest(new { Error = "Owner email already exists" });
+                }
+
+                string imageUrl = null;
+                if (data.ProfileImage != null && data.ProfileImage.Length > 0)
+                {
+                    imageUrl = await _fileStorageService.UploadFileAsync(data.ProfileImage, "driver-profile-images");
                 }
 
                 // Step 1: Save Owner Details
@@ -247,7 +253,8 @@ namespace FreshlyBackendNew.Controllers
                     Email = data.Email,
                     Address = laundryAddress,
                     OwnerId = owner.OwnerId, // Use the saved OwnerId
-                    AccountStatus = "Not active"
+                    AccountStatus = "Not active",
+                    LaundryImageLink = imageUrl
                 };
                 await _context.Laundries.AddAsync(laundry);
 

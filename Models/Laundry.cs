@@ -20,6 +20,7 @@ namespace FreshlyBackendNew.Models
         public string? Password { get; set; }
         public string? Email { get; set; }
         public string AccountStatus { get; set; } = "active";
+        public string LaundryImageLink { get; set; }
 
         // Foreign Keys
         public Guid? AddressId { get; set; }
@@ -28,6 +29,7 @@ namespace FreshlyBackendNew.Models
         // Navigation Properties
         [ForeignKey("AddressId")]
         public Address? Address { get; set; }
+
 
         [ForeignKey("OwnerId")]
         public Owner? Owner { get; set; }

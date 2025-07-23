@@ -17,6 +17,7 @@ namespace FreshlyBackendNew.DTOs
         public string? OwnerEmail { get; set; }
         public string? OwnerContact { get; set; }
         public string? HouseNo { get; set; }
+        public IFormFile ProfileImage { get; set; }
     }
 
     public class CustomerRegisterDTO
