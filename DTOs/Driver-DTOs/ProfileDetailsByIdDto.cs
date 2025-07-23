@@ -19,7 +19,7 @@
         public string? VehicleNumber { get; set; }
 
         public string? Location { get; set; }
-        public string PostalCode { get; set; }
+        public string? PostalCode { get; set; }
         public string ProfilePhoto { get; set; }
     }
 }

@@ -33,7 +33,8 @@ namespace FreshlyBackendNew.Services.Implementations
                 LicenseNumber = driver.LicenseNo ?? "",
                 Email = driver.Email ?? "",
                 VehicleNumber = driver.VehicleNo ?? "",
-                ProfilePhoto=driver.ProfileImage ?? ""
+                ProfilePhoto=driver.ProfileImage ?? "",
+                
             };
 
             var contacts = await _context.Contacts
@@ -121,7 +122,7 @@ namespace FreshlyBackendNew.Services.Implementations
             var statusPlaced = statuses.FirstOrDefault(s => s.StatusName == "order placed")?.StatusID
                 ?? throw new InvalidOperationException("Status 'order placed' not found.");
 
-            var statusPickedUp = statuses.FirstOrDefault(s => s.StatusName == "order picked up ")?.StatusID
+            var statusPickedUp = statuses.FirstOrDefault(s => s.StatusName == "order picked up")?.StatusID
                 ?? throw new InvalidOperationException("Status 'order picked up' not found.");
 
             var finishedProcessing = statuses.FirstOrDefault(s => s.StatusName == "finished processing")?.StatusID
