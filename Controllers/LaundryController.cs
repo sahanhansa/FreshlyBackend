@@ -209,6 +209,7 @@ namespace FreshlyBackendNew.Controllers
             {
                 // First verify that the order belongs to the specified laundry and has the specified status
                 var order = await _context.Orders
+                    .Include(o => o.Customer)
                     .FirstOrDefaultAsync(o => o.OrderId == orderId && o.LaundryId == laundryId && o.StatusId == statusId);
 
                 if (order == null)
@@ -224,7 +225,20 @@ namespace FreshlyBackendNew.Controllers
                     return NotFound($"Order details for order ID {orderId} not found.");
                 }
 
-                return Ok(orderDetails);
+                // Get customer name
+                string customerName = order.Customer != null ? $"{order.Customer.FirstName} {order.Customer.LastName}" : null;
+
+                // Get customer contact numbers
+                var contactNumbers = await _context.Contacts
+                    .Where(c => c.UserId == order.Customer.CustomerId && c.UserType == "Customer")
+                    .Select(c => c.ContactNumber)
+                    .ToListAsync();
+
+                return Ok(new {
+                    orderDetails,
+                    customerName,
+                    customerContactNumbers = contactNumbers
+                });
             }
             catch (Exception ex)
             {
@@ -279,6 +293,7 @@ namespace FreshlyBackendNew.Controllers
         {
             // Verify order exists and belongs to laundry with correct status
             var order = await _context.Orders
+                .Include(o => o.Customer)
                 .FirstOrDefaultAsync(o => o.OrderId == orderId && o.LaundryId == laundryId && o.StatusId == statusId);
             if (order == null)
             {
@@ -292,18 +307,31 @@ namespace FreshlyBackendNew.Controllers
                 return NotFound($"Order details for order ID {orderId} not found.");
             }
 
-            // Get rejected items for this order
+            // Get customer name
+            string customerName = order.Customer != null ? $"{order.Customer.FirstName} {order.Customer.LastName}" : null;
+
+            // Get customer contact numbers
+            var contactNumbers = await _context.Contacts
+                .Where(c => c.UserId == order.Customer.CustomerId && c.UserType == "Customer")
+                .Select(c => c.ContactNumber)
+                .ToListAsync();
+
+            // Get rejected items for this order, including GarmentType
             var rejectedItems = await _context.RejectedItems
                 .Include(r => r.Service)
                 .Include(r => r.Item)
+                .Include(r => r.GarmentType)
                 .Where(r => r.OrderId == orderId)
                 .ToListAsync();
 
-            // Map to ModifiedItemDTO with price
+            // Map to ModifiedItemDTO with price and garment type
             orderDetails.ModifiedItems = new List<DTOs.Order_DTOs.ModifiedItemDTO>();
             foreach (var r in rejectedItems)
             {
                 decimal price = 0;
+                Guid? garmentTypeId = r.GarmentTypeId;
+                string? garmentTypeName = r.GarmentType?.GarmentTypeName;
+
                 if (r.ItemId.HasValue && r.ServiceId.HasValue)
                 {
                     var lis = await _context.LaundryItemServices.FirstOrDefaultAsync(lis =>
@@ -311,6 +339,17 @@ namespace FreshlyBackendNew.Controllers
                         lis.ItemId == r.ItemId &&
                         lis.ServiceId == r.ServiceId);
                     price = lis?.Price ?? 0;
+                    // If GarmentTypeId is missing, try to get from LaundryItemService
+                    if (!garmentTypeId.HasValue && lis?.GarmentTypeId != null)
+                    {
+                        garmentTypeId = lis.GarmentTypeId;
+                        // Try to get garment type name
+                        if (garmentTypeId.HasValue)
+                        {
+                            var gt = await _context.GarmentTypes.FindAsync(garmentTypeId.Value);
+                            garmentTypeName = gt?.GarmentTypeName;
+                        }
+                    }
                 }
                 orderDetails.ModifiedItems.Add(new DTOs.Order_DTOs.ModifiedItemDTO
                 {
@@ -319,11 +358,17 @@ namespace FreshlyBackendNew.Controllers
                     Price = price,
                     ItemId = r.ItemId ?? Guid.Empty,
                     ServiceId = r.ServiceId ?? Guid.Empty,
-                    ServiceName = r.Service?.ServiceName
+                    ServiceName = r.Service?.ServiceName,
+                    GarmentTypeId = garmentTypeId,
+                    GarmentTypeName = garmentTypeName
                 });
             }
 
-            return Ok(orderDetails);
+            return Ok(new {
+                orderDetails,
+                customerName,
+                customerContactNumbers = contactNumbers
+            });
         }
         
         }

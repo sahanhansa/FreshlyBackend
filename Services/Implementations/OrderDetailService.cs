@@ -34,6 +34,7 @@ namespace FreshlyBackendNew.Services.Implementations
             var orderDetails = await _context.OrderDetails
                 .Include(od => od.Item)
                 .Include(od => od.Service)
+                .Include(od => od.GarmentType) // Ensure GarmentType is loaded
                 .Where(od => od.OrderId == orderId)
                 .ToListAsync();
 
@@ -70,7 +71,9 @@ namespace FreshlyBackendNew.Services.Implementations
                     ServiceName = detail.Service?.ServiceName,
                     Quantity = detail.Quantity ?? 0,
                     // Here you would calculate the price from your business logic
-                    Price = await GetItemServicePriceAsync(detail.ItemId.Value, detail.ServiceId.Value, order.LaundryId.Value)
+                    Price = await GetItemServicePriceAsync(detail.ItemId.Value, detail.ServiceId.Value, order.LaundryId.Value),
+                    GarmentTypeId = detail.GarmentTypeId, // Added
+                    GarmentTypeName = detail.GarmentType?.GarmentTypeName // Added
                 });
             }
 
