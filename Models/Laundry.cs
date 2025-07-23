@@ -37,5 +37,7 @@ namespace FreshlyBackendNew.Models
         // Collection Navigation Property
         public ICollection<Feedback>? Feedbacks { get; set; }
         //public virtual ICollection<Contact>? Contacts { get; set; }
+
+        public string? LaundryImageLink { get; set; }
     }
 }

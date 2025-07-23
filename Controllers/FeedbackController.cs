@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using FreshlyBackendNew.Services.Implementations;
 
 namespace FreshlyBackendNew.Controllers
 {
@@ -14,10 +17,16 @@ namespace FreshlyBackendNew.Controllers
     {
     
         private readonly IFeedbackService _feedbackService;
+        private readonly ApplicationDbContext _context;
+        private readonly EmailService _emailService;
+        private readonly IConfiguration _configuration;
 
-        public FeedbackController(IFeedbackService feedbackService)
+        public FeedbackController(IFeedbackService feedbackService, ApplicationDbContext context, IConfiguration configuration)
         {
             _feedbackService = feedbackService;
+            _context = context;
+            _configuration = configuration;
+            _emailService = new EmailService(configuration);
         }
 
         private Guid GetLaundryIdFromToken()
@@ -132,5 +141,58 @@ namespace FreshlyBackendNew.Controllers
             }
             return Ok(feedback);
         }
+
+        // POST: api/Feedback/SendReplyEmail
+        [HttpPost("SendReplyEmail")]
+        public async Task<IActionResult> SendReplyEmail([FromBody] ReplyEmailRequest request)
+        {
+            string? toEmail = null;
+            string debugInfo = $"Request.UserId: {request.UserId}\n";
+
+            var customer = await _context.Customers.FirstOrDefaultAsync(c => c.CustomerId == request.UserId);
+            if (customer != null && !string.IsNullOrEmpty(customer.Email))
+            {
+                debugInfo += $"Customer found: Email={customer.Email}; ";
+                toEmail = customer.Email;
+            }
+            else
+            {
+                debugInfo += "Customer not found; ";
+                var driver = await _context.Drivers.FirstOrDefaultAsync(d => d.DriverId == request.UserId);
+                if (driver != null && !string.IsNullOrEmpty(driver.Email))
+                {
+                    debugInfo += $"Driver found: Email={driver.Email}; ";
+                    toEmail = driver.Email;
+                }
+                else
+                {
+                    debugInfo += "Driver not found; ";
+                    var laundry = await _context.Laundries.FirstOrDefaultAsync(l => l.LaundryId == request.UserId);
+                    if (laundry != null && !string.IsNullOrEmpty(laundry.Email))
+                    {
+                        debugInfo += $"Laundry found: Email={laundry.Email}; ";
+                        toEmail = laundry.Email;
+                    }
+                    else
+                    {
+                        debugInfo += "Laundry not found; ";
+                    }
+                }
+            }
+
+            if (string.IsNullOrEmpty(toEmail))
+                return NotFound(new { error = $"User email not found for the given userId in any user table. Debug: {debugInfo}" });
+
+            await _emailService.SendEmailAsync(toEmail, request.Subject, request.Body);
+            return Ok(new { message = "Email sent successfully." });
+        }
+    }
+
+    public class ReplyEmailRequest
+    {
+        public Guid UserId { get; set; }
+        public string UserType { get; set; } = string.Empty; // "Customer", "Driver", "Laundry"
+        public string Subject { get; set; } = string.Empty;
+        public string Body { get; set; } = string.Empty;
     }
 }

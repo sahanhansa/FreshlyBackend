@@ -7,7 +7,7 @@ namespace FreshlyBackendNew.Services.Interfaces
 
         public interface ICompleteTasksService
         {
-            Task<List<CompleteTasksDetailsDto>> GetAllCompleteTasks();
+            Task<List<CompleteTasksDetailsDto>> GetAllCompleteTasks(Guid driverId);
 
             Task<CompleteTasksDetailsByIdDto> GetAllCompleteTasksBYId(string orderID);
         }

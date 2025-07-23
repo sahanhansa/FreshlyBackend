@@ -535,7 +535,8 @@ namespace FreshlyBackendNew.Controllers
                 {
                     Token = result.Token,
                     Username = result.Username,
-                    UserId = result.UserId
+                    UserId = result.UserId,
+                    Role = admin.Role // <-- Add role to response
                 });
             }
             catch (Exception ex)

@@ -1,6 +1,7 @@
 ﻿using FreshlyBackendNew.Data;
 using FreshlyBackendNew.DTOs;
 using FreshlyBackendNew.DTOs.Driver_DTOs;
+using FreshlyBackendNew.Models;
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,11 +19,24 @@ namespace FreshlyBackendNew.Services.Implementations
         /// <summary>
         /// Get all completed tasks with basic details.
         /// </summary>
-        public async Task<List<CompleteTasksDetailsDto>> GetAllCompleteTasks()
+        public async Task<List<CompleteTasksDetailsDto>> GetAllCompleteTasks(Guid driverId)
         {
             try
             {
-                // Get base order details first
+                var statuses = await _context.Statuses.ToListAsync();
+
+                var statusPlaced = statuses.FirstOrDefault(s => s.StatusName == "order placed")?.StatusID
+                    ?? throw new InvalidOperationException("Status 'order placed' not found.");
+
+                var statusPickedUp = statuses.FirstOrDefault(s => s.StatusName == "order picked up")?.StatusID
+                    ?? throw new InvalidOperationException("Status 'order picked up' not found.");
+
+                var finishedProcessing = statuses.FirstOrDefault(s => s.StatusName == "finished processing")?.StatusID
+                    ?? throw new InvalidOperationException("Status 'finished processing' not found.");
+
+                var outDelivery = statuses.FirstOrDefault(s => s.StatusName == "out for delivery")?.StatusID
+                    ?? throw new InvalidOperationException("Status 'out for delivery' not found.");
+
                 var baseOrders = await (
                     from ord in _context.Orders
                     join cust in _context.Customers on ord.CustomerId equals cust.CustomerId
@@ -36,21 +50,38 @@ namespace FreshlyBackendNew.Services.Implementations
                         CustomerName = cust.FirstName + " " + cust.LastName,
                         Address = addr.HouseNo + " " + addr.Street + ", " + addr.City,
                         LaundryName = laun.LaundryName,
-                        Status = sta.StatusName
+                        Status = sta.StatusName,
+                        PickupDriverId = ord.PickupDriverId,
+                        DeliveryDriverId = ord.DeliveryDriverId,
+                        StatusId = ord.StatusId,
                     }
                 ).ToListAsync();
 
-                // Map contacts in-memory for each order
-                var result = new List<CompleteTasksDetailsDto>();
+                if (baseOrders == null || !baseOrders.Any())
+                {
+                    return new List<CompleteTasksDetailsDto>(); // Return empty list, not null
+                }
 
-                foreach (var order in baseOrders)
+                var allPickupsRecords = baseOrders
+                    .Where(o => o.PickupDriverId == driverId &&
+                                (o.StatusId != statusPlaced && o.StatusId != statusPickedUp))
+                    .ToList();
+
+                var allDeliveriesRecords = baseOrders
+                    .Where(o => o.DeliveryDriverId == driverId &&
+                                (o.StatusId != finishedProcessing && o.StatusId != outDelivery))
+                    .ToList();
+
+                var pickupsResult = new List<CompleteTasksDetailsDto>();
+                foreach (var order in allPickupsRecords)
                 {
                     var contacts = await _context.Contacts
                         .Where(c => c.UserId == order.CustomerId && c.UserType == "Customer")
                         .Select(c => c.ContactNumber)
                         .ToListAsync();
 
-                    result.Add(new CompleteTasksDetailsDto
+                    // contacts will never be null, only empty if no records
+                    pickupsResult.Add(new CompleteTasksDetailsDto
                     {
                         OrderId = order.OrderId,
                         CustomerId = order.CustomerId,
@@ -62,13 +93,37 @@ namespace FreshlyBackendNew.Services.Implementations
                     });
                 }
 
-                return result;
+                var deliveriesResult = new List<CompleteTasksDetailsDto>();
+                foreach (var order in allDeliveriesRecords)
+                {
+                    var contacts = await _context.Contacts
+                        .Where(c => c.UserId == order.CustomerId && c.UserType == "Customer")
+                        .Select(c => c.ContactNumber)
+                        .ToListAsync();
+
+                    deliveriesResult.Add(new CompleteTasksDetailsDto
+                    {
+                        OrderId = order.OrderId,
+                        CustomerId = order.CustomerId,
+                        CustomerName = order.CustomerName,
+                        Address = order.Address,
+                        LaundryName = order.LaundryName,
+                        Status = order.Status,
+                        Contact = contacts
+                    });
+                }
+
+                var combinedResult = pickupsResult.Concat(deliveriesResult).ToList();
+
+                return combinedResult;  // Return the actual combined data
             }
             catch (Exception ex)
             {
+                // Optional: log exception here
                 throw new Exception("An error occurred while retrieving completed tasks.", ex);
             }
         }
+
 
         /// <summary>
         /// Get detailed info for a specific completed task.

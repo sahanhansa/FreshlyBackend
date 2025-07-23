@@ -122,7 +122,14 @@ namespace FreshlyBackendNew.Services.Implementations
                 if (admin == null || !BCrypt.Net.BCrypt.Verify(loginData.Password, admin.Password))
                     return null;
 
-                string token = GenerateJwtToken(admin.AdminId.ToString(), admin.Username ?? string.Empty, new Dictionary<string, string>());
+                string token = GenerateJwtToken(
+                    admin.AdminId.ToString(),
+                    admin.Username ?? string.Empty,
+                    new Dictionary<string, string>
+                    {
+                        { ClaimTypes.Role, admin.Role } // <-- Add role claim for JWT
+                    }
+                );
                 return new AuthResponse
                 {
                     Token = token,
