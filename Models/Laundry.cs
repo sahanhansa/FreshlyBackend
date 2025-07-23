@@ -20,7 +20,7 @@ namespace FreshlyBackendNew.Models
         public string? Password { get; set; }
         public string? Email { get; set; }
         public string AccountStatus { get; set; } = "active";
-        public string LaundryImageLink { get; set; }
+        public string? LaundryImageLink { get; set; }
 
         // Foreign Keys
         public Guid? AddressId { get; set; }
@@ -38,6 +38,5 @@ namespace FreshlyBackendNew.Models
         public ICollection<Feedback>? Feedbacks { get; set; }
         //public virtual ICollection<Contact>? Contacts { get; set; }
 
-        public string? LaundryImageLink { get; set; }
     }
 }
