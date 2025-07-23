@@ -159,7 +159,7 @@ namespace FreshlyBackendNew.Services
                     noteDetails.Note = markOrderDto.Note;
                 }
 
-                var status = await _context.Statuses.FirstOrDefaultAsync(d => d.StatusName == "order picked up ");
+                var status = await _context.Statuses.FirstOrDefaultAsync(d => d.StatusName == "order picked up");
                 if (status == null)
                 {
                     throw new Exception("Status 'order picked up' not found.");

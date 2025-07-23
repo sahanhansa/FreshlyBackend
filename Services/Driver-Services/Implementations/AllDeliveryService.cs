@@ -1,6 +1,7 @@
 ﻿using FreshlyBackendNew.Data;
 using FreshlyBackendNew.DTOs;
 using FreshlyBackendNew.Models;
+using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace FreshlyBackendNew.Services
@@ -8,11 +9,13 @@ namespace FreshlyBackendNew.Services
     public class AllDeliveryService : IAllDeliveryService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IOrderDetailService _orderDetailService;
 
         // Constructor with dependency injection for the database context
-        public AllDeliveryService(ApplicationDbContext context)
+        public AllDeliveryService(ApplicationDbContext context, IOrderDetailService orderDetailService)
         {
             _context = context;
+            _orderDetailService = orderDetailService;
         }
 
         // Retrieves a list of all deliveries where the status is either "Delivery Complete" or "Delivery Pending"
@@ -76,6 +79,8 @@ namespace FreshlyBackendNew.Services
                         Status = sta.StatusName,
                         DeliverDriver=ord.DeliveryDriverId,
                         note=note.Note,
+                        PaymenthMethod=ord.PaymentMethod,
+                        IsPaid=ord.IsPaid,
 
                         // Fetching all contact numbers related to the customer
                         Contact = _context.Contacts
@@ -98,6 +103,10 @@ namespace FreshlyBackendNew.Services
                     })
                     .FirstOrDefaultAsync();
 
+                var orderDetails = await _orderDetailService.GetOrderDetailsAsync(deliveryDetails.OrderId);
+
+                deliveryDetails.TotalAmount = orderDetails.TotalAmount;
+
                 return deliveryDetails;
             }
             catch (Exception ex)
@@ -111,47 +120,52 @@ namespace FreshlyBackendNew.Services
         {
             try
             {
+                // Fetch order
                 var order = await _context.Orders
-                    .FirstOrDefaultAsync(d => d.OrderId == markOrderDto.OrderId);
+                    .FirstOrDefaultAsync(o => o.OrderId == markOrderDto.OrderId);
 
                 if (order == null)
-                {
-                    throw new Exception($"Order with ID {markOrderDto.OrderId} not found.");
-                }
+                    throw new InvalidOperationException($"Order with ID {markOrderDto.OrderId} not found.");
 
-                var noteDetails = await _context.DriverNotes
-                    .FirstOrDefaultAsync(d => d.OrderId == markOrderDto.OrderId);
+                // Find or create driver note
+                var note = await _context.DriverNotes
+                    .FirstOrDefaultAsync(n => n.OrderId == markOrderDto.OrderId);
 
-                if (noteDetails == null)
+                if (note == null)
                 {
-                    noteDetails = new DriverNote
+                    note = new DriverNote
                     {
                         OrderId = markOrderDto.OrderId,
                         DriverId = markOrderDto.DriverId,
                         Note = markOrderDto.Note
                     };
-                    _context.DriverNotes.Add(noteDetails);
+                    await _context.DriverNotes.AddAsync(note);
                 }
                 else
                 {
-                    noteDetails.Note = markOrderDto.Note;
-                }
-                
-                var statusDetails = await _context.Statuses
-                    .FirstOrDefaultAsync(d => d.StatusName == "delivered");
-
-                if (statusDetails == null)
-                {
-                    throw new Exception("Status 'delivered' not found.");
+                    note.Note = markOrderDto.Note;
                 }
 
-                order.StatusId = statusDetails.StatusID;
+                // Update payment status if needed
+                if (!order.IsPaid)
+                    order.IsPaid = true;
 
+                // Update order status to delivered
+                var deliveredStatus = await _context.Statuses
+                    .FirstOrDefaultAsync(s => s.StatusName == "delivered");
+
+                if (deliveredStatus == null)
+                    throw new InvalidOperationException("Status 'delivered' not found.");
+
+                order.StatusId = deliveredStatus.StatusID;
+
+                // Save all
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while marking the order as delivered.", ex);
+                // Add the original exception to help debugging
+                throw new ApplicationException("An error occurred while marking the order as delivered.", ex);
             }
         }
 

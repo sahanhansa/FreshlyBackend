@@ -15,17 +15,22 @@ namespace FreshlyBackendNew.Controllers
         private readonly IAuthService _auth;
         private readonly ApplicationDbContext _context;
         private readonly IEmailService _email;
+        private readonly IFileStorageService _fileStorageService;
 
-        public AuthController(IAuthService auth, ApplicationDbContext context, IEmailService email)
+
+        public AuthController(IAuthService auth, ApplicationDbContext context, IEmailService email, IFileStorageService fileStorageService)
         {
             _auth = auth;
             _context = context;
             _email = email;
+            _fileStorageService = fileStorageService;
         }
 
         [HttpPost("customer/register")]
-        public async Task<IActionResult> CustomerRegister([FromBody] CustomerRegisterDTO data)
+        public async Task<IActionResult> CustomerRegister([FromForm] CustomerRegisterDTO data)
         {
+           
+
             try
             {
                 if (await _auth.IsUsernameTakenAsync(data.Username))
@@ -36,6 +41,11 @@ namespace FreshlyBackendNew.Controllers
                 if (await _context.Customers.AnyAsync(c => c.Email == data.Email))
                 {
                     return BadRequest(new { Error = "Email already exists" });
+                }
+                string imageUrl = null;
+                if (data.ProfileImage != null && data.ProfileImage.Length > 0)
+                {
+                    imageUrl = await _fileStorageService.UploadFileAsync(data.ProfileImage, "driver-profile-images");
                 }
 
                 var address = new Address
@@ -54,6 +64,7 @@ namespace FreshlyBackendNew.Controllers
                     Username = data.Username,
                     Password = BCrypt.Net.BCrypt.HashPassword(data.Password),
                     Email = data.Email,
+                    CustomerImageLink = imageUrl,
                     Address = address
                 };
                 await _context.Customers.AddAsync(customer);
@@ -170,7 +181,7 @@ namespace FreshlyBackendNew.Controllers
         }
 
         [HttpPost("laundry-owner/register")]
-        public async Task<IActionResult> LaundryOwnerRegister([FromBody] LaundryOwnerRegisterDTO data)
+        public async Task<IActionResult> LaundryOwnerRegister([FromForm] LaundryOwnerRegisterDTO data)
         {
             try
             {
@@ -187,6 +198,12 @@ namespace FreshlyBackendNew.Controllers
                 if (await _context.Owners.AnyAsync(o => o.Email == data.OwnerEmail))
                 {
                     return BadRequest(new { Error = "Owner email already exists" });
+                }
+
+                string imageUrl = null;
+                if (data.ProfileImage != null && data.ProfileImage.Length > 0)
+                {
+                    imageUrl = await _fileStorageService.UploadFileAsync(data.ProfileImage, "driver-profile-images");
                 }
 
                 // Step 1: Save Owner Details
@@ -236,7 +253,8 @@ namespace FreshlyBackendNew.Controllers
                     Email = data.Email,
                     Address = laundryAddress,
                     OwnerId = owner.OwnerId, // Use the saved OwnerId
-                    AccountStatus = "Not active"
+                    AccountStatus = "Inctive",   
+                    LaundryImageLink = imageUrl
                 };
                 await _context.Laundries.AddAsync(laundry);
 
@@ -310,6 +328,8 @@ namespace FreshlyBackendNew.Controllers
                     Street = customer.Address?.Street,
                     City = customer.Address?.City,
                     PostalCode = customer.Address?.PostalCode,
+                    ProfileImage = customer.CustomerImageLink
+
                 });
             }
             catch (Exception ex)
