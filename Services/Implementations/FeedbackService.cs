@@ -135,7 +135,8 @@ public class FeedbackService : IFeedbackService
                     Rating = f.Rating,
                     LaundryId = f.LaundryId,
                     LaundryName = f.Laundry != null ? f.Laundry.LaundryName : null,
-                    SubmittedByType = f.SubmittedByType // Map SubmittedByType from entity
+                    SubmittedByType = f.SubmittedByType, // Map SubmittedByType from entity
+                    UserId = f.UserId // Map UserId from entity
                 };
 
                 // Get customer info from order if available
