@@ -253,7 +253,7 @@ namespace FreshlyBackendNew.Controllers
                     Email = data.Email,
                     Address = laundryAddress,
                     OwnerId = owner.OwnerId, // Use the saved OwnerId
-                    AccountStatus = "Not active",
+                    AccountStatus = "Inctive",   
                     LaundryImageLink = imageUrl
                 };
                 await _context.Laundries.AddAsync(laundry);
