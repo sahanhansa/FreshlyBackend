@@ -427,6 +427,17 @@ namespace FreshlyBackendNew.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+     
+
+           //GET /api/order/count-by-status/{laundryId}/{statusId}
+            [HttpGet("count-by-status/{laundryId}/{statusId}")]
+            public async Task<ActionResult<int>> GetOrderCountByStatus(Guid laundryId, Guid statusId)
+            {
+                var count = await _orderService.GetOrderCountByStatusAsync(laundryId, statusId);
+                return Ok(count);
+            }
+        }
+
 
     }
-}
+

@@ -756,6 +756,13 @@ public async Task<List<OrderDTO>> GetFilteredOrdersAsync(Guid laundryId)
     return result;
 }
 
+public async Task<int> GetOrderCountByStatusAsync(Guid laundryId, Guid statusId)
+{
+    return await _context.Orders
+        .CountAsync(o => o.LaundryId == laundryId && o.StatusId == statusId);
+}
+
+
 
     }
 }
