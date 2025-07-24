@@ -21,6 +21,7 @@ namespace FreshlyBackendNew.Services.Interfaces
 
         Task<int> GetOrderCountByStatusAsync(Guid laundryId, Guid statusId);
 
+        Task<SortedOrderIdsResponseDTO> GetSortedOrderIdsAsync(Guid laundryId);
 
 
     }

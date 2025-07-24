@@ -55,4 +55,8 @@ namespace FreshlyBackendNew.DTOs.Order_DTOs
         public Guid? GarmentTypeId { get; set; }
         public string? GarmentTypeName { get; set; }
     }
+    
+    
+   
+
 }

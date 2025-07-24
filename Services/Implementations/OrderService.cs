@@ -805,6 +805,16 @@ public async Task<int> GetOrderCountByStatusAsync(Guid laundryId, Guid statusId)
         .CountAsync(o => o.LaundryId == laundryId && o.StatusId == statusId);
 }
 
+        public async Task<SortedOrderIdsResponseDTO> GetSortedOrderIdsAsync(Guid laundryId)
+        {
+            var orderIds = await _context.Orders
+                .Where(o => o.LaundryId == laundryId)
+                .OrderByDescending(o => o.PlacedAt)
+                .Select(o => o.OrderId)
+                .ToListAsync();
+
+            return new SortedOrderIdsResponseDTO { OrderIds = orderIds };
+        }
 
 
     }

@@ -79,5 +79,19 @@ namespace FreshlyBackendNew.DTOs
         public Guid UserId { get; set; }
         public string? Username { get; set; }
     }
+    
+    namespace FreshlyBackendNew.DTOs
+    {
+        public class SortedOrderIdDTO
+        {
+            public Guid OrderId { get; set; }
+        }
+    }
+
+    public class SortedOrderIdsResponseDTO
+    {
+        public List<Guid> OrderIds { get; set; } = new List<Guid>();
+    }
+
 
 }
