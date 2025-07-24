@@ -3,40 +3,49 @@ using Microsoft.Extensions.Configuration;
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
 
 namespace FreshlyBackendNew.Services.Implementations
 {
     public class EmailService : IEmailService
     {
-        private readonly IConfiguration _config;
+        private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _environment;
 
-        public EmailService(IConfiguration config)
+        public EmailService(IConfiguration configuration, IWebHostEnvironment environment)
         {
-            _config = config;
+            _configuration = configuration;
+            _environment = environment;
         }
 
-        public async Task SendEmailAsync(string to, string subject, string body)
+        public async Task SendEmailAsync(string toEmail, string subject, string body, bool isHtml = false)
         {
-            var smtpClient = new SmtpClient(_config["Email:SmtpHost"])
+            var emailSettings = _configuration.GetSection("EmailSettings");
+
+            var smtpClient = new SmtpClient(emailSettings["SmtpServer"])
             {
-                Port = int.Parse(_config["Email:SmtpPort"]),
-                Credentials = new NetworkCredential(
-                    _config["Email:Username"],
-                    _config["Email:Password"]
-                ),
+                Port = int.Parse(emailSettings["Port"]),
+                Credentials = new NetworkCredential(emailSettings["Username"], emailSettings["Password"]),
                 EnableSsl = true,
             };
 
-            var mail = new MailMessage
+            var mailMessage = new MailMessage
             {
-                From = new MailAddress(_config["Email:From"]),
+                From = new MailAddress(emailSettings["SenderEmail"], emailSettings["SenderName"]),
                 Subject = subject,
                 Body = body,
-                IsBodyHtml = false
+                IsBodyHtml = isHtml,
             };
-            mail.To.Add(to);
+            mailMessage.To.Add(toEmail);
 
-            await smtpClient.SendMailAsync(mail);
+            await smtpClient.SendMailAsync(mailMessage);
+        }
+
+        public async Task<string> GetEmailTemplateAsync(string templateName)
+        {
+            var templatePath = Path.Combine(_environment.WebRootPath, "EmailTemplates", templateName);
+            return await File.ReadAllTextAsync(templatePath);
         }
     }
 }

@@ -230,7 +230,7 @@ namespace FreshlyBackendNew.Controllers
 
                 // Get customer contact numbers
                 var contactNumbers = await _context.Contacts
-                    .Where(c => c.UserId == order.Customer.CustomerId && c.UserType == "Customer")
+                    .Where(c => c.UserId == (Guid?)order.Customer.CustomerId && c.UserType == "Customer")
                     .Select(c => c.ContactNumber)
                     .ToListAsync();
 
@@ -312,7 +312,7 @@ namespace FreshlyBackendNew.Controllers
 
             // Get customer contact numbers
             var contactNumbers = await _context.Contacts
-                .Where(c => c.UserId == order.Customer.CustomerId && c.UserType == "Customer")
+                .Where(c => c.UserId == order.CustomerId && c.UserType == "Customer")
                 .Select(c => c.ContactNumber)
                 .ToListAsync();
 
@@ -369,6 +369,44 @@ namespace FreshlyBackendNew.Controllers
                 customerName,
                 customerContactNumbers = contactNumbers
             });
+        }
+        
+        [HttpGet("get-email-details/{laundryId}/{orderId}")]
+        public async Task<IActionResult> GetEmailDetails(Guid laundryId, Guid orderId)
+        {
+            // Find the order and related customer/laundry info
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.Laundry)
+                .Include(o => o.Status)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId && o.LaundryId == laundryId);
+            if (order == null)
+            {
+                return NotFound($"Order with ID {orderId} not found for laundry {laundryId}.");
+            }
+
+            var totalAmount = await _orderDetailService.CalculateOrderTotalAsync(orderId);
+
+            var orderDetails = await _orderDetailService.GetOrderDetailsAsync(orderId);
+            var items = orderDetails.Items.Select(i => new DTOs.Order_DTOs.EmailDetailsDto.ItemDetailsDto
+            {
+                ItemName = i.ItemName,
+                GarmentTypeName = i.GarmentTypeName,
+                Quantity = i.Quantity,
+                Price = i.Price
+            }).ToList();
+
+            var dto = new DTOs.Order_DTOs.EmailDetailsDto
+            {
+                CustomerEmail = order.Customer?.Email,
+                CustomerName = order.Customer != null ? $"{order.Customer.FirstName} {order.Customer.LastName}" : null,
+                OrderId = order.OrderId,
+                LaundryId = order.LaundryId ?? Guid.Empty,
+                LaundryName = order.Laundry?.LaundryName,
+                TotalAmount = totalAmount,
+                Items = items
+            };
+            return Ok(dto);
         }
         
         }
