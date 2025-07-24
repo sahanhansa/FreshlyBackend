@@ -109,6 +109,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IOrderDetailService, OrderDetailService>();
 builder.Services.AddScoped<IDriverContactService, DriverContactService>();
 builder.Services.AddScoped<IDriverProfileService, DriverProfileService>();
+builder.Services.AddScoped<IBasicService, BasicService>();
 
 // Add controller services with improved JSON handling
 builder.Services.AddControllers()
