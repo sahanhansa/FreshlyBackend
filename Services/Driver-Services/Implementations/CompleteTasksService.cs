@@ -4,6 +4,7 @@ using FreshlyBackendNew.DTOs.Driver_DTOs;
 using FreshlyBackendNew.Models;
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 
 namespace FreshlyBackendNew.Services.Implementations
 {
@@ -56,8 +57,8 @@ namespace FreshlyBackendNew.Services.Implementations
                         Address = addr.HouseNo + " " + addr.Street + ", " + addr.City,
                         LaundryName = laun.LaundryName,
                         Status = sta.StatusName,
-                        PickupDriverId = ord.PickupDriverId,
-                        DeliveryDriverId = ord.DeliveryDriverId,
+                        PickupDriverId = ord.PickupDriverId ?? null,
+                        DeliveryDriverId = ord.DeliveryDriverId ?? ord.PickupDriverId ?? null,
                         StatusId = ord.StatusId,
                     }
                 ).ToListAsync();
@@ -93,7 +94,10 @@ namespace FreshlyBackendNew.Services.Implementations
                         Address = order.Address,
                         LaundryName = order.LaundryName,
                         Status = order.Status,
-                        Contact = contacts
+                        Contact = contacts,
+                        PickupDriverId = order.PickupDriverId
+
+
                     });
                 }
 
@@ -113,7 +117,9 @@ namespace FreshlyBackendNew.Services.Implementations
                         Address = order.Address,
                         LaundryName = order.LaundryName,
                         Status = order.Status,
-                        Contact = contacts
+                        Contact = contacts,
+                        DeliveryDriverId=order.DeliveryDriverId
+                        
                     });
                 }
 

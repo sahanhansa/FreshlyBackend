@@ -330,5 +330,19 @@ namespace FreshlyBackendNew.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+        [HttpPost("generate-reports/{orderId}")]
+        public async Task<IActionResult> GenerateAppointmentReport(Guid orderId)
+        {
+            try
+            {
+                var pdfBytes = await _driverProfileService.GeneratePdfReport(orderId);
+                return File(pdfBytes, "application/pdf",
+                    $"OrderReport_{DateTime.Now:yyyyMMddHHmmss}.pdf");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }

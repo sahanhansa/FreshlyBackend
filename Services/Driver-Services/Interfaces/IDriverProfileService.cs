@@ -11,5 +11,6 @@ namespace FreshlyBackendNew.Services.Interfaces
         Task<string> UpdatePassword(UpdatePasswordDto dto); 
         Task<DriverReportDto> DriverReportDash(Guid driverId);
         Task<decimal> DriverReportRevenue(Guid driverId);
+        Task<byte[]> GeneratePdfReport(Guid orderId);
     }
 }

@@ -13,8 +13,8 @@
         public List<string> Contact { get; set; }
 
         public string LaundryName { get; set; }
-        public Guid DeliveryDriverId { get; set; }
-        public Guid PickupDriverId { get; set; }
+        public Guid? DeliveryDriverId { get; set; }
+        public Guid? PickupDriverId { get; set; }
 
     }
 }
