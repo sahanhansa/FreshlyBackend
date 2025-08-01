@@ -18,15 +18,15 @@ namespace FreshlyBackendNew.Controllers
     
         private readonly IFeedbackService _feedbackService;
         private readonly ApplicationDbContext _context;
-        private readonly EmailService _emailService;
+        private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
 
-        public FeedbackController(IFeedbackService feedbackService, ApplicationDbContext context, IConfiguration configuration)
+        public FeedbackController(IFeedbackService feedbackService, ApplicationDbContext context, IConfiguration configuration, IEmailService emailService)
         {
             _feedbackService = feedbackService;
             _context = context;
             _configuration = configuration;
-            _emailService = new EmailService(configuration);
+            _emailService = emailService;
         }
 
         private Guid GetLaundryIdFromToken()

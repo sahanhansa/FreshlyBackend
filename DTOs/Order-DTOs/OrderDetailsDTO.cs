@@ -40,6 +40,8 @@ namespace FreshlyBackendNew.DTOs.Order_DTOs
         public Guid ItemId { get; set; }
         public Guid ServiceId { get; set; }
         public string? ServiceName { get; set; }
+        public Guid? GarmentTypeId { get; set; }
+        public string? GarmentTypeName { get; set; }
     }
     
     public class ModifiedItemDTO
@@ -50,5 +52,11 @@ namespace FreshlyBackendNew.DTOs.Order_DTOs
         public Guid ItemId { get; set; }
         public Guid ServiceId { get; set; }
         public string? ServiceName { get; set; }
+        public Guid? GarmentTypeId { get; set; }
+        public string? GarmentTypeName { get; set; }
     }
+    
+    
+   
+
 }
