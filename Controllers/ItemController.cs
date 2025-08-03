@@ -62,11 +62,39 @@ namespace FreshlyBackendNew.Controllers
         [HttpPut("update-item/{itemId}/{laundryId}")]
         public async Task<IActionResult> UpdateItem(Guid itemId, Guid laundryId, [FromBody] UpdateItemDTO itemDto)
         {
-            var result = await _itemService.UpdateItemAsync(itemId, itemDto, laundryId);
-            if (!result)
-                return Unauthorized("You cannot update this item or item not found.");
+            try
+            {
+                // Validate input
+                if (itemDto == null)
+                {
+                    return BadRequest("Item data is required.");
+                }
 
-            return Ok("Item updated successfully.");
+                if (itemDto.GarmentTypes == null || !itemDto.GarmentTypes.Any())
+                {
+                    return BadRequest("At least one garment type with services is required.");
+                }
+
+                // Validate that each garment type has services
+                foreach (var garmentType in itemDto.GarmentTypes)
+                {
+                    if (garmentType.Services == null || !garmentType.Services.Any())
+                    {
+                        return BadRequest($"Garment type {garmentType.GarmentTypeId} must have at least one service.");
+                    }
+                }
+
+                var result = await _itemService.UpdateItemAsync(itemId, itemDto, laundryId);
+                if (!result)
+                    return Unauthorized("You cannot update this item or item not found.");
+
+                return Ok("Item updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in UpdateItem: {ex.Message}");
+                return StatusCode(500, $"An error occurred while updating the item: {ex.Message}");
+            }
         }
 
         
@@ -109,9 +137,26 @@ namespace FreshlyBackendNew.Controllers
         {
             if (string.IsNullOrWhiteSpace(name))
                 return BadRequest("Garment type name is required.");
+            
             var garmentTypeId = await _itemService.GetGarmentTypeIdByNameAsync(name);
             if (garmentTypeId == null)
-                return NotFound($"Garment type '{name}' not found.");
+            {
+                // Automatically create the garment type if it doesn't exist
+                var addGarmentTypeDto = new AddGarmentTypeDTO { Name = name };
+                var (success, message) = await _itemService.AddGarmentTypeAsync(addGarmentTypeDto);
+                
+                if (success)
+                {
+                    // Get the newly created garment type ID
+                    garmentTypeId = await _itemService.GetGarmentTypeIdByNameAsync(name);
+                    return Ok(new { garmentTypeId, message = "Garment type created successfully" });
+                }
+                else
+                {
+                    return Ok(new { garmentTypeId = false, message });
+                }
+            }
+            
             return Ok(new { garmentTypeId });
         }
 

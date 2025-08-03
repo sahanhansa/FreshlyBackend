@@ -250,12 +250,12 @@ namespace FreshlyBackendNew.Services.Implementations
                 decimal totalCost = 0;
                 if (orderDetailsLookup.TryGetValue(o.OrderId, out var orderDetails))
                 {
-                    foreach (var detail in orderDetails)
-                    {
+                foreach (var detail in orderDetails)
+                {
                         var key = new { LaundryId = o.LaundryId, ItemId = detail.ItemId, ServiceId = detail.ServiceId };
                         if (pricingLookup.TryGetValue(key, out var price))
                         {
-                            totalCost += price * (detail.Quantity ?? 0);
+                    totalCost += price * (detail.Quantity ?? 0);
                         }
                     }
                 }
@@ -792,13 +792,13 @@ public async Task<List<OrderDTO>> GetFilteredOrdersAsync(Guid laundryId)
         decimal totalCost = 0;
         if (orderDetailsLookup.TryGetValue(o.OrderId, out var orderDetails))
         {
-            foreach (var detail in orderDetails)
-            {
+        foreach (var detail in orderDetails)
+        {
                 var key = new { ItemId = detail.ItemId, ServiceId = detail.ServiceId };
                 if (pricingLookup.TryGetValue(key, out var price))
                 {
-                    totalCost += price * (detail.Quantity ?? 0);
-                }
+            totalCost += price * (detail.Quantity ?? 0);
+        }
             }
         }
         dto.TotalCost = totalCost;
