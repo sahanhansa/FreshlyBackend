@@ -2,8 +2,8 @@
 {
     public class UpdatePasswordDto
     {
+        public Guid DriverId { get; set; }
         public string CurrentPassword { get; set; }
         public string NewPassword { get; set; }
-        public Guid DriverId { get; set; }
     }
 }

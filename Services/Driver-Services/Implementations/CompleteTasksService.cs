@@ -4,6 +4,7 @@ using FreshlyBackendNew.DTOs.Driver_DTOs;
 using FreshlyBackendNew.Models;
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 
 namespace FreshlyBackendNew.Services.Implementations
 {
@@ -25,6 +26,8 @@ namespace FreshlyBackendNew.Services.Implementations
             {
                 var statuses = await _context.Statuses.ToListAsync();
 
+                var basket = statuses.FirstOrDefault(s => s.StatusName == "order in basket")?.StatusID
+                    ?? throw new InvalidOperationException("Status 'order in basket' not found.");
                 var statusPlaced = statuses.FirstOrDefault(s => s.StatusName == "order placed")?.StatusID
                     ?? throw new InvalidOperationException("Status 'order placed' not found.");
 
@@ -36,6 +39,9 @@ namespace FreshlyBackendNew.Services.Implementations
 
                 var outDelivery = statuses.FirstOrDefault(s => s.StatusName == "out for delivery")?.StatusID
                     ?? throw new InvalidOperationException("Status 'out for delivery' not found.");
+
+                var delivered = statuses.FirstOrDefault(s => s.StatusName == "delivered")?.StatusID
+                    ?? throw new InvalidOperationException("Status 'delivered' not found.");
 
                 var baseOrders = await (
                     from ord in _context.Orders
@@ -51,8 +57,8 @@ namespace FreshlyBackendNew.Services.Implementations
                         Address = addr.HouseNo + " " + addr.Street + ", " + addr.City,
                         LaundryName = laun.LaundryName,
                         Status = sta.StatusName,
-                        PickupDriverId = ord.PickupDriverId,
-                        DeliveryDriverId = ord.DeliveryDriverId,
+                        PickupDriverId = ord.PickupDriverId ?? null,
+                        DeliveryDriverId = ord.DeliveryDriverId ?? ord.PickupDriverId ?? null,
                         StatusId = ord.StatusId,
                     }
                 ).ToListAsync();
@@ -64,12 +70,11 @@ namespace FreshlyBackendNew.Services.Implementations
 
                 var allPickupsRecords = baseOrders
                     .Where(o => o.PickupDriverId == driverId &&
-                                (o.StatusId != statusPlaced && o.StatusId != statusPickedUp))
+                                (o.StatusId != statusPlaced && o.StatusId != statusPickedUp && o.StatusId != basket))
                     .ToList();
 
                 var allDeliveriesRecords = baseOrders
-                    .Where(o => o.DeliveryDriverId == driverId &&
-                                (o.StatusId != finishedProcessing && o.StatusId != outDelivery))
+                    .Where(o => o.DeliveryDriverId == driverId &&  o.StatusId == delivered)
                     .ToList();
 
                 var pickupsResult = new List<CompleteTasksDetailsDto>();
@@ -89,7 +94,10 @@ namespace FreshlyBackendNew.Services.Implementations
                         Address = order.Address,
                         LaundryName = order.LaundryName,
                         Status = order.Status,
-                        Contact = contacts
+                        Contact = contacts,
+                        PickupDriverId = order.PickupDriverId
+
+
                     });
                 }
 
@@ -109,7 +117,9 @@ namespace FreshlyBackendNew.Services.Implementations
                         Address = order.Address,
                         LaundryName = order.LaundryName,
                         Status = order.Status,
-                        Contact = contacts
+                        Contact = contacts,
+                        DeliveryDriverId=order.DeliveryDriverId
+                        
                     });
                 }
 
