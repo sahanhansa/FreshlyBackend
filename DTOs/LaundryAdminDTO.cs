@@ -14,6 +14,7 @@ namespace FreshlyBackendNew.DTOs
         public int TotalOrders { get; set; }
         public int FeedbackCount { get; set; }
         public string? AccountStatus { get; set; }
+        public string? ProfilePic { get; set; } // S3 profile image URL
     }
 
     public class CreateLaundryAccountDTO

@@ -74,10 +74,12 @@ public class FeedbackService : IFeedbackService
    {
        try
        {
+           var statusIdFilter = new Guid("b8dfb7de-5f5e-11f0-8064-0022481a06a0");
            var feedbacks = await _context.Feedbacks
                .Include(f => f.Order)
                .ThenInclude(o => o.Customer)
-               .Where(f => f.LaundryId == laundryId || (f.Order != null && f.Order.LaundryId == laundryId))
+               .Where(f => (f.LaundryId == laundryId || (f.Order != null && f.Order.LaundryId == laundryId))
+                   && f.Order != null && f.Order.StatusId == statusIdFilter)
                .ToListAsync();
 
            var result = new List<FeedbackDTO>();
@@ -92,7 +94,10 @@ public class FeedbackService : IFeedbackService
                    LaundryId = f.LaundryId,
                    CustomerId = f.Order?.CustomerId,
                    CustomerFName = f.Order?.Customer?.FirstName ?? "Unknown",
-                   CustomerLName = f.Order?.Customer?.LastName ?? "Unknown"
+                   CustomerLName = f.Order?.Customer?.LastName ?? "Unknown",
+                   // Add OrderId to the response
+                   OrderId = f.OrderId,
+                   StatusId = f.Order?.StatusId
                };
                
                // Set customer name
@@ -135,7 +140,8 @@ public class FeedbackService : IFeedbackService
                     Rating = f.Rating,
                     LaundryId = f.LaundryId,
                     LaundryName = f.Laundry != null ? f.Laundry.LaundryName : null,
-                    SubmittedByType = f.SubmittedByType // Map SubmittedByType from entity
+                    SubmittedByType = f.SubmittedByType, // Map SubmittedByType from entity
+                    UserId = f.UserId // Map UserId from entity
                 };
 
                 // Get customer info from order if available

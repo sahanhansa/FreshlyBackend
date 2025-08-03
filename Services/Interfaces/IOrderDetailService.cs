@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FreshlyBackendNew.DTOs;
 
 namespace FreshlyBackendNew.Services.Interfaces
 {
@@ -18,6 +19,8 @@ namespace FreshlyBackendNew.Services.Interfaces
 
         //completed
         Task<List<OrderDetailsDTO>> GetCompletedOrdersForCustomerAsync(Guid customerId);
+        
+        
 
     }
 }

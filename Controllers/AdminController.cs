@@ -16,12 +16,14 @@ namespace FreshlyBackendNew.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ILogger<AdminController> _logger;
         private readonly IAuthService _authService;
+        private readonly IFileStorageService _fileStorageService;
 
-        public AdminController(ApplicationDbContext context, ILogger<AdminController> logger, IAuthService authService)
+        public AdminController(ApplicationDbContext context, ILogger<AdminController> logger, IAuthService authService, IFileStorageService fileStorageService)
         {
             _context = context;
             _logger = logger;
             _authService = authService;
+            _fileStorageService = fileStorageService;
         }
 
         // GET: api/Admin
@@ -37,12 +39,16 @@ namespace FreshlyBackendNew.Controllers
                 {
                     AdminId = a.AdminId.ToString(),
                     Username = a.Username,
+                    Password = null, // Never return the password hash!
                     FirstName = a.FirstName,
                     LastName = a.LastName,
                     Email = a.Email,
                     Role = a.Role,
                     CreatedAt = a.CreatedAt,
-                    LastLogin = a.LastLogin
+                    LastLogin = a.LastLogin,
+                    PasswordResetToken = a.PasswordResetToken,
+                    PasswordResetExpiry = a.PasswordResetExpiry,
+                    LaundryImageLink = a.LaundryImageLink // Include profile image link
                 }));
             }
             catch (Exception ex)
@@ -80,7 +86,8 @@ namespace FreshlyBackendNew.Controllers
                     Email = admin.Email,
                     Role = admin.Role,
                     CreatedAt = admin.CreatedAt,
-                    LastLogin = admin.LastLogin
+                    LastLogin = admin.LastLogin,
+                    LaundryImageLink = admin.LaundryImageLink // Include profile image link
                 });
             }
             catch (Exception ex)
@@ -93,7 +100,7 @@ namespace FreshlyBackendNew.Controllers
         // POST: api/Admin
         [HttpPost]
         [Authorize(Roles = "SuperAdmin")]
-        public async Task<ActionResult<AdminDTO>> CreateAdmin(AdminDTO adminDTO)
+        public async Task<ActionResult<AdminDTO>> CreateAdmin([FromForm] CreateAdminRequestDTO adminDTO, IFormFile profileImage)
         {
             try
             {
@@ -102,21 +109,32 @@ namespace FreshlyBackendNew.Controllers
                     return BadRequest(new { Error = "Username and password are required" });
                 }
 
-                // Check if the username is already taken
+                // Check if the username or email is already taken
                 if (await _context.Admins.AnyAsync(a => a.Username == adminDTO.Username))
                 {
                     return Conflict(new { Error = "Username already exists" });
+                }
+                if (!string.IsNullOrEmpty(adminDTO.Email) && await _context.Admins.AnyAsync(a => a.Email == adminDTO.Email))
+                {
+                    return Conflict(new { Error = "Email already exists" });
+                }
+
+                string imageUrl = null;
+                if (profileImage != null && profileImage.Length > 0)
+                {
+                    imageUrl = await _fileStorageService.UploadFileAsync(profileImage, "admin-profile-images");
                 }
 
                 var admin = new Admin
                 {
                     Username = adminDTO.Username,
-                    Password = BCrypt.Net.BCrypt.HashPassword(adminDTO.Password), // Hash the password
+                    Password = BCrypt.Net.BCrypt.HashPassword(adminDTO.Password),
                     FirstName = adminDTO.FirstName,
                     LastName = adminDTO.LastName,
                     Email = adminDTO.Email,
                     Role = adminDTO.Role ?? "Admin",
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow,
+                    LaundryImageLink = imageUrl
                 };
 
                 _context.Admins.Add(admin);
@@ -134,7 +152,8 @@ namespace FreshlyBackendNew.Controllers
                         LastName = admin.LastName,
                         Email = admin.Email,
                         Role = admin.Role,
-                        CreatedAt = admin.CreatedAt
+                        CreatedAt = admin.CreatedAt,
+                        LaundryImageLink = admin.LaundryImageLink
                     }
                 );
             }
@@ -251,6 +270,32 @@ namespace FreshlyBackendNew.Controllers
                 _logger.LogError(ex, $"Error deleting admin with ID {id}");
                 return StatusCode(500, new { Error = "An error occurred while deleting the admin" });
             }
+        }
+
+        // DELETE: api/Admin/delete-if-not-superadmin/{id}
+        [HttpDelete("delete-if-not-superadmin/{id}")]
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> DeleteAdminIfNotSuperAdmin(string id)
+        {
+            if (!Guid.TryParse(id, out Guid adminId))
+            {
+                return BadRequest(new { Error = "Invalid admin ID format" });
+            }
+
+            var admin = await _context.Admins.FindAsync(adminId);
+            if (admin == null)
+            {
+                return NotFound(new { Error = "Admin not found" });
+            }
+
+            if (admin.Role == "SuperAdmin")
+            {
+                return Forbid(); // Do not allow deleting SuperAdmin
+            }
+
+            _context.Admins.Remove(admin);
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
 
         // POST: api/Admin/ResetPassword
@@ -379,6 +424,37 @@ namespace FreshlyBackendNew.Controllers
                 return StatusCode(500, new { Error = "An error occurred while resetting your password" });
             }
         }
+
+        // GET: api/Admin/me
+        [HttpGet("me")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        public async Task<ActionResult<AdminDTO>> GetCurrentAdmin()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out Guid adminId))
+            {
+                return Unauthorized(new { Error = "Invalid or missing admin ID in token." });
+            }
+
+            var admin = await _context.Admins.FindAsync(adminId);
+            if (admin == null)
+            {
+                return NotFound(new { Error = "Admin not found" });
+            }
+
+            return Ok(new AdminDTO
+            {
+                AdminId = admin.AdminId.ToString(),
+                Username = admin.Username,
+                FirstName = admin.FirstName,
+                LastName = admin.LastName,
+                Email = admin.Email,
+                Role = admin.Role,
+                CreatedAt = admin.CreatedAt,
+                LastLogin = admin.LastLogin,
+                LaundryImageLink = admin.LaundryImageLink // Include profile image link
+            });
+        }
     }
 
     public class PasswordResetDTO
@@ -396,5 +472,15 @@ namespace FreshlyBackendNew.Controllers
         public string Email { get; set; }
         public string Token { get; set; }
         public string NewPassword { get; set; }
+    }
+
+    public class CreateAdminRequestDTO
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
+        public string Role { get; set; }
     }
 }

@@ -532,13 +532,21 @@ namespace FreshlyBackendNew.Services.Implementations
             if (customer == null || customer.Address == null)
                 return null;
 
+            // Fetch contact numbers for this customer
+            var contactNumbers = await _context.Contacts
+                .Where(c => c.UserId == customerId && c.UserType == "customer")
+                .Select(c => c.ContactNumber)
+                .ToListAsync();
+
             return new DTOs.Order_DTOs.AddressDTO
             {
                 AddressId = customer.Address.AddressId,
                 HouseNo = customer.Address.HouseNo,
                 Street = customer.Address.Street,
                 City = customer.Address.City,
-                PostalCode = customer.Address.PostalCode
+                PostalCode = customer.Address.PostalCode,
+                ContactNumbers = contactNumbers // Set the contact numbers
+
             };
         }
 
@@ -594,6 +602,41 @@ namespace FreshlyBackendNew.Services.Implementations
                     }
                 }
 
+                // Update contacts if provided
+                if (dto.Contacts != null)
+                {
+                    foreach (var contactDto in dto.Contacts)
+                    {
+                        if (contactDto.ContactId.HasValue)
+                        {
+                            // Existing contact: update or delete
+                            var contact = await _context.Contacts.FindAsync(contactDto.ContactId.Value);
+                            if (contact != null && contact.UserId == tempOrder.CustomerId && contact.UserType == "customer")
+                            {
+                                if (contactDto.IsDeleted)
+                                {
+                                    _context.Contacts.Remove(contact);
+                                }
+                                else
+                                {
+                                    contact.ContactNumber = contactDto.ContactNumber;
+                                }
+                            }
+                        }
+                        else if (!contactDto.IsDeleted)
+                        {
+                            // New contact: add
+                            _context.Contacts.Add(new Contact
+                            {
+                                ContactId = Guid.NewGuid(),
+                                ContactNumber = contactDto.ContactNumber,
+                                UserId = tempOrder.CustomerId,
+                                UserType = "customer"
+                            });
+                        }
+                    }
+                }
+
                 // Create new order
                 var order = new Order
                 {
@@ -639,6 +682,138 @@ namespace FreshlyBackendNew.Services.Implementations
                 await transaction.RollbackAsync();
                 throw;
             }
+        }
+
+       
+public async Task<List<OrderDTO>> GetFilteredOrdersAsync(Guid laundryId)
+{
+    var validStatuses = new List<string>
+    {
+        "order picked up",
+        "processing in laundry",
+        "finished processing",
+        "out for delivery",
+        "delivered"
+    };
+
+    // Build query
+    IQueryable<Order> query = _context.Orders
+        .Include(o => o.Customer)
+            .ThenInclude(c => c.Address)
+        .Include(o => o.Laundry)
+        .Include(o => o.Status);
+
+    if (laundryId != Guid.Empty)
+    {
+        query = query.Where(o => o.LaundryId == laundryId);
+    }
+
+    // Apply status filter
+    query = query.Where(o =>
+        o.Status != null &&
+        validStatuses.Contains(o.Status.StatusName.ToLower()));
+
+    var orders = await query.ToListAsync();
+    var result = new List<OrderDTO>();
+
+    foreach (var o in orders)
+    {
+        var dto = new OrderDTO
+        {
+            OrderId = o.OrderId,
+            PlacedDate = o.PlacedAt?.ToString("yyyy-MM-dd"),
+            PlacedTime = o.PlacedAt?.ToString("HH:mm:ss"),
+            PickupDate = o.PickupAt?.ToString("yyyy-MM-dd"),
+            PickupTime = o.PickupAt?.ToString("HH:mm:ss"),
+            PlacedDateTime = o.PlacedAt
+        };
+
+        // Calculate total cost
+        var orderDetails = await _context.OrderDetails
+            .Where(od => od.OrderId == o.OrderId)
+            .ToListAsync();
+
+        decimal totalCost = 0;
+        foreach (var detail in orderDetails)
+        {
+            var price = await _context.LaundryItemServices
+                .Where(lis => lis.LaundryId == o.LaundryId &&
+                              lis.ItemId == detail.ItemId &&
+                              lis.ServiceId == detail.ServiceId)
+                .Select(lis => lis.Price ?? 0)
+                .FirstOrDefaultAsync();
+
+            totalCost += price * (detail.Quantity ?? 0);
+        }
+
+        dto.TotalCost = totalCost;
+
+        // Customer
+        if (o.Customer != null)
+        {
+            dto.Customer = new CustomerDTO
+            {
+                CustomerId = o.Customer.CustomerId,
+                FirstName = o.Customer.FirstName,
+                LastName = o.Customer.LastName,
+                Email = o.Customer.Email,
+                Username = o.Customer.Username,
+                CustomerFName = o.Customer.FirstName ?? string.Empty,
+                CustomerLName = o.Customer.LastName ?? string.Empty,
+                Address = o.Customer.Address == null ? null : new AddressDTO
+                {
+                    AddressId = o.Customer.Address.AddressId,
+                    HouseNo = o.Customer.Address.HouseNo,
+                    Street = o.Customer.Address.Street,
+                    City = o.Customer.Address.City,
+                    PostalCode = o.Customer.Address.PostalCode,
+                    FullAddress = $"{o.Customer.Address.HouseNo ?? ""}, {o.Customer.Address.Street ?? ""}, {o.Customer.Address.City ?? ""}, {o.Customer.Address.PostalCode ?? ""}"
+                }
+            };
+        }
+
+        // Laundry
+        if (o.Laundry != null)
+        {
+            dto.Laundry = new LaundryDTO
+            {
+                LaundryId = o.Laundry.LaundryId,
+                LaundryName = o.Laundry.LaundryName
+            };
+        }
+
+        // Status
+        if (o.Status != null)
+        {
+            dto.Status = new StatusDTO
+            {
+                StatusID = o.Status.StatusID,
+                StatusName = o.Status.StatusName,
+                StatusDisplayName = o.Status.StatusName ?? string.Empty
+            };
+        }
+
+        result.Add(dto);
+    }
+
+    return result;
+}
+
+public async Task<int> GetOrderCountByStatusAsync(Guid laundryId, Guid statusId)
+{
+    return await _context.Orders
+        .CountAsync(o => o.LaundryId == laundryId && o.StatusId == statusId);
+}
+
+        public async Task<SortedOrderIdsResponseDTO> GetSortedOrderIdsAsync(Guid laundryId)
+        {
+            var orderIds = await _context.Orders
+                .Where(o => o.LaundryId == laundryId)
+                .OrderByDescending(o => o.PlacedAt)
+                .Select(o => o.OrderId)
+                .ToListAsync();
+
+            return new SortedOrderIdsResponseDTO { OrderIds = orderIds };
         }
 
 

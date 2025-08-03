@@ -100,9 +100,6 @@ builder.Services.AddScoped<ILaundryContactService, LaundryContactService>();
 builder.Services.AddScoped<IRejectedItemService, RejectedItemService>();
 builder.Services.AddScoped<PayHereService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
-
-
-
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IFileStorageService, S3StorageService>();
@@ -112,6 +109,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IOrderDetailService, OrderDetailService>();
 builder.Services.AddScoped<IDriverContactService, DriverContactService>();
 builder.Services.AddScoped<IDriverProfileService, DriverProfileService>();
+builder.Services.AddScoped<IBasicService, BasicService>();
 
 // Add controller services with improved JSON handling
 builder.Services.AddControllers()

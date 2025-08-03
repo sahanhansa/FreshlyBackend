@@ -12,6 +12,9 @@ namespace FreshlyBackendNew.DTOs
         public string? CustomerFName { get; set; } 
         public string? CustomerLName { get; set; } 
         public string? SubmittedByType { get; set; } // Add this property for submitted by type
+        public Guid? OrderId { get; set; } // Add this for get-my-feedbacks response
+        public Guid? StatusId { get; set; } // Add this for get-my-feedbacks response
+        public Guid? UserId { get; set; } // Add this property for UserId
     }
 
     public class SubmitFeedbackDTO

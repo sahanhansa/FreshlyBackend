@@ -5,6 +5,7 @@ using FreshlyBackendNew.Data;
 using FreshlyBackendNew.DTOs.Driver_DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using FreshlyBackendNew.DTOs.Order_DTOs;
 
 
 namespace FreshlyBackendNew.Controllers
@@ -24,6 +25,7 @@ namespace FreshlyBackendNew.Controllers
             _orderDetailService = orderDetailService;
             _context = context;
             _laundryContactService = laundryContactService;
+           
         }
 
         [HttpGet]
@@ -207,6 +209,7 @@ namespace FreshlyBackendNew.Controllers
             {
                 // First verify that the order belongs to the specified laundry and has the specified status
                 var order = await _context.Orders
+                    .Include(o => o.Customer)
                     .FirstOrDefaultAsync(o => o.OrderId == orderId && o.LaundryId == laundryId && o.StatusId == statusId);
 
                 if (order == null)
@@ -222,7 +225,20 @@ namespace FreshlyBackendNew.Controllers
                     return NotFound($"Order details for order ID {orderId} not found.");
                 }
 
-                return Ok(orderDetails);
+                // Get customer name
+                string customerName = order.Customer != null ? $"{order.Customer.FirstName} {order.Customer.LastName}" : null;
+
+                // Get customer contact numbers
+                var contactNumbers = await _context.Contacts
+                    .Where(c => c.UserId == (Guid?)order.Customer.CustomerId && c.UserType == "Customer")
+                    .Select(c => c.ContactNumber)
+                    .ToListAsync();
+
+                return Ok(new {
+                    orderDetails,
+                    customerName,
+                    customerContactNumbers = contactNumbers
+                });
             }
             catch (Exception ex)
             {
@@ -270,5 +286,129 @@ namespace FreshlyBackendNew.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+        
+        
+         [HttpGet("modified-order-details/{laundryId}/{orderId}/{statusId}")]
+        public async Task<IActionResult> GetModifiedOrderDetails(Guid laundryId, Guid orderId, Guid statusId)
+        {
+            // Verify order exists and belongs to laundry with correct status
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId && o.LaundryId == laundryId && o.StatusId == statusId);
+            if (order == null)
+            {
+                return NotFound($"Order with ID {orderId} not found for laundry {laundryId} with status {statusId}.");
+            }
+
+            // Get order details using the existing service
+            var orderDetails = await _orderDetailService.GetOrderDetailsAsync(orderId);
+            if (orderDetails == null)
+            {
+                return NotFound($"Order details for order ID {orderId} not found.");
+            }
+
+            // Get customer name
+            string customerName = order.Customer != null ? $"{order.Customer.FirstName} {order.Customer.LastName}" : null;
+
+            // Get customer contact numbers
+            var contactNumbers = await _context.Contacts
+                .Where(c => c.UserId == order.CustomerId && c.UserType == "Customer")
+                .Select(c => c.ContactNumber)
+                .ToListAsync();
+
+            // Get rejected items for this order, including GarmentType
+            var rejectedItems = await _context.RejectedItems
+                .Include(r => r.Service)
+                .Include(r => r.Item)
+                .Include(r => r.GarmentType)
+                .Where(r => r.OrderId == orderId)
+                .ToListAsync();
+
+            // Map to ModifiedItemDTO with price and garment type
+            orderDetails.ModifiedItems = new List<DTOs.Order_DTOs.ModifiedItemDTO>();
+            foreach (var r in rejectedItems)
+            {
+                decimal price = 0;
+                Guid? garmentTypeId = r.GarmentTypeId;
+                string? garmentTypeName = r.GarmentType?.GarmentTypeName;
+
+                if (r.ItemId.HasValue && r.ServiceId.HasValue)
+                {
+                    var lis = await _context.LaundryItemServices.FirstOrDefaultAsync(lis =>
+                        lis.LaundryId == laundryId &&
+                        lis.ItemId == r.ItemId &&
+                        lis.ServiceId == r.ServiceId);
+                    price = lis?.Price ?? 0;
+                    // If GarmentTypeId is missing, try to get from LaundryItemService
+                    if (!garmentTypeId.HasValue && lis?.GarmentTypeId != null)
+                    {
+                        garmentTypeId = lis.GarmentTypeId;
+                        // Try to get garment type name
+                        if (garmentTypeId.HasValue)
+                        {
+                            var gt = await _context.GarmentTypes.FindAsync(garmentTypeId.Value);
+                            garmentTypeName = gt?.GarmentTypeName;
+                        }
+                    }
+                }
+                orderDetails.ModifiedItems.Add(new DTOs.Order_DTOs.ModifiedItemDTO
+                {
+                    ItemName = r.ItemName ?? r.Item?.Name,
+                    Quantity = r.Quantity ?? 0,
+                    Price = price,
+                    ItemId = r.ItemId ?? Guid.Empty,
+                    ServiceId = r.ServiceId ?? Guid.Empty,
+                    ServiceName = r.Service?.ServiceName,
+                    GarmentTypeId = garmentTypeId,
+                    GarmentTypeName = garmentTypeName
+                });
+            }
+
+            return Ok(new {
+                orderDetails,
+                customerName,
+                customerContactNumbers = contactNumbers
+            });
         }
-    }
+        
+        [HttpGet("get-email-details/{laundryId}/{orderId}")]
+        public async Task<IActionResult> GetEmailDetails(Guid laundryId, Guid orderId)
+        {
+            // Find the order and related customer/laundry info
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.Laundry)
+                .Include(o => o.Status)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId && o.LaundryId == laundryId);
+            if (order == null)
+            {
+                return NotFound($"Order with ID {orderId} not found for laundry {laundryId}.");
+            }
+
+            var totalAmount = await _orderDetailService.CalculateOrderTotalAsync(orderId);
+
+            var orderDetails = await _orderDetailService.GetOrderDetailsAsync(orderId);
+            var items = orderDetails.Items.Select(i => new DTOs.Order_DTOs.EmailDetailsDto.ItemDetailsDto
+            {
+                ItemName = i.ItemName,
+                GarmentTypeName = i.GarmentTypeName,
+                Quantity = i.Quantity,
+                Price = i.Price
+            }).ToList();
+
+            var dto = new DTOs.Order_DTOs.EmailDetailsDto
+            {
+                CustomerEmail = order.Customer?.Email,
+                CustomerName = order.Customer != null ? $"{order.Customer.FirstName} {order.Customer.LastName}" : null,
+                OrderId = order.OrderId,
+                LaundryId = order.LaundryId ?? Guid.Empty,
+                LaundryName = order.Laundry?.LaundryName,
+                TotalAmount = totalAmount,
+                Items = items
+            };
+            return Ok(dto);
+        }
+        
+        }
+    
+        }

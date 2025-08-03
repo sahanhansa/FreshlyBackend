@@ -8,6 +8,7 @@ namespace FreshlyBackendNew.Services.Interfaces
     {
         Task<RejectedItemDTO?> GetRejectedItemByIdAsync(Guid rejectedItemId);
         Task<RejectedItemDTO> AddRejectedItemAsync(RejectedItemDTO rejectedItemDto);
+        Task<IEnumerable<RejectedItemDTO>> GetRejectedItemsByLaundryIdAsync(Guid laundryId);
         Task<List<RejectedItemWithGarmentDTO>> GetRejectedItemsByOrderIdAsync(Guid orderId);
 
     }

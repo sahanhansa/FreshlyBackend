@@ -112,45 +112,54 @@ namespace FreshlyBackendNew.Services.Implementations
             return result;
         }
         
-        public async Task<ItemWithServicesDTO?> GetItemByLaundryIdAndItemIdAsync(Guid laundryId, Guid itemId)
+        public async Task<ItemWithGarmentTypesDTO?> GetItemByLaundryIdAndItemIdAsync(Guid laundryId, Guid itemId)
         {
-            var itemsWithServices = await (from item in _context.Items
-                join laundryItemService in _context.LaundryItemServices
-                    on item.ItemId equals laundryItemService.ItemId
-                join service in _context.Services
-                    on laundryItemService.ServiceId equals service.ServiceId into serviceGroup
-                from service in serviceGroup.DefaultIfEmpty()
-                join category in _context.ItemCategories
-                    on item.CategoryId equals category.CategoryId into categoryGroup
-                from category in categoryGroup.DefaultIfEmpty()
-                where laundryItemService.LaundryId == laundryId && item.ItemId == itemId
-                select new
-                {
-                    Item = item,
-                    CategoryName = category != null ? category.CategoryName : "Other",
-                    Service = service,
-                    Price = laundryItemService.Price
-                }).ToListAsync();
+            var query = from item in _context.Items
+                        join laundryItemService in _context.LaundryItemServices on item.ItemId equals laundryItemService.ItemId
+                        join service in _context.Services on laundryItemService.ServiceId equals service.ServiceId
+                        join garmentType in _context.GarmentTypes on laundryItemService.GarmentTypeId equals garmentType.GarmentTypeId into gtGroup
+                        from garmentType in gtGroup.DefaultIfEmpty()
+                        join category in _context.ItemCategories on item.CategoryId equals category.CategoryId into catGroup
+                        from category in catGroup.DefaultIfEmpty()
+                        where laundryItemService.LaundryId == laundryId && item.ItemId == itemId
+                        select new
+                        {
+                            Item = item,
+                            laundryItemService.GarmentTypeId,
+                            GarmentTypeName = garmentType != null ? garmentType.GarmentTypeName : null,
+                            Service = service,
+                            laundryItemService.Price,
+                            CategoryName = category != null ? category.CategoryName : string.Empty
+                        };
 
-            if (!itemsWithServices.Any())
+            var results = await query.ToListAsync();
+            if (!results.Any())
                 return null;
 
-            var group = itemsWithServices.GroupBy(i => i.Item.ItemId).First();
-            return new ItemWithServicesDTO
-            {
-                ItemId = group.Key,
-                ItemName = group.First().Item.Name,
-                CategoryName = group.First().CategoryName,
-                ImageUrl = group.First().Item.ItemImageLink,
-                Services = group
-                    .Where(g => g.Service != null)
-                    .Select(g => new ServiceWithPriceDTO
+            var first = results.First();
+            var garmentTypes = results
+                .GroupBy(x => new { x.GarmentTypeId, x.GarmentTypeName })
+                .Select(g => new GarmentTypeWithServicesDTO
+                {
+                    GarmentTypeId = g.Key.GarmentTypeId ?? Guid.Empty,
+                    GarmentTypeName = g.Key.GarmentTypeName ?? string.Empty,
+                    Services = g.Select(s => new ServiceDTO
                     {
-                        ServiceId = g.Service.ServiceId,
-                        ServiceName = g.Service.ServiceName,
-                        Price = g.Price ?? 0
-                    })
-                    .ToList()
+                        ServiceId = s.Service.ServiceId,
+                        ServiceName = s.Service.ServiceName,
+                        Price = s.Price ?? 0
+                    }).ToList()
+                }).ToList();
+
+            return new ItemWithGarmentTypesDTO
+            {
+                ItemId = first.Item.ItemId,
+                Name = first.Item.Name,
+                Description = first.Item.Description,
+                CategoryId = first.Item.CategoryId,
+                CategoryName = first.CategoryName,
+                ImageUrl = first.Item.ItemImageLink,
+                GarmentTypes = garmentTypes
             };
         }
 
@@ -284,17 +293,21 @@ namespace FreshlyBackendNew.Services.Implementations
 
             _context.Items.Add(item);
 
-            foreach (var service in itemDto.Services)
+            // Add LaundryItemService records for each garment type and its services
+            foreach (var garmentType in itemDto.GarmentTypes)
             {
-                var laundryItemService = new LaundryItemService
+                foreach (var service in garmentType.Services)
                 {
-                    LaundryId = laundryId,
-                    ItemId = item.ItemId,
-                    ServiceId = service.ServiceId,
-                    Price = service.Price ?? 0
-                };
-
-                _context.LaundryItemServices.Add(laundryItemService);
+                    var laundryItemService = new LaundryItemService
+                    {
+                        LaundryId = laundryId,
+                        ItemId = item.ItemId,
+                        GarmentTypeId = garmentType.GarmentTypeId,
+                        ServiceId = service.ServiceId,
+                        Price = service.Price ?? 0
+                    };
+                    _context.LaundryItemServices.Add(laundryItemService);
+                }
             }
 
             var result = await _context.SaveChangesAsync();
@@ -327,23 +340,58 @@ namespace FreshlyBackendNew.Services.Implementations
                 .Where(x => x.ItemId == itemId && x.LaundryId == laundryId);
             _context.LaundryItemServices.RemoveRange(existingServices);
 
-            // Add updated services
-            foreach (var service in itemDto.Services)
+            // Add updated services grouped by garment type
+            foreach (var garmentType in itemDto.GarmentTypes)
             {
-                var newService = new LaundryItemService
+                foreach (var service in garmentType.Services)
                 {
-                    LaundryId = laundryId,
-                    ItemId = itemId,
-                    ServiceId = service.ServiceId,
-                    Price = service.Price ?? 0
-                };
-                _context.LaundryItemServices.Add(newService);
+                    var newService = new LaundryItemService
+                    {
+                        LaundryId = laundryId,
+                        ItemId = itemId,
+                        GarmentTypeId = garmentType.GarmentTypeId,
+                        ServiceId = service.ServiceId,
+                        Price = service.Price ?? 0
+                    };
+                    _context.LaundryItemServices.Add(newService);
+                }
             }
 
             await _context.SaveChangesAsync();
             return true;
         }
 
+        public async Task<(bool success, string message)> AddGarmentTypeAsync(AddGarmentTypeDTO garmentTypeDto)
+        {
+            try
+            {
+                // Check if garment type with the same name already exists
+                var exists = await _context.GarmentTypes.AnyAsync(g => g.GarmentTypeName.ToLower() == garmentTypeDto.Name.ToLower());
+                if (exists)
+                {
+                    return (false, $"Garment type '{garmentTypeDto.Name}' already exists.");
+                }
+                var garmentType = new GarmentType
+                {
+                    GarmentTypeId = Guid.NewGuid(),
+                    GarmentTypeName = garmentTypeDto.Name
+                };
+                _context.GarmentTypes.Add(garmentType);
+                await _context.SaveChangesAsync();
+                return (true, "Garment type added successfully.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Failed to add garment type: {ex.Message}");
+            }
+        }
+        
+        public async Task<Guid?> GetGarmentTypeIdByNameAsync(string name)
+        {
+            var garmentType = await _context.GarmentTypes
+                .FirstOrDefaultAsync(g => g.GarmentTypeName.ToLower() == name.ToLower());
+            return garmentType?.GarmentTypeId;
+        }
         
     }
 }

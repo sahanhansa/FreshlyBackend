@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using FreshlyBackendNew.DTOs.FreshlyBackendNew.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace FreshlyBackendNew.Controllers
 {
@@ -19,7 +21,7 @@ namespace FreshlyBackendNew.Controllers
         private readonly IAllDeliveryService _deliveryService;
         private readonly ICompleteTasksService _completetasksservice;
         private readonly ApplicationDbContext _context;
-
+        
         public OrderController(
             IOrderService orderService,
             IAllPickupService pickupService,
@@ -413,5 +415,48 @@ namespace FreshlyBackendNew.Controllers
             }
         }
 
+        [HttpGet("{laundryId}/filtered-orders")]
+        public async Task<IActionResult> GetFilteredOrders(Guid laundryId)
+        {
+            try
+            {
+                var orders = await _orderService.GetFilteredOrdersAsync(laundryId);
+
+                if (orders == null || orders.Count == 0)
+                    return NotFound("No orders found with the specified statuses.");
+
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+     
+
+           //GET /api/order/count-by-status/{laundryId}/{statusId}
+           [HttpGet("count-by-status/{laundryId}/{statusId}")]
+           public async Task<ActionResult<int>> GetOrderCountByStatus(Guid laundryId, Guid statusId)
+           {
+               var count = await _orderService.GetOrderCountByStatusAsync(laundryId, statusId);
+               return Ok(count);
+           }
+
+        [HttpGet("{laundryId}/sorted-order-ids")]
+        public async Task<IActionResult> GetSortedOrderIds(Guid laundryId)
+        {
+            try
+            {
+                var result = await _orderService.GetSortedOrderIdsAsync(laundryId);
+                if (result == null || result.OrderIds.Count == 0)
+                    return NotFound($"No orders found for LaundryId: {laundryId}");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
     }
-}
+    }
+

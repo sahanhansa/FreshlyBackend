@@ -1,6 +1,7 @@
 using FreshlyBackendNew.DTOs;
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using System;
 using System.Threading.Tasks;
 
@@ -11,10 +12,12 @@ namespace FreshlyBackendNew.Controllers
     public class RejectedItemController : ControllerBase
     {
         private readonly IRejectedItemService _rejectedItemService;
+        private readonly IOrderDetailService _orderDetailService;
 
-        public RejectedItemController(IRejectedItemService rejectedItemService)
+        public RejectedItemController(IRejectedItemService rejectedItemService, IOrderDetailService orderDetailService)
         {
             _rejectedItemService = rejectedItemService;
+            _orderDetailService = orderDetailService;
         }
 
         //lasini-get rejecteditems by orderid
@@ -63,5 +66,24 @@ namespace FreshlyBackendNew.Controllers
 
             return CreatedAtAction(nameof(GetRejectedItemById), new { laundryId = createdDto.LaundryId, rejectedItemId = createdDto.RejectedItemId }, createdDto);
         }
+
+        // GET: api/RejectedItem/laundry/{laundryId}
+        [HttpGet("laundry/{laundryId:guid}")]
+        public async Task<IActionResult> GetRejectedItemsByLaundryId(Guid laundryId)
+        {
+            var items = await _rejectedItemService.GetRejectedItemsByLaundryIdAsync(laundryId);
+            if (items == null || !items.Any())
+                return NotFound($"No rejected items found for LaundryId: {laundryId}");
+            return Ok(items);
+        }
+
+        // GET: api/RejectedItem/{orderId}/total
+        [HttpGet("{orderId:guid}/total")]
+        public async Task<IActionResult> GetOrderTotal(Guid orderId)
+        {
+            var total = await _orderDetailService.CalculateOrderTotalAsync(orderId);
+            return Ok(new { OrderId = orderId, TotalAmount = total });
+        }
     }
-}
+
+    }
