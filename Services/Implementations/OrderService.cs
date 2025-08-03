@@ -200,6 +200,39 @@ namespace FreshlyBackendNew.Services.Implementations
                 .Include(o => o.Status)
                 .ToListAsync();
 
+            if (!orders.Any())
+                return new List<OrderDTO>();
+
+            // Get all order IDs for bulk operations
+            var orderIds = orders.Select(o => o.OrderId).ToList();
+
+            // Bulk load all order details
+            var allOrderDetails = await _context.OrderDetails
+                .Where(od => orderIds.Contains(od.OrderId.Value))
+                .ToListAsync();
+
+            // Bulk load all pricing data for all laundries
+            var allLaundryIds = orders.Select(o => o.LaundryId).Where(id => id.HasValue).Distinct().ToList();
+            var pricingData = await _context.LaundryItemServices
+                .Where(lis => allLaundryIds.Contains(lis.LaundryId))
+                .Select(lis => new
+                {
+                    lis.LaundryId,
+                    lis.ItemId,
+                    lis.ServiceId,
+                    lis.Price
+                })
+                .ToListAsync();
+
+            // Create lookup dictionaries for fast access
+            var orderDetailsLookup = allOrderDetails
+                .GroupBy(od => od.OrderId)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            var pricingLookup = pricingData
+                .GroupBy(p => new { p.LaundryId, p.ItemId, p.ServiceId })
+                .ToDictionary(g => g.Key, g => g.First().Price ?? 0);
+
             var result = new List<OrderDTO>();
             foreach (var o in orders)
             {
@@ -213,20 +246,22 @@ namespace FreshlyBackendNew.Services.Implementations
                     PlacedDateTime = o.PlacedAt
                 };
 
-                // Calculate total cost for the order
-                var orderDetails = await _context.OrderDetails.Where(od => od.OrderId == o.OrderId).ToListAsync();
+                // Calculate total cost using cached data
                 decimal totalCost = 0;
-                foreach (var detail in orderDetails)
+                if (orderDetailsLookup.TryGetValue(o.OrderId, out var orderDetails))
                 {
-                    var price = await _context.LaundryItemServices
-                        .Where(lis => lis.LaundryId == o.LaundryId && lis.ItemId == detail.ItemId && lis.ServiceId == detail.ServiceId)
-                        .Select(lis => lis.Price ?? 0)
-                        .FirstOrDefaultAsync();
-                    totalCost += price * (detail.Quantity ?? 0);
+                    foreach (var detail in orderDetails)
+                    {
+                        var key = new { LaundryId = o.LaundryId, ItemId = detail.ItemId, ServiceId = detail.ServiceId };
+                        if (pricingLookup.TryGetValue(key, out var price))
+                        {
+                            totalCost += price * (detail.Quantity ?? 0);
+                        }
+                    }
                 }
                 dto.TotalCost = totalCost;
 
-                // ...existing code for customer, laundry, status...
+                // Customer
                 if (o.Customer != null)
                 {
                     dto.Customer = new CustomerDTO
@@ -696,24 +731,49 @@ public async Task<List<OrderDTO>> GetFilteredOrdersAsync(Guid laundryId)
         "delivered"
     };
 
-    // Build query
-    IQueryable<Order> query = _context.Orders
+    // Optimized query with all necessary includes and joins
+    var ordersQuery = _context.Orders
         .Include(o => o.Customer)
             .ThenInclude(c => c.Address)
         .Include(o => o.Laundry)
-        .Include(o => o.Status);
+        .Include(o => o.Status)
+        .Where(o => o.LaundryId == laundryId && 
+                    o.Status != null &&
+                    validStatuses.Contains(o.Status.StatusName.ToLower()));
 
-    if (laundryId != Guid.Empty)
-    {
-        query = query.Where(o => o.LaundryId == laundryId);
-    }
+    var orders = await ordersQuery.ToListAsync();
 
-    // Apply status filter
-    query = query.Where(o =>
-        o.Status != null &&
-        validStatuses.Contains(o.Status.StatusName.ToLower()));
+    if (!orders.Any())
+        return new List<OrderDTO>();
 
-    var orders = await query.ToListAsync();
+    // Get all order IDs for bulk operations
+    var orderIds = orders.Select(o => o.OrderId).ToList();
+
+    // Bulk load all order details
+    var allOrderDetails = await _context.OrderDetails
+        .Where(od => orderIds.Contains(od.OrderId.Value))
+        .ToListAsync();
+
+    // Bulk load all pricing data
+    var pricingData = await _context.LaundryItemServices
+        .Where(lis => lis.LaundryId == laundryId)
+        .Select(lis => new
+        {
+            lis.ItemId,
+            lis.ServiceId,
+            lis.Price
+        })
+        .ToListAsync();
+
+    // Create lookup dictionaries for fast access
+    var orderDetailsLookup = allOrderDetails
+        .GroupBy(od => od.OrderId)
+        .ToDictionary(g => g.Key, g => g.ToList());
+
+    var pricingLookup = pricingData
+        .GroupBy(p => new { p.ItemId, p.ServiceId })
+        .ToDictionary(g => g.Key, g => g.First().Price ?? 0);
+
     var result = new List<OrderDTO>();
 
     foreach (var o in orders)
@@ -728,24 +788,19 @@ public async Task<List<OrderDTO>> GetFilteredOrdersAsync(Guid laundryId)
             PlacedDateTime = o.PlacedAt
         };
 
-        // Calculate total cost
-        var orderDetails = await _context.OrderDetails
-            .Where(od => od.OrderId == o.OrderId)
-            .ToListAsync();
-
+        // Calculate total cost using cached data
         decimal totalCost = 0;
-        foreach (var detail in orderDetails)
+        if (orderDetailsLookup.TryGetValue(o.OrderId, out var orderDetails))
         {
-            var price = await _context.LaundryItemServices
-                .Where(lis => lis.LaundryId == o.LaundryId &&
-                              lis.ItemId == detail.ItemId &&
-                              lis.ServiceId == detail.ServiceId)
-                .Select(lis => lis.Price ?? 0)
-                .FirstOrDefaultAsync();
-
-            totalCost += price * (detail.Quantity ?? 0);
+            foreach (var detail in orderDetails)
+            {
+                var key = new { ItemId = detail.ItemId, ServiceId = detail.ServiceId };
+                if (pricingLookup.TryGetValue(key, out var price))
+                {
+                    totalCost += price * (detail.Quantity ?? 0);
+                }
+            }
         }
-
         dto.TotalCost = totalCost;
 
         // Customer
@@ -814,6 +869,369 @@ public async Task<int> GetOrderCountByStatusAsync(Guid laundryId, Guid statusId)
                 .ToListAsync();
 
             return new SortedOrderIdsResponseDTO { OrderIds = orderIds };
+        }
+
+        // New optimized methods
+        public async Task<PaginatedOrderResponseDTO> GetFilteredOrdersPaginatedAsync(Guid laundryId, int pageNumber, int pageSize, string? statusFilter = null, string? searchTerm = null)
+        {
+            var validStatuses = new List<string>
+            {
+                "order picked up",
+                "processing in laundry",
+                "finished processing",
+                "out for delivery",
+                "delivered"
+            };
+
+            // Build base query
+            var baseQuery = _context.Orders
+                .Include(o => o.Customer)
+                    .ThenInclude(c => c.Address)
+                .Include(o => o.Laundry)
+                .Include(o => o.Status)
+                .Where(o => o.LaundryId == laundryId && 
+                            o.Status != null &&
+                            validStatuses.Contains(o.Status.StatusName.ToLower()));
+
+            // Apply status filter if provided
+            if (!string.IsNullOrEmpty(statusFilter) && statusFilter.ToLower() != "all")
+            {
+                baseQuery = baseQuery.Where(o => o.Status.StatusName.ToLower() == statusFilter.ToLower());
+            }
+
+            // Apply search filter if provided
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                baseQuery = baseQuery.Where(o => 
+                    (o.Customer != null && 
+                     (o.Customer.FirstName != null && o.Customer.FirstName.Contains(searchTerm)) ||
+                     (o.Customer.LastName != null && o.Customer.LastName.Contains(searchTerm)) ||
+                     (o.Customer.Email != null && o.Customer.Email.Contains(searchTerm))) ||
+                    o.OrderId.ToString().Contains(searchTerm));
+            }
+
+            // Get total count for pagination
+            var totalCount = await baseQuery.CountAsync();
+
+            // Apply pagination
+            var orders = await baseQuery
+                .OrderByDescending(o => o.PlacedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            if (!orders.Any())
+                return new PaginatedOrderResponseDTO
+                {
+                    Orders = new List<OrderDTO>(),
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
+                    HasNextPage = pageNumber < (int)Math.Ceiling((double)totalCount / pageSize),
+                    HasPreviousPage = pageNumber > 1
+                };
+
+            // Bulk load related data
+            var orderIds = orders.Select(o => o.OrderId).ToList();
+            var allOrderDetails = await _context.OrderDetails
+                .Where(od => orderIds.Contains(od.OrderId.Value))
+                .ToListAsync();
+
+            var pricingData = await _context.LaundryItemServices
+                .Where(lis => lis.LaundryId == laundryId)
+                .Select(lis => new
+                {
+                    lis.ItemId,
+                    lis.ServiceId,
+                    lis.Price
+                })
+                .ToListAsync();
+
+            // Create lookup dictionaries
+            var orderDetailsLookup = allOrderDetails
+                .GroupBy(od => od.OrderId)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            var pricingLookup = pricingData
+                .GroupBy(p => new { p.ItemId, p.ServiceId })
+                .ToDictionary(g => g.Key, g => g.First().Price ?? 0);
+
+            var result = new List<OrderDTO>();
+            foreach (var o in orders)
+            {
+                var dto = new OrderDTO
+                {
+                    OrderId = o.OrderId,
+                    PlacedDate = o.PlacedAt?.ToString("yyyy-MM-dd"),
+                    PlacedTime = o.PlacedAt?.ToString("HH:mm:ss"),
+                    PickupDate = o.PickupAt?.ToString("yyyy-MM-dd"),
+                    PickupTime = o.PickupAt?.ToString("HH:mm:ss"),
+                    PlacedDateTime = o.PlacedAt
+                };
+
+                // Calculate total cost using cached data
+                decimal totalCost = 0;
+                if (orderDetailsLookup.TryGetValue(o.OrderId, out var orderDetails))
+                {
+                    foreach (var detail in orderDetails)
+                    {
+                        var key = new { ItemId = detail.ItemId, ServiceId = detail.ServiceId };
+                        if (pricingLookup.TryGetValue(key, out var price))
+                        {
+                            totalCost += price * (detail.Quantity ?? 0);
+                        }
+                    }
+                }
+                dto.TotalCost = totalCost;
+
+                // Customer
+                if (o.Customer != null)
+                {
+                    dto.Customer = new CustomerDTO
+                    {
+                        CustomerId = o.Customer.CustomerId,
+                        FirstName = o.Customer.FirstName,
+                        LastName = o.Customer.LastName,
+                        Email = o.Customer.Email,
+                        Username = o.Customer.Username,
+                        CustomerFName = o.Customer.FirstName ?? string.Empty,
+                        CustomerLName = o.Customer.LastName ?? string.Empty,
+                        Address = o.Customer.Address == null ? null : new AddressDTO
+                        {
+                            AddressId = o.Customer.Address.AddressId,
+                            HouseNo = o.Customer.Address.HouseNo,
+                            Street = o.Customer.Address.Street,
+                            City = o.Customer.Address.City,
+                            PostalCode = o.Customer.Address.PostalCode,
+                            FullAddress = $"{o.Customer.Address.HouseNo ?? ""}, {o.Customer.Address.Street ?? ""}, {o.Customer.Address.City ?? ""}, {o.Customer.Address.PostalCode ?? ""}"
+                        }
+                    };
+                }
+
+                // Laundry
+                if (o.Laundry != null)
+                {
+                    dto.Laundry = new LaundryDTO
+                    {
+                        LaundryId = o.Laundry.LaundryId,
+                        LaundryName = o.Laundry.LaundryName
+                    };
+                }
+
+                // Status
+                if (o.Status != null)
+                {
+                    dto.Status = new StatusDTO
+                    {
+                        StatusID = o.Status.StatusID,
+                        StatusName = o.Status.StatusName,
+                        StatusDisplayName = o.Status.StatusName ?? string.Empty
+                    };
+                }
+
+                result.Add(dto);
+            }
+
+            return new PaginatedOrderResponseDTO
+            {
+                Orders = result,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
+                HasNextPage = pageNumber < (int)Math.Ceiling((double)totalCount / pageSize),
+                HasPreviousPage = pageNumber > 1
+            };
+        }
+
+        public async Task<PaginatedOrderResponseDTO> GetAllOrdersPaginatedAsync(Guid laundryId, int pageNumber, int pageSize, string? searchTerm = null)
+        {
+            // Build base query
+            IQueryable<Order> baseQuery = _context.Orders;
+            
+            if (laundryId != Guid.Empty)
+            {
+                baseQuery = baseQuery.Where(o => o.LaundryId == laundryId);
+            }
+
+            // Apply search filter if provided
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                baseQuery = baseQuery.Where(o => 
+                    (o.Customer != null && 
+                     (o.Customer.FirstName != null && o.Customer.FirstName.Contains(searchTerm)) ||
+                     (o.Customer.LastName != null && o.Customer.LastName.Contains(searchTerm)) ||
+                     (o.Customer.Email != null && o.Customer.Email.Contains(searchTerm))) ||
+                    o.OrderId.ToString().Contains(searchTerm));
+            }
+
+            // Get total count for pagination
+            var totalCount = await baseQuery.CountAsync();
+
+            // Apply pagination and includes
+            var orders = await baseQuery
+                .Include(o => o.Customer)
+                .ThenInclude(c => c.Address)
+                .Include(o => o.Laundry)
+                .Include(o => o.Status)
+                .OrderByDescending(o => o.PlacedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            if (!orders.Any())
+                return new PaginatedOrderResponseDTO
+                {
+                    Orders = new List<OrderDTO>(),
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
+                    HasNextPage = pageNumber < (int)Math.Ceiling((double)totalCount / pageSize),
+                    HasPreviousPage = pageNumber > 1
+                };
+
+            // Bulk load related data
+            var orderIds = orders.Select(o => o.OrderId).ToList();
+            var allOrderDetails = await _context.OrderDetails
+                .Where(od => orderIds.Contains(od.OrderId.Value))
+                .ToListAsync();
+
+            var allLaundryIds = orders.Select(o => o.LaundryId).Where(id => id.HasValue).Distinct().ToList();
+            var pricingData = await _context.LaundryItemServices
+                .Where(lis => allLaundryIds.Contains(lis.LaundryId))
+                .Select(lis => new
+                {
+                    lis.LaundryId,
+                    lis.ItemId,
+                    lis.ServiceId,
+                    lis.Price
+                })
+                .ToListAsync();
+
+            // Create lookup dictionaries
+            var orderDetailsLookup = allOrderDetails
+                .GroupBy(od => od.OrderId)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            var pricingLookup = pricingData
+                .GroupBy(p => new { p.LaundryId, p.ItemId, p.ServiceId })
+                .ToDictionary(g => g.Key, g => g.First().Price ?? 0);
+
+            var result = new List<OrderDTO>();
+            foreach (var o in orders)
+            {
+                var dto = new OrderDTO
+                {
+                    OrderId = o.OrderId,
+                    PlacedDate = o.PlacedAt.HasValue ? o.PlacedAt.Value.ToString("yyyy-MM-dd") : null,
+                    PlacedTime = o.PlacedAt.HasValue ? o.PlacedAt.Value.ToString("HH:mm:ss") : null,
+                    PickupDate = o.PickupAt.HasValue ? o.PickupAt.Value.ToString("yyyy-MM-dd") : null,
+                    PickupTime = o.PickupAt.HasValue ? o.PickupAt.Value.ToString("HH:mm:ss") : null,
+                    PlacedDateTime = o.PlacedAt
+                };
+
+                // Calculate total cost using cached data
+                decimal totalCost = 0;
+                if (orderDetailsLookup.TryGetValue(o.OrderId, out var orderDetails))
+                {
+                    foreach (var detail in orderDetails)
+                    {
+                        var key = new { LaundryId = o.LaundryId, ItemId = detail.ItemId, ServiceId = detail.ServiceId };
+                        if (pricingLookup.TryGetValue(key, out var price))
+                        {
+                            totalCost += price * (detail.Quantity ?? 0);
+                        }
+                    }
+                }
+                dto.TotalCost = totalCost;
+
+                // Customer
+                if (o.Customer != null)
+                {
+                    dto.Customer = new CustomerDTO
+                    {
+                        CustomerId = o.Customer.CustomerId,
+                        FirstName = o.Customer.FirstName,
+                        LastName = o.Customer.LastName,
+                        Email = o.Customer.Email,
+                        Username = o.Customer.Username,
+                        CustomerFName = o.Customer.FirstName ?? string.Empty,
+                        CustomerLName = o.Customer.LastName ?? string.Empty
+                    };
+
+                    if (o.Customer.Address != null)
+                    {
+                        dto.Customer.Address = new AddressDTO
+                        {
+                            AddressId = o.Customer.Address.AddressId,
+                            HouseNo = o.Customer.Address.HouseNo,
+                            Street = o.Customer.Address.Street,
+                            City = o.Customer.Address.City,
+                            PostalCode = o.Customer.Address.PostalCode,
+                            FullAddress = $"{o.Customer.Address.HouseNo ?? ""}, {o.Customer.Address.Street ?? ""}, {o.Customer.Address.City ?? ""}, {o.Customer.Address.PostalCode ?? ""}"
+                        };
+                    }
+                }
+
+                if (o.Laundry != null)
+                {
+                    dto.Laundry = new LaundryDTO
+                    {
+                        LaundryId = o.Laundry.LaundryId,
+                        LaundryName = o.Laundry.LaundryName
+                    };
+                }
+
+                if (o.Status != null)
+                {
+                    dto.Status = new StatusDTO
+                    {
+                        StatusID = o.Status.StatusID,
+                        StatusName = o.Status.StatusName,
+                        StatusDisplayName = o.Status.StatusName ?? string.Empty
+                    };
+                }
+
+                result.Add(dto);
+            }
+
+            return new PaginatedOrderResponseDTO
+            {
+                Orders = result,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
+                HasNextPage = pageNumber < (int)Math.Ceiling((double)totalCount / pageSize),
+                HasPreviousPage = pageNumber > 1
+            };
+        }
+
+        public async Task<int> GetTotalOrderCountAsync(Guid laundryId, string? statusFilter = null)
+        {
+            var validStatuses = new List<string>
+            {
+                "order picked up",
+                "processing in laundry",
+                "finished processing",
+                "out for delivery",
+                "delivered"
+            };
+
+            var query = _context.Orders.Where(o => o.LaundryId == laundryId);
+
+            if (!string.IsNullOrEmpty(statusFilter) && statusFilter.ToLower() != "all")
+            {
+                query = query.Where(o => o.Status != null && o.Status.StatusName.ToLower() == statusFilter.ToLower());
+            }
+            else
+            {
+                query = query.Where(o => o.Status != null && validStatuses.Contains(o.Status.StatusName.ToLower()));
+            }
+
+            return await query.CountAsync();
         }
 
 
