@@ -84,6 +84,14 @@ namespace FreshlyBackendNew.Controllers
             var total = await _orderDetailService.CalculateOrderTotalAsync(orderId);
             return Ok(new { OrderId = orderId, TotalAmount = total });
         }
+
+        // GET: api/RejectedItem/laundry/{laundryId}/count
+        [HttpGet("laundry/{laundryId:guid}/count")]
+        public async Task<IActionResult> GetRejectedItemCountByLaundryId(Guid laundryId)
+        {
+            var count = await _rejectedItemService.GetRejectedItemCountByLaundryIdAsync(laundryId);
+            return Ok(new { LaundryId = laundryId, RejectedItemCount = count });
+        }
     }
 
     }
