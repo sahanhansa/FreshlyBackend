@@ -1,0 +1,147 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# .NET build artifacts
+obj/
+bin/
+*.csproj.user
+*.suo
+*.cache
+*.user
+*.userprefs
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+
+# IDE settings
+.idea/
+
+# Visual Studio files
+.vs/
+*.vsidx
+*.vsdx
+*.vsp
+*.vssscc
+*.vspcc
+*.vspx
+*.vspscc
+*.v2
+*.bin
+*.bak
+*.tmp
+*.dbmdl
+*.cache
+*.pdb
+*.pss
+*.pidb
+*.ncb
+*.opensdf
+*.sdf
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+*.code-workspace
+
+# Build output (if applicable)
+dist/
+build/
+
+# NuGet packages
+*.nupkg
+packages/
+
+# Rider IDE files
+.idea/
+*.sln.iml
+
+# Visual Studio specific
+.vs/
+*.tsscache
+*.TestResults/
+
+# Dependency directories
+node_modules/
+wwwroot/lib/
+jspm_packages/
+
+# Resharper files
+_ReSharper*/
+*.DotSettings.user
+
+# Azure Pipelines
+*.coverage
+*.coveragexml
+*.testlog
+
+# Environment variables
+.env
+*.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+
+# NuGet
+[Nn]u[Gg]et/
+*.nupkg
+packages/
+
+# Other
+*.swp
+*.swo
+*~
+~$*
+*.orig
+*.pyc
+*.pyo
+*.pdb
+*.idb
+*.ilk
+*.meta
+
+# Optional additions
+TestResults/
+coverage/
+*.db
+*.bak
+*.tmp
+*.temp
+*.vspscc
+*.vssscc
+*.ncrunch*
+
+# Additional .NET files
+project.lock.json
+project.fragment.lock.json
+artifacts/
+temp_auto_push.bat
+temp_interactive_push.bat
+.gitignore
