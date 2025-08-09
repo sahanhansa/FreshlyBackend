@@ -318,47 +318,76 @@ namespace FreshlyBackendNew.Services.Implementations
         
         public async Task<bool> UpdateItemAsync(Guid itemId, UpdateItemDTO itemDto, Guid laundryId)
         {
-            // Check if the item belongs to this laundry
-            var isOwned = await _context.LaundryItemServices
-                .AnyAsync(x => x.ItemId == itemId && x.LaundryId == laundryId);
-
-            if (!isOwned)
-                return false;
-
-            // Update the item info
-            var item = await _context.Items.FindAsync(itemId);
-            if (item == null)
-                return false;
-
-            item.Name = itemDto.Name;
-            item.Description = itemDto.Description;
-            item.CategoryId = itemDto.CategoryId;
-            item.ItemImageLink = itemDto.ImageUrl;
-
-            // Remove existing services for this laundry & item
-            var existingServices = _context.LaundryItemServices
-                .Where(x => x.ItemId == itemId && x.LaundryId == laundryId);
-            _context.LaundryItemServices.RemoveRange(existingServices);
-
-            // Add updated services grouped by garment type
-            foreach (var garmentType in itemDto.GarmentTypes)
+            try
             {
-                foreach (var service in garmentType.Services)
+                // Validate input
+                if (itemDto == null || itemDto.GarmentTypes == null || !itemDto.GarmentTypes.Any())
                 {
-                    var newService = new LaundryItemService
-                    {
-                        LaundryId = laundryId,
-                        ItemId = itemId,
-                        GarmentTypeId = garmentType.GarmentTypeId,
-                        ServiceId = service.ServiceId,
-                        Price = service.Price ?? 0
-                    };
-                    _context.LaundryItemServices.Add(newService);
+                    return false;
                 }
-            }
 
-            await _context.SaveChangesAsync();
-            return true;
+                // Check if the item belongs to this laundry
+                var isOwned = await _context.LaundryItemServices
+                    .AnyAsync(x => x.ItemId == itemId && x.LaundryId == laundryId);
+
+                if (!isOwned)
+                    return false;
+
+                // Update the item info
+                var item = await _context.Items.FindAsync(itemId);
+                if (item == null)
+                    return false;
+
+                // Update item properties
+                if (!string.IsNullOrEmpty(itemDto.Name))
+                    item.Name = itemDto.Name;
+                
+                if (!string.IsNullOrEmpty(itemDto.Description))
+                    item.Description = itemDto.Description;
+                
+                if (itemDto.CategoryId != Guid.Empty)
+                    item.CategoryId = itemDto.CategoryId;
+                
+                if (!string.IsNullOrEmpty(itemDto.ImageUrl))
+                    item.ItemImageLink = itemDto.ImageUrl;
+
+                // Remove existing services for this laundry & item
+                var existingServices = await _context.LaundryItemServices
+                    .Where(x => x.ItemId == itemId && x.LaundryId == laundryId)
+                    .ToListAsync();
+                _context.LaundryItemServices.RemoveRange(existingServices);
+
+                // Add updated services grouped by garment type
+                foreach (var garmentType in itemDto.GarmentTypes)
+                {
+                    if (garmentType.Services != null && garmentType.Services.Any())
+                    {
+                        foreach (var service in garmentType.Services)
+                        {
+                            if (service.ServiceId != Guid.Empty)
+                            {
+                                var newService = new LaundryItemService
+                                {
+                                    LaundryId = laundryId,
+                                    ItemId = itemId,
+                                    GarmentTypeId = garmentType.GarmentTypeId,
+                                    ServiceId = service.ServiceId,
+                                    Price = service.Price ?? 0
+                                };
+                                _context.LaundryItemServices.Add(newService);
+                            }
+                        }
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating item: {ex.Message}");
+                return false;
+            }
         }
 
         public async Task<(bool success, string message)> AddGarmentTypeAsync(AddGarmentTypeDTO garmentTypeDto)

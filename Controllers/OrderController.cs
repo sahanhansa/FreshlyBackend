@@ -457,6 +457,74 @@ namespace FreshlyBackendNew.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+
+        // New optimized endpoints
+        [HttpGet("{laundryId}/filtered-orders-paginated")]
+        public async Task<IActionResult> GetFilteredOrdersPaginated(
+            Guid laundryId, 
+            [FromQuery] int pageNumber = 1, 
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? statusFilter = null,
+            [FromQuery] string? searchTerm = null)
+        {
+            try
+            {
+                if (pageNumber < 1) pageNumber = 1;
+                if (pageSize < 1 || pageSize > 100) pageSize = 10;
+
+                var result = await _orderService.GetFilteredOrdersPaginatedAsync(laundryId, pageNumber, pageSize, statusFilter, searchTerm);
+
+                if (result == null || result.Orders.Count == 0)
+                    return NotFound("No orders found with the specified criteria.");
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+        [HttpGet("{laundryId}/all-orders-paginated")]
+        public async Task<IActionResult> GetAllOrdersPaginated(
+            Guid laundryId,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? searchTerm = null)
+        {
+            try
+            {
+                if (pageNumber < 1) pageNumber = 1;
+                if (pageSize < 1 || pageSize > 100) pageSize = 10;
+
+                var result = await _orderService.GetAllOrdersPaginatedAsync(laundryId, pageNumber, pageSize, searchTerm);
+
+                if (result == null || result.Orders.Count == 0)
+                    return NotFound("No orders found with the specified criteria.");
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+        [HttpGet("{laundryId}/total-count")]
+        public async Task<IActionResult> GetTotalOrderCount(
+            Guid laundryId,
+            [FromQuery] string? statusFilter = null)
+        {
+            try
+            {
+                var count = await _orderService.GetTotalOrderCountAsync(laundryId, statusFilter);
+                return Ok(new { TotalCount = count });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
     }
     }
 

@@ -130,6 +130,13 @@ namespace FreshlyBackendNew.Services
                 StatusId = entity.Order != null ? entity.Order.StatusId : null
             };
         }
+
+        public async Task<int> GetRejectedItemCountByLaundryIdAsync(Guid laundryId)
+        {
+            return await _context.RejectedItems
+                .Where(r => r.LaundryId == laundryId)
+                .CountAsync();
+        }
     }
 }
 

@@ -23,6 +23,9 @@ namespace FreshlyBackendNew.Services.Interfaces
 
         Task<SortedOrderIdsResponseDTO> GetSortedOrderIdsAsync(Guid laundryId);
 
-
+        // New optimized methods
+        Task<PaginatedOrderResponseDTO> GetFilteredOrdersPaginatedAsync(Guid laundryId, int pageNumber, int pageSize, string? statusFilter = null, string? searchTerm = null);
+        Task<PaginatedOrderResponseDTO> GetAllOrdersPaginatedAsync(Guid laundryId, int pageNumber, int pageSize, string? searchTerm = null);
+        Task<int> GetTotalOrderCountAsync(Guid laundryId, string? statusFilter = null);
     }
 }
