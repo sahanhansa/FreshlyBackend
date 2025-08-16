@@ -22,5 +22,18 @@ namespace FreshlyBackendNew.Controllers
             var statuses = await _context.Statuses.ToListAsync();
             return Ok(statuses);
         }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<string>> GetStatusNameById(Guid id)
+        {
+            var status = await _context.Statuses.FindAsync(id);
+            
+            if (status == null)
+            {
+                return NotFound("Status not found");
+            }
+
+            return Ok(status.StatusName);
+        }
     }
 }
