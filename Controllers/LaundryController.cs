@@ -408,7 +408,77 @@ namespace FreshlyBackendNew.Controllers
             };
             return Ok(dto);
         }
-        
+
+        // GET: api/Laundry/status-ids
+        [HttpGet("status-ids")]
+        public async Task<IActionResult> GetStatusIds()
+        {
+            try
+            {
+                var statuses = await _context.Statuses.ToListAsync();
+                
+                // Return only the three status IDs needed for laundry operations
+                // Map according to business logic: newOrders = picked up, processing = processing in laundry, completed = delivered
+                var statusIds = new
+                {
+                    newOrders = statuses.FirstOrDefault(s => s.StatusName == "order picked up")?.StatusID,
+                    processing = statuses.FirstOrDefault(s => s.StatusName == "processing in laundry")?.StatusID,
+                    completed = statuses.FirstOrDefault(s => s.StatusName == "delivered")?.StatusID
+                };
+
+                return Ok(statusIds);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetStatusIds: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while retrieving status IDs", details = ex.Message });
+            }
         }
-    
+
+        // GET: api/Laundry/categories
+        [HttpGet("categories")]
+        public async Task<IActionResult> GetCategories()
+        {
+            try
+            {
+                var categories = await _context.ItemCategories
+                    .Select(c => new
+                    {
+                        id = c.CategoryId.ToString(),
+                        name = c.CategoryName
+                    })
+                    .ToListAsync();
+
+                return Ok(categories);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetCategories: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while retrieving categories", details = ex.Message });
+            }
         }
+
+        // GET: api/Laundry/new-status-ids
+        [HttpGet("new-status-ids")]
+        public async Task<IActionResult> GetNewStatusIds()
+        {
+            try
+            {
+                var statuses = await _context.Statuses.ToListAsync();
+                
+                // Return status IDs for new status operations
+                var newStatusIds = new
+                {
+                    finishedProcessing = statuses.FirstOrDefault(s => s.StatusName == "finished processing")?.StatusID
+                };
+
+                return Ok(newStatusIds);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetNewStatusIds: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while retrieving new status IDs", details = ex.Message });
+            }
+        }
+    }
+}
