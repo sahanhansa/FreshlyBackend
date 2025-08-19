@@ -61,8 +61,7 @@ namespace FreshlyBackendNew.Controllers
                     FullName = string.IsNullOrEmpty(fullName) ? null : fullName,
                     Email = owner.Email,
                     Address = fullAddress,
-                    ContactNumber = "+94 71 234 5678", // This could be stored in the database
-                    ProfileImageUrl = null // This would be stored in the database
+                    ContactNumber = "+94 71 234 5678" // This could be stored in the database
                 };
 
                 return Ok(ownerDetails);
