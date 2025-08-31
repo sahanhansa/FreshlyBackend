@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
 using FreshlyBackendNew.Data;
-using System.Collections.Generic; // Added for List
-using System.Linq; // Added for Where, Select, ToList, Count, Average
+using System.Collections.Generic;
+using System.Linq;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -24,12 +24,10 @@ namespace FreshlyBackendNew.Controllers
             _context = context;
         }
 
-        // Example statusId: b8dfb69f-5f5e-11f0-8064-0022481a06a0
         // GET: api/Profile/order-count/{laundryId}
         [HttpGet("order-count/{laundryId}")]
         public async Task<IActionResult> GetOrderCount(Guid laundryId)
         {
-            // Only allow these status IDs
             var allowedStatusIds = new[]
             {
                 Guid.Parse("b8dfb7de-5f5e-11f0-8064-0022481a06a0"),
@@ -39,12 +37,10 @@ namespace FreshlyBackendNew.Controllers
             return Ok(new { laundryId, orderCount = count });
         }
 
-        // Example statusId: b8dfb7de-5f5e-11f0-8064-0022481a06a0
         // GET: api/Profile/average-rating/{laundryId}
         [HttpGet("average-rating/{laundryId}")]
         public async Task<IActionResult> GetAverageRating(Guid laundryId)
         {
-            // Join Feedbacks to Orders on OrderId, filter by laundryId
             var ratings = await (from f in _context.Feedbacks
                                  join o in _context.Orders on f.OrderId equals o.OrderId
                                  where o.LaundryId == laundryId && f.Rating.HasValue
@@ -464,6 +460,7 @@ namespace FreshlyBackendNew.Controllers
                 garmentTypeNames.ContainsKey(g.GarmentTypeId ?? Guid.Empty) ? garmentTypeNames[g.GarmentTypeId ?? Guid.Empty] : "Unknown",
                 g.Count)).ToList();
         }
+        
         private async Task<List<(string serviceName, int count)>> GetTopServicesData(Guid laundryId)
         {
             var statusId = Guid.Parse("b8dfb7de-5f5e-11f0-8064-0022481a06a0");
@@ -489,6 +486,7 @@ namespace FreshlyBackendNew.Controllers
                 serviceNames.ContainsKey(g.ServiceId ?? Guid.Empty) ? serviceNames[g.ServiceId ?? Guid.Empty] : "Unknown",
                 g.Count)).ToList();
         }
+        
         private async Task<List<(int month, int orderCount)>> GetOrderTrendsData(Guid laundryId, int year)
         {
             var statusId = Guid.Parse("b8dfb7de-5f5e-11f0-8064-0022481a06a0");
@@ -503,4 +501,4 @@ namespace FreshlyBackendNew.Controllers
             return monthly;
         }
     }
-} 
+}
