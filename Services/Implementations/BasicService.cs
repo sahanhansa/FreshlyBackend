@@ -54,6 +54,7 @@ namespace FreshlyBackendNew.Services.Implementations
                         LaundryId = laundry.LaundryId.ToString(),
                         LaundryName = laundry.LaundryName ?? string.Empty,
                         City = laundry.Address?.City,
+                        LaundryImageLink = laundry.LaundryImageLink, // Include the LaundryImageLink
                         AverageRating = Math.Round(averageRating, 1)
                     });
                 }

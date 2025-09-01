@@ -332,7 +332,7 @@ namespace FreshlyBackendNew.Services.Implementations
                     Email = laundry.Email,
                     Address = fullAddress,
                     ContactNumber = "+94 71 234 5678", // This could be stored in the database
-                    LogoUrl = null, // This would be stored in the database
+                    LogoUrl = laundry.LaundryImageLink, // Pass the corresponding LaundryImageLink to logoUrl
                 };
             }
             catch (Exception ex)
