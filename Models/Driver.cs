@@ -8,6 +8,7 @@ namespace FreshlyBackendNew.Models
         public Driver()
         {
             DriverId = Guid.NewGuid();
+            AccountStatus = "active";
         }
 
         // Primary Key
@@ -30,7 +31,10 @@ namespace FreshlyBackendNew.Models
         public Address? Address { get; set; }
 
         public string AccountStatus { get; set; } = "active";
+
+        [Required]
         public string VehicleNo { get; set; }
+
         public string? ProfileImage { get; set; }
 
         //public virtual ICollection<Contact>? Contacts { get; set; }

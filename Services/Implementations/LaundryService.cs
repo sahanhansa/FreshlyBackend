@@ -3,6 +3,7 @@ using FreshlyBackendNew.DTOs;
 using FreshlyBackendNew.Models;
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using FreshlyBackendNew.Helpers;
 
 namespace FreshlyBackendNew.Services.Implementations
 {
@@ -122,24 +123,14 @@ namespace FreshlyBackendNew.Services.Implementations
                     string fullAddress = string.Empty;
                     if (laundry.Address != null)
                     {
-                        var addressParts = new List<string>();
-                        if (!string.IsNullOrEmpty(laundry.Address.HouseNo)) addressParts.Add(laundry.Address.HouseNo);
-                        if (!string.IsNullOrEmpty(laundry.Address.Street)) addressParts.Add(laundry.Address.Street);
-                        if (!string.IsNullOrEmpty(laundry.Address.City)) addressParts.Add(laundry.Address.City);
-                        if (!string.IsNullOrEmpty(laundry.Address.PostalCode)) addressParts.Add(laundry.Address.PostalCode);
-
-                        fullAddress = string.Join(", ", addressParts);
+                        fullAddress = AddressHelper.FormatAddress(laundry.Address);
                     }
 
                     // Create owner name safely
                     string ownerName = string.Empty;
                     if (laundry.Owner != null)
                     {
-                        var nameParts = new List<string>();
-                        if (!string.IsNullOrEmpty(laundry.Owner.FirstName)) nameParts.Add(laundry.Owner.FirstName);
-                        if (!string.IsNullOrEmpty(laundry.Owner.LastName)) nameParts.Add(laundry.Owner.LastName);
-
-                        ownerName = string.Join(" ", nameParts);
+                        ownerName = AddressHelper.FormatFullName(laundry.Owner.FirstName, laundry.Owner.LastName);
                     }
 
                     string status = string.IsNullOrEmpty(laundry.AccountStatus) ? "inactive" : laundry.AccountStatus.ToLower() == "deleted" ? "deleted" : laundry.AccountStatus.ToLower() == "active" ? "active" : laundry.AccountStatus;
@@ -242,24 +233,14 @@ namespace FreshlyBackendNew.Services.Implementations
                 string fullAddress = string.Empty;
                 if (laundry.Address != null)
                 {
-                    var addressParts = new List<string>();
-                    if (!string.IsNullOrEmpty(laundry.Address.HouseNo)) addressParts.Add(laundry.Address.HouseNo);
-                    if (!string.IsNullOrEmpty(laundry.Address.Street)) addressParts.Add(laundry.Address.Street);
-                    if (!string.IsNullOrEmpty(laundry.Address.City)) addressParts.Add(laundry.Address.City);
-                    if (!string.IsNullOrEmpty(laundry.Address.PostalCode)) addressParts.Add(laundry.Address.PostalCode);
-
-                    fullAddress = string.Join(", ", addressParts);
+                    fullAddress = AddressHelper.FormatAddress(laundry.Address);
                 }
 
                 // Create owner name safely
                 string ownerName = string.Empty;
                 if (laundry.Owner != null)
                 {
-                    var nameParts = new List<string>();
-                    if (!string.IsNullOrEmpty(laundry.Owner.FirstName)) nameParts.Add(laundry.Owner.FirstName);
-                    if (!string.IsNullOrEmpty(laundry.Owner.LastName)) nameParts.Add(laundry.Owner.LastName);
-
-                    ownerName = string.Join(" ", nameParts);
+                    ownerName = AddressHelper.FormatFullName(laundry.Owner.FirstName, laundry.Owner.LastName);
                 }
 
                 string status = string.IsNullOrEmpty(laundry.AccountStatus) ? "inactive" : laundry.AccountStatus.ToLower() == "deleted" ? "deleted" : laundry.AccountStatus.ToLower() == "active" ? "active" : laundry.AccountStatus;
@@ -305,24 +286,14 @@ namespace FreshlyBackendNew.Services.Implementations
                 string fullAddress = string.Empty;
                 if (laundry.Address != null)
                 {
-                    var addressParts = new List<string>();
-                    if (!string.IsNullOrEmpty(laundry.Address.HouseNo)) addressParts.Add(laundry.Address.HouseNo);
-                    if (!string.IsNullOrEmpty(laundry.Address.Street)) addressParts.Add(laundry.Address.Street);
-                    if (!string.IsNullOrEmpty(laundry.Address.City)) addressParts.Add(laundry.Address.City);
-                    if (!string.IsNullOrEmpty(laundry.Address.PostalCode)) addressParts.Add(laundry.Address.PostalCode);
-
-                    fullAddress = string.Join(", ", addressParts);
+                    fullAddress = AddressHelper.FormatAddress(laundry.Address);
                 }
 
                 // Create owner name
                 string ownerName = string.Empty;
                 if (laundry.Owner != null)
                 {
-                    var nameParts = new List<string>();
-                    if (!string.IsNullOrEmpty(laundry.Owner.FirstName)) nameParts.Add(laundry.Owner.FirstName);
-                    if (!string.IsNullOrEmpty(laundry.Owner.LastName)) nameParts.Add(laundry.Owner.LastName);
-
-                    ownerName = string.Join(" ", nameParts);
+                    ownerName = AddressHelper.FormatFullName(laundry.Owner.FirstName, laundry.Owner.LastName);
                 }
 
                 return new LaundryDetailsDTO

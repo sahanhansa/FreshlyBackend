@@ -8,23 +8,35 @@ namespace FreshlyBackendNew.Models
         public Customer()
         {
             CustomerId = Guid.NewGuid();
-            //Contacts = new List<Contact>();
+            AccountStatus = "active";
         }
 
         [Key]
         public Guid CustomerId { get; set; }
+
+        [Required]
         public string FirstName { get; set; }
+
+        [Required]
         public string LastName { get; set; }
+
+        [Required]
         public string Username { get; set; }
+
+        [Required]
         public string Password { get; set; }
+
+        [Required]
+        [EmailAddress]
         public string Email { get; set; }
+
         public string AccountStatus { get; set; } = "active";
+
         public string? CustomerImageLink { get; set; }
+
         public Guid? AddressId { get; set; }
 
-        // Navigation PropertiesgjdF
         [ForeignKey("AddressId")]
         public Address? Address { get; set; }
-
     }
 }

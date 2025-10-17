@@ -1,4 +1,4 @@
-namespace FreshlyBackendNew.DTOs
+﻿namespace FreshlyBackendNew.DTOs
 {
     public class OrderDTO
     {
@@ -8,21 +8,14 @@ namespace FreshlyBackendNew.DTOs
         public string? PickupDate { get; set; }
         public string? PickupTime { get; set; }
         public DateTime? PlacedDateTime { get; set; }
-        public decimal? TotalCost { get; set; } // Add this property to hold total cost
+        public decimal? TotalCost { get; set; }
+        public string? PaymentMethod { get; set; }
+        public bool? IsPaid { get; set; }
 
-        // Customer details
         public CustomerDTO? Customer { get; set; }
-
-        // Laundry details
         public LaundryDTO? Laundry { get; set; }
-
-        // Status details
         public StatusDTO? Status { get; set; }
-
-        // Order type details
         public OrderTypeDTO? OrderType { get; set; }
-
-        // User details
         public UserDTO? User { get; set; }
     }
 
@@ -38,6 +31,7 @@ namespace FreshlyBackendNew.DTOs
         public AddressDTO? Address { get; set; }
     }
 
+    // ✅ SINGLE AddressDTO - FIXED: Changed field to property
     public class AddressDTO
     {
         public Guid AddressId { get; set; }
@@ -45,11 +39,8 @@ namespace FreshlyBackendNew.DTOs
         public string? Street { get; set; }
         public string? City { get; set; }
         public string? PostalCode { get; set; }
-        public string? FullAddress { get; set; }
-        public DateTime? PlacedDate { get; set; }
+        public string? FullAddress { get; set; } // ✅ FIXED: property not field
     }
-
-    
 
     public class LaundryDTO
     {
@@ -62,9 +53,7 @@ namespace FreshlyBackendNew.DTOs
     {
         public Guid StatusID { get; set; }
         public string? StatusName { get; set; }
-
         public string CustomerFName { get; set; } = string.Empty;
-
         public string StatusDisplayName { get; set; } = string.Empty;
     }
 
@@ -79,13 +68,10 @@ namespace FreshlyBackendNew.DTOs
         public Guid UserId { get; set; }
         public string? Username { get; set; }
     }
-    
-    namespace FreshlyBackendNew.DTOs
+
+    public class SortedOrderIdDTO
     {
-        public class SortedOrderIdDTO
-        {
-            public Guid OrderId { get; set; }
-        }
+        public Guid OrderId { get; set; }
     }
 
     public class SortedOrderIdsResponseDTO
@@ -93,5 +79,14 @@ namespace FreshlyBackendNew.DTOs
         public List<Guid> OrderIds { get; set; } = new List<Guid>();
     }
 
-
+    public class PaginatedOrderResponseDTO
+    {
+        public List<OrderDTO> Orders { get; set; } = new List<OrderDTO>();
+        public int TotalCount { get; set; }
+        public int PageNumber { get; set; }
+        public int PageSize { get; set; }
+        public int TotalPages { get; set; }
+        public bool HasNextPage { get; set; }
+        public bool HasPreviousPage { get; set; }
+    }
 }

@@ -1,9 +1,13 @@
-﻿using FreshlyBackendNew.Data;
+﻿using FreshlyBackendNew.Common;
+using FreshlyBackendNew.Data;
 using FreshlyBackendNew.DTOs;
-using FreshlyBackendNew.Models;
+using FreshlyBackendNew.DTOs.Order_DTOs;
+using OrderDTOAddressDTO = FreshlyBackendNew.DTOs.Order_DTOs.AddressDTO; // Alias to resolve ambiguity
+using DTOAddressDTO = FreshlyBackendNew.DTOs.AddressDTO; // Standard AddressDTO for CustomerDTO
 using FreshlyBackendNew.Services.Interfaces;
 using FreshlyBackendNew.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,40 +15,19 @@ using System.Threading.Tasks;
 
 namespace FreshlyBackendNew.Services.Implementations
 {
-    public class OrderService : FreshlyBackendNew.Services.Interfaces.IOrderService
+    public partial class OrderService : IOrderService
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<OrderService> _logger;
 
-        public OrderService(ApplicationDbContext context)
+        public OrderService(ApplicationDbContext context, ILogger<OrderService> logger)
         {
             _context = context;
+            _logger = logger;
         }
         
-        public async Task<List<OrderDTO>> GetNewOrdersAsync(Guid laundryId)
-        {
-            var pickedUpStatus = await _context.Statuses
-                .FirstOrDefaultAsync(s => s.StatusName != null && s.StatusName.Trim().ToLower() == "order picked up");
-
-            if (pickedUpStatus == null)
-                return [];
-
-            var orders = await _context.Orders
-                .Where(o => o.LaundryId == laundryId && o.StatusId == pickedUpStatus.StatusID)
-                .ToListAsync();
-
-            var result = orders.Select(o => new OrderDTO
-            {
-                OrderId = o.OrderId,
-                PlacedDate = o.PlacedAt?.ToString("yyyy-MM-dd"),
-                PlacedTime = o.PlacedAt?.ToString("HH:mm:ss"),
-                PickupDate = o.PickupAt?.ToString("yyyy-MM-dd"),
-                PickupTime = o.PickupAt?.ToString("HH:mm:ss")
-            }).ToList();
-
-            return result;
-        }
-
-
+        // GetNewOrdersAsync is in OptimizedOrderService.cs
+        
         public async Task<List<OrderDTO>> GetProcessingOrdersAsync(Guid laundryId)
         {
             var processingStatus = await _context.Statuses
@@ -86,7 +69,7 @@ namespace FreshlyBackendNew.Services.Implementations
 
                     if (o.Customer.Address != null)
                     {
-                        dto.Customer.Address = new AddressDTO
+                        dto.Customer.Address = new DTOAddressDTO
                         {
                             HouseNo = o.Customer.Address.HouseNo,
                             Street = o.Customer.Address.Street,
@@ -123,7 +106,7 @@ namespace FreshlyBackendNew.Services.Implementations
 
 
         public async Task<List<OrderDTO>> GetCompletedOrdersAsync(Guid laundryId)
-{
+        {
     var deliveredStatus = await _context.Statuses
         .FirstOrDefaultAsync(s => s.StatusName != null && s.StatusName.ToLower() == "delivered");
 
@@ -156,7 +139,7 @@ namespace FreshlyBackendNew.Services.Implementations
                 LastName = o.Customer.LastName,
                 Email = o.Customer.Email,
                 Username = o.Customer.Username,
-                Address = o.Customer.Address != null ? new AddressDTO
+                Address = o.Customer.Address != null ? new DTOAddressDTO
                 {
                     HouseNo = o.Customer.Address.HouseNo,
                     Street = o.Customer.Address.Street,
@@ -277,7 +260,7 @@ namespace FreshlyBackendNew.Services.Implementations
 
                     if (o.Customer.Address != null)
                     {
-                        dto.Customer.Address = new AddressDTO
+                        dto.Customer.Address = new DTOAddressDTO
                         {
                             AddressId = o.Customer.Address.AddressId,
                             HouseNo = o.Customer.Address.HouseNo,
@@ -349,7 +332,7 @@ namespace FreshlyBackendNew.Services.Implementations
             }
             dto.TotalCost = totalCost;
 
-            // ...existing code for customer, laundry, status...
+            // Customer
             if (order.Customer != null)
             {
                 dto.Customer = new CustomerDTO
@@ -365,7 +348,7 @@ namespace FreshlyBackendNew.Services.Implementations
 
                 if (order.Customer.Address != null)
                 {
-                    dto.Customer.Address = new AddressDTO
+                    dto.Customer.Address = new DTOAddressDTO
                     {
                         AddressId = order.Customer.Address.AddressId,
                         HouseNo = order.Customer.Address.HouseNo,
@@ -399,74 +382,70 @@ namespace FreshlyBackendNew.Services.Implementations
             return dto;
         }
         
-        public async Task<OrderDTO> CreateOrderAsync(OrderDTO orderDto)
+        public async Task<Result<OrderDTO>> CreateOrderAsync(OrderDTO orderDto)
         {
-            if (orderDto == null)
-                return null;
-
-            var order = new Order
+            try
             {
-                OrderId = orderDto.OrderId != Guid.Empty ? orderDto.OrderId : Guid.NewGuid()
-            };
+                if (orderDto == null)
+                    return Result<OrderDTO>.Failure("Order data is required");
 
-            // Parse dates if provided
-            if (!string.IsNullOrEmpty(orderDto.PlacedDate) && !string.IsNullOrEmpty(orderDto.PlacedTime))
-            {
-                if (DateTime.TryParse($"{orderDto.PlacedDate} {orderDto.PlacedTime}", out DateTime placedDateTime))
+                if (orderDto.Customer == null || orderDto.Customer.CustomerId == Guid.Empty)
+                    return Result<OrderDTO>.Failure("Customer information is required");
+
+                if (orderDto.Laundry == null || orderDto.Laundry.LaundryId == Guid.Empty)
+                    return Result<OrderDTO>.Failure("Laundry information is required");
+
+                var order = new Order
                 {
-                    order.PlacedAt = placedDateTime;
-                }
-            }
-            else if (orderDto.PlacedDateTime.HasValue)
-            {
-                order.PlacedAt = orderDto.PlacedDateTime.Value;
-            }
-            else
-            {
-                order.PlacedAt = DateTime.UtcNow;
-            }
+                    OrderId = Guid.NewGuid(),
+                    CustomerId = orderDto.Customer.CustomerId,
+                    LaundryId = orderDto.Laundry.LaundryId,
+                    PlacedAt = orderDto.PlacedDateTime ?? DateTime.UtcNow,
+                    PickupAt = string.IsNullOrEmpty(orderDto.PickupDate) && string.IsNullOrEmpty(orderDto.PickupTime)
+                        ? null
+                        : DateTime.TryParse($"{orderDto.PickupDate} {orderDto.PickupTime}", out DateTime pickupDateTime)
+                            ? pickupDateTime
+                            : (DateTime?)null,
+                    PaymentMethod = orderDto.PaymentMethod ?? "COD",
+                    IsPaid = orderDto.IsPaid ?? false
+                };
 
-            if (!string.IsNullOrEmpty(orderDto.PickupDate) && !string.IsNullOrEmpty(orderDto.PickupTime))
-            {
-                if (DateTime.TryParse($"{orderDto.PickupDate} {orderDto.PickupTime}", out DateTime pickupDateTime))
+                // Set status
+                if (orderDto.Status != null && orderDto.Status.StatusID != Guid.Empty)
                 {
-                    order.PickupAt = pickupDateTime;
+                    order.StatusId = orderDto.Status.StatusID;
                 }
-            }
+                else
+                {
+                    var defaultStatus = await _context.Statuses
+                        .FirstOrDefaultAsync(s => s.StatusName != null && 
+                            s.StatusName.ToLower() == "order placed");
+                    
+                    if (defaultStatus != null)
+                    {
+                        order.StatusId = defaultStatus.StatusID;
+                    }
+                }
 
-            // Set foreign keys from DTO
-            if (orderDto.Customer != null && orderDto.Customer.CustomerId != Guid.Empty)
-            {
-                order.CustomerId = orderDto.Customer.CustomerId;
-            }
+                await _context.Orders.AddAsync(order);
+                await _context.SaveChangesAsync();
 
-            if (orderDto.Laundry != null && orderDto.Laundry.LaundryId != Guid.Empty)
-            {
-                order.LaundryId = orderDto.Laundry.LaundryId;
-            }
-
-            if (orderDto.Status != null && orderDto.Status.StatusID != Guid.Empty)
-            {
-                order.StatusId = orderDto.Status.StatusID;
-            }
-            else
-            {
-                // Set default status if not provided
-                var defaultStatus = await _context.Statuses
-                    .FirstOrDefaultAsync(s => s.StatusName != null && 
-                        s.StatusName.ToLower() == "placed");
+                var createdOrder = await GetOrderByIdAsync(order.OrderId);
                 
-                if (defaultStatus != null)
-                {
-                    order.StatusId = defaultStatus.StatusID;
-                }
+                _logger.LogInformation("Order {OrderId} created successfully", order.OrderId);
+                
+                return Result<OrderDTO>.Success(createdOrder);
             }
-
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
-
-            // Return the created order
-            return await GetOrderByIdAsync(order.OrderId);
+            catch (DbUpdateException dbEx)
+            {
+                _logger.LogError(dbEx, "Database error while creating order");
+                return Result<OrderDTO>.Failure("Failed to save order to database. Please try again.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating order");
+                return Result<OrderDTO>.Failure($"An unexpected error occurred: {ex.Message}");
+            }
         }
         
         public async Task<bool> UpdateOrderAsync(Guid id, OrderDTO orderDto)
@@ -558,7 +537,7 @@ namespace FreshlyBackendNew.Services.Implementations
         }
 
         //lasini-get relavant customer address
-        public async Task<DTOs.Order_DTOs.AddressDTO> GetCustomerAddressAsync(Guid customerId)
+        public async Task<OrderDTOAddressDTO> GetCustomerAddressAsync(Guid customerId)
         {
             var customer = await _context.Customers
                 .Include(c => c.Address)
@@ -569,19 +548,18 @@ namespace FreshlyBackendNew.Services.Implementations
 
             // Fetch contact numbers for this customer
             var contactNumbers = await _context.Contacts
-                .Where(c => c.UserId == customerId && c.UserType == "customer")
+                .Where(c => c.UserId == customerId && c.UserType == "Customer")
                 .Select(c => c.ContactNumber)
                 .ToListAsync();
 
-            return new DTOs.Order_DTOs.AddressDTO
+            return new OrderDTOAddressDTO
             {
                 AddressId = customer.Address.AddressId,
                 HouseNo = customer.Address.HouseNo,
                 Street = customer.Address.Street,
                 City = customer.Address.City,
                 PostalCode = customer.Address.PostalCode,
-                ContactNumbers = contactNumbers // Set the contact numbers
-
+                ContactNumbers = contactNumbers
             };
         }
 
@@ -775,7 +753,6 @@ public async Task<List<OrderDTO>> GetFilteredOrdersAsync(Guid laundryId)
         .ToDictionary(g => g.Key, g => g.First().Price ?? 0);
 
     var result = new List<OrderDTO>();
-
     foreach (var o in orders)
     {
         var dto = new OrderDTO
@@ -815,7 +792,7 @@ public async Task<List<OrderDTO>> GetFilteredOrdersAsync(Guid laundryId)
                 Username = o.Customer.Username,
                 CustomerFName = o.Customer.FirstName ?? string.Empty,
                 CustomerLName = o.Customer.LastName ?? string.Empty,
-                Address = o.Customer.Address == null ? null : new AddressDTO
+                Address = o.Customer.Address == null ? null : new DTOAddressDTO
                 {
                     AddressId = o.Customer.Address.AddressId,
                     HouseNo = o.Customer.Address.HouseNo,
@@ -854,22 +831,16 @@ public async Task<List<OrderDTO>> GetFilteredOrdersAsync(Guid laundryId)
     return result;
 }
 
-public async Task<int> GetOrderCountByStatusAsync(Guid laundryId, Guid statusId)
+public async Task<SortedOrderIdsResponseDTO> GetSortedOrderIdsAsync(Guid laundryId)
 {
-    return await _context.Orders
-        .CountAsync(o => o.LaundryId == laundryId && o.StatusId == statusId);
+    var orderIds = await _context.Orders
+        .Where(o => o.LaundryId == laundryId)
+        .OrderByDescending(o => o.PlacedAt)
+        .Select(o => o.OrderId)
+        .ToListAsync();
+
+    return new SortedOrderIdsResponseDTO { OrderIds = orderIds };
 }
-
-        public async Task<SortedOrderIdsResponseDTO> GetSortedOrderIdsAsync(Guid laundryId)
-        {
-            var orderIds = await _context.Orders
-                .Where(o => o.LaundryId == laundryId)
-                .OrderByDescending(o => o.PlacedAt)
-                .Select(o => o.OrderId)
-                .ToListAsync();
-
-            return new SortedOrderIdsResponseDTO { OrderIds = orderIds };
-        }
 
         // New optimized methods
         public async Task<PaginatedOrderResponseDTO> GetFilteredOrdersPaginatedAsync(Guid laundryId, int pageNumber, int pageSize, string? statusFilter = null, string? searchTerm = null)
@@ -997,7 +968,7 @@ public async Task<int> GetOrderCountByStatusAsync(Guid laundryId, Guid statusId)
                         Username = o.Customer.Username,
                         CustomerFName = o.Customer.FirstName ?? string.Empty,
                         CustomerLName = o.Customer.LastName ?? string.Empty,
-                        Address = o.Customer.Address == null ? null : new AddressDTO
+                        Address = o.Customer.Address == null ? null : new DTOAddressDTO
                         {
                             AddressId = o.Customer.Address.AddressId,
                             HouseNo = o.Customer.Address.HouseNo,
@@ -1063,7 +1034,7 @@ public async Task<int> GetOrderCountByStatusAsync(Guid laundryId, Guid statusId)
                      (o.Customer.FirstName != null && o.Customer.FirstName.Contains(searchTerm)) ||
                      (o.Customer.LastName != null && o.Customer.LastName.Contains(searchTerm)) ||
                      (o.Customer.Email != null && o.Customer.Email.Contains(searchTerm))) ||
-                    o.OrderId.ToString().Contains(searchTerm));
+                o.OrderId.ToString().Contains(searchTerm));
             }
 
             // Get total count for pagination
@@ -1163,7 +1134,7 @@ public async Task<int> GetOrderCountByStatusAsync(Guid laundryId, Guid statusId)
 
                     if (o.Customer.Address != null)
                     {
-                        dto.Customer.Address = new AddressDTO
+                        dto.Customer.Address = new DTOAddressDTO
                         {
                             AddressId = o.Customer.Address.AddressId,
                             HouseNo = o.Customer.Address.HouseNo,
@@ -1234,6 +1205,11 @@ public async Task<int> GetOrderCountByStatusAsync(Guid laundryId, Guid statusId)
             return await query.CountAsync();
         }
 
-
+        public async Task<int> GetOrderCountByStatusAsync(Guid laundryId, Guid statusId)
+        {
+            return await _context.Orders
+                .Where(o => o.LaundryId == laundryId && o.StatusId == statusId)
+                .CountAsync();
+        }
     }
 }

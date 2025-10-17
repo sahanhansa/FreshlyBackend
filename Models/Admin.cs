@@ -8,6 +8,8 @@ namespace FreshlyBackendNew.Models
         public Admin()
         {
             AdminId = Guid.NewGuid();
+            CreatedAt = DateTime.UtcNow;
+            Role = "Admin";
         }
 
         // Primary Key

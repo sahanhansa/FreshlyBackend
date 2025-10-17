@@ -123,44 +123,39 @@ namespace FreshlyBackendNew.Services.Implementations
             if (driver == null)
                 return null;
 
-            var orders = await _context.Orders.ToListAsync();
+            // ✅ Get status IDs directly from database
+            var statuses = await _context.Statuses
+                .Where(s => s.StatusName == "order placed" || 
+                            s.StatusName == "order picked up" ||
+                            s.StatusName == "finished processing" ||
+                            s.StatusName == "out for delivery")
+                .ToDictionaryAsync(s => s.StatusName.ToLower(), s => s.StatusID);
 
-            var statuses = await _context.Statuses.ToListAsync();
+            var statusPlaced = statuses.GetValueOrDefault("order placed");
+            var statusPickedUp = statuses.GetValueOrDefault("order picked up");
+            var finishedProcessing = statuses.GetValueOrDefault("finished processing");
+            var outDelivery = statuses.GetValueOrDefault("out for delivery");
 
-            var statusPlaced = statuses.FirstOrDefault(s => s.StatusName == "order placed")?.StatusID
-                ?? throw new InvalidOperationException("Status 'order placed' not found.");
+            // ✅ All calculations happen in the database
+            var allPickups = await _context.Orders
+                .CountAsync(o => o.PickupDriverId == driverId && 
+                                o.StatusId != statusPlaced && 
+                                o.StatusId != statusPickedUp);
 
-            var statusPickedUp = statuses.FirstOrDefault(s => s.StatusName == "order picked up")?.StatusID
-                ?? throw new InvalidOperationException("Status 'order picked up' not found.");
+            var pendingPickups = await _context.Orders
+                .CountAsync(o => o.PickupDriverId == driverId && 
+                                (o.StatusId == statusPlaced || o.StatusId == statusPickedUp));
 
-            var finishedProcessing = statuses.FirstOrDefault(s => s.StatusName == "finished processing")?.StatusID
-                ?? throw new InvalidOperationException("Status 'finished processing' not found.");
+            var allDeliveries = await _context.Orders
+                .CountAsync(o => o.DeliveryDriverId == driverId && 
+                                o.StatusId != finishedProcessing && 
+                                o.StatusId != outDelivery);
 
-            var outDelivery = statuses.FirstOrDefault(s => s.StatusName == "out for delivery")?.StatusID
-                ?? throw new InvalidOperationException("Status 'out for delivery' not found.");
+            var pendingDeliveries = await _context.Orders
+                .CountAsync(o => o.DeliveryDriverId == driverId && 
+                                (o.StatusId == finishedProcessing || o.StatusId == outDelivery));
 
-
-            var allPickups = orders.Count(o =>
-                o.PickupDriverId == driverId &&
-                (o.StatusId != statusPlaced && o.StatusId != statusPickedUp)
-            );
-
-            var pendingPickups = orders.Count(o =>
-                o.PickupDriverId == driverId &&
-                (o.StatusId == statusPlaced || o.StatusId == statusPickedUp)
-            );
-
-            var allDeliveries = orders.Count(o =>
-                o.DeliveryDriverId == driverId &&
-                (o.StatusId != finishedProcessing && o.StatusId != outDelivery)
-            );
-
-            var pendingDeliveries = orders.Count(o =>
-                o.DeliveryDriverId == driverId &&
-                (o.StatusId == finishedProcessing || o.StatusId == outDelivery)
-            );
-
-            var dto = new DriverHomaDto
+            return new DriverHomaDto
             {
                 FullName = $"{driver.FirstName} {driver.LastName}",
                 AllPickups = allPickups,
@@ -168,8 +163,6 @@ namespace FreshlyBackendNew.Services.Implementations
                 AllDelivery = allDeliveries,
                 PendingDelivery = pendingDeliveries
             };
-
-            return dto;
         }
 
         public async Task<DriverReportDto> DriverReportDash(Guid driverId)

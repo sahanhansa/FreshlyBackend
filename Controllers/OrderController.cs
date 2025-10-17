@@ -1,13 +1,16 @@
+﻿using FreshlyBackendNew.Common;
 using FreshlyBackendNew.Data;
 using FreshlyBackendNew.DTOs;
+using FreshlyBackendNew.DTOs.Order_DTOs; // ✅ CORRECT: No "FreshlyBackendNew" prefix
 using FreshlyBackendNew.Models;
 using FreshlyBackendNew.Services;
 using FreshlyBackendNew.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using FreshlyBackendNew.DTOs.FreshlyBackendNew.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace FreshlyBackendNew.Controllers
@@ -20,18 +23,20 @@ namespace FreshlyBackendNew.Controllers
         private readonly IAllPickupService _pickupService;
         private readonly IAllDeliveryService _deliveryService;
         private readonly ICompleteTasksService _completetasksservice;
-        private readonly ApplicationDbContext _context;
+        private readonly ILogger<OrderController> _logger;
         
         public OrderController(
             IOrderService orderService,
             IAllPickupService pickupService,
             IAllDeliveryService deliveryService,
-             ICompleteTasksService completetasksservice)
+            ICompleteTasksService completetasksservice,
+            ILogger<OrderController> logger)
         {
             _orderService = orderService;
             _pickupService = pickupService;
             _deliveryService = deliveryService;
             _completetasksservice = completetasksservice;
+            _logger = logger;
         }
 
         // lasini-get cutomer address when confirming order
@@ -283,18 +288,26 @@ namespace FreshlyBackendNew.Controllers
         public async Task<IActionResult> CreateOrder([FromBody] OrderDTO orderDto)
         {
             if (orderDto == null)
-                return BadRequest("Order data is required.");
+                return BadRequest(new { Error = "Order data is required" });
 
             try
             {
-                var createdOrder = await _orderService.CreateOrderAsync(orderDto);
-                if (createdOrder == null)
-                    return StatusCode(500, "Failed to create order.");
-                return CreatedAtAction(nameof(GetAllOrders), new { id = createdOrder.OrderId }, createdOrder);
+                var result = await _orderService.CreateOrderAsync(orderDto);
+
+                if (!result.IsSuccess)
+                {
+                    return BadRequest(new { Error = result.Error, Errors = result.Errors });
+                }
+
+                return CreatedAtAction(
+                    nameof(GetAllOrders), 
+                    new { id = result.Value.OrderId }, 
+                    result.Value);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while creating the order: {ex.Message}");
+                _logger.LogError(ex, "Error in CreateOrder endpoint"); // ✅ NOW THIS WORKS
+                return StatusCode(500, new { Error = "An error occurred while creating the order" });
             }
         }
 

@@ -320,9 +320,6 @@ namespace FreshlyBackendNew.Controllers
             {
                 var totalAmount = await _driverProfileService.DriverReportRevenue(driverId);
 
-                if (totalAmount == null)
-                    return NotFound($"No contact details found for driver with ID: {driverId}");
-
                 return Ok(totalAmount);
             }
             catch (Exception ex)

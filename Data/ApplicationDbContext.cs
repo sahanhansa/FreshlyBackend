@@ -7,12 +7,11 @@ namespace FreshlyBackendNew.Data
     {
         // DbSet properties for all models
         public DbSet<Address> Addresses { get; set; }
-        public DbSet<Admin> Admins { get; set; } // Added Admin DbSet
+        public DbSet<Admin> Admins { get; set; }
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Driver> Drivers { get; set; }
         public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; }
-
         public DbSet<DriverNote> DriverNotes { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<Item> Items { get; set; }
@@ -29,8 +28,6 @@ namespace FreshlyBackendNew.Data
         public DbSet<TemporaryOrderDetail> TemporaryOrderDetails { get; set; }
         public DbSet<RejectedItem> RejectedItems { get; set; }
         public DbSet<GarmentType> GarmentTypes { get; set; }
-        //public DbSet<Material> Materials { get; set; }
-
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
@@ -39,44 +36,24 @@ namespace FreshlyBackendNew.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            ////Composite primary keys
-            //modelBuilder.Entity<Laundry>()
-            //  .HasMany(l => l.Contacts)
-            //  .WithOne()
-            //  .HasForeignKey(c => c.UserId)
-            //  .HasPrincipalKey(l => l.LaundryId)
-            //  .IsRequired(false);
-
-            //// Configure Driver-Contact relationship
-            //modelBuilder.Entity<Driver>()
-            //    .HasMany(d => d.Contacts)
-            //    .WithOne()
-            //    .HasForeignKey(c => c.UserId)
-            //    .HasPrincipalKey(d => d.DriverId)
-            //    .IsRequired(false);
-            //modelBuilder.Entity<Customer>()
-            //    .HasMany(c => c.Contacts)
-            //    .WithOne() // No inverse navigation in Contact
-            //    .HasForeignKey(c => c.UserId)
-            //    .HasPrincipalKey(c => c.CustomerId)
-            //    .IsRequired(false);
-
             // Configure property types to match database schema
             modelBuilder.Entity<Contact>()
                 .Property(c => c.ContactId)
                 .HasColumnType("char(36)");
+            
             modelBuilder.Entity<Contact>()
                 .Property(c => c.UserId)
                 .HasColumnType("char(36)")
                 .IsRequired();
+            
             modelBuilder.Entity<Contact>()
                 .Property(c => c.UserType)
                 .HasColumnType("varchar(50)")
                 .IsRequired();
+            
             modelBuilder.Entity<Contact>()
                 .Property(c => c.ContactNumber)
                 .HasColumnType("varchar(20)");
-
 
             // Define composite primary key for LaundryItemService
             modelBuilder.Entity<LaundryItemService>()
@@ -95,6 +72,67 @@ namespace FreshlyBackendNew.Data
                 .HasOne(f => f.Laundry)
                 .WithMany(l => l.Feedbacks)
                 .HasForeignKey(f => f.LaundryId);
+
+            // ============================================================
+            // PERFORMANCE INDEXES
+            // ============================================================
+            
+            // Composite index for order queries
+            modelBuilder.Entity<Order>()
+                .HasIndex(o => new { o.LaundryId, o.StatusId, o.PlacedAt })
+                .HasDatabaseName("IX_Orders_LaundryId_StatusId_PlacedAt");
+
+            // Unique index for customer username
+            modelBuilder.Entity<Customer>()
+                .HasIndex(c => c.Username)
+                .IsUnique()
+                .HasDatabaseName("IX_Customers_Username_Unique");
+
+            // Index for customer orders lookup
+            modelBuilder.Entity<Order>()
+                .HasIndex(o => o.CustomerId)
+                .HasDatabaseName("IX_Orders_CustomerId");
+
+            // Index for status-based queries
+            modelBuilder.Entity<Order>()
+                .HasIndex(o => o.StatusId)
+                .HasDatabaseName("IX_Orders_StatusId");
+
+            // Index for order details queries
+            modelBuilder.Entity<OrderDetail>()
+                .HasIndex(od => od.OrderId)
+                .HasDatabaseName("IX_OrderDetails_OrderId");
+
+            // Composite index for laundry item service pricing lookups
+            modelBuilder.Entity<LaundryItemService>()
+                .HasIndex(lis => new { lis.LaundryId, lis.ItemId, lis.ServiceId })
+                .HasDatabaseName("IX_LaundryItemServices_LaundryId_ItemId_ServiceId");
+
+            // Composite index for contact lookups
+            modelBuilder.Entity<Contact>()
+                .HasIndex(c => new { c.UserId, c.UserType })
+                .HasDatabaseName("IX_Contacts_UserId_UserType");
+
+            // Additional useful indexes
+            modelBuilder.Entity<Feedback>()
+                .HasIndex(f => f.LaundryId)
+                .HasDatabaseName("IX_Feedbacks_LaundryId");
+
+            modelBuilder.Entity<Feedback>()
+                .HasIndex(f => f.OrderId)
+                .HasDatabaseName("IX_Feedbacks_OrderId");
+
+            modelBuilder.Entity<RejectedItem>()
+                .HasIndex(ri => ri.OrderId)
+                .HasDatabaseName("IX_RejectedItems_OrderId");
+
+            modelBuilder.Entity<RejectedItem>()
+                .HasIndex(ri => ri.LaundryId)
+                .HasDatabaseName("IX_RejectedItems_LaundryId");
+
+            // ============================================================
+            // SEED DATA
+            // ============================================================
                 
             // Seed default admin user with BCrypt hashed password
             modelBuilder.Entity<Admin>().HasData(

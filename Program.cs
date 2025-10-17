@@ -1,9 +1,14 @@
+using FreshlyBackendNew.Constants;
 using FreshlyBackendNew.Data;
 using FreshlyBackendNew.Services;
 using FreshlyBackendNew.Services.Implementations;
 using FreshlyBackendNew.Services.Interfaces;
+using FreshlyBackendNew.UnitOfWork;
+using FreshlyBackendNew.Repositories.Implementations;
+using FreshlyBackendNew.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Text;
 using System.Text.Json;
@@ -11,6 +16,8 @@ using System.Text.Json.Serialization;
 using Amazon;
 using Amazon.S3;
 using Microsoft.IdentityModel.Tokens;
+using FreshlyBackendNew.Repositories.Implementations; // <-- Changed from FreshlyBackendNew\Repositories
+using FreshlyBackendNew.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -86,11 +93,9 @@ builder.Services.AddCors(options =>
         });
 });
 
-
 // Register application services
 builder.Services.AddScoped<IAllPickupService, AllPickupService>();
 builder.Services.AddScoped<IAllDeliveryService, AllDeliveryService>();
-builder.Services.AddScoped<ILaundryService, LaundryService>();
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
@@ -110,6 +115,35 @@ builder.Services.AddScoped<IOrderDetailService, OrderDetailService>();
 builder.Services.AddScoped<IDriverContactService, DriverContactService>();
 builder.Services.AddScoped<IDriverProfileService, DriverProfileService>();
 builder.Services.AddScoped<IBasicService, BasicService>();
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<ILaundryRepository, LaundryRepository>();
+builder.Services.AddScoped<IDriverRepository, DriverRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderCalculationService, OrderCalculationService>();
+
+// Add Memory Cache
+builder.Services.AddMemoryCache();
+
+// Add MediatR
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
+// Add AutoMapper
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
+// Add Unit of Work
+builder.Services.AddScoped<IUnitOfWork, FreshlyBackendNew.UnitOfWork.UnitOfWork>();
+
+// Register LaundryService with caching decorator pattern (FIXED)
+builder.Services.AddScoped<LaundryService>(); // Register concrete implementation
+builder.Services.AddScoped<ILaundryService>(provider =>
+{
+    var concreteService = provider.GetRequiredService<LaundryService>();
+    var cache = provider.GetRequiredService<IMemoryCache>();
+    var logger = provider.GetRequiredService<ILogger<CachedLaundryService>>();
+    
+    return new CachedLaundryService(concreteService, cache, logger);
+});
 
 // Add controller services with improved JSON handling
 builder.Services.AddControllers()
@@ -122,6 +156,7 @@ builder.Services.AddControllers()
 // Add Swagger services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddLogging();
 
 var app = builder.Build();
 
@@ -143,7 +178,7 @@ app.UseCors("AllowAngularApp");
 // Add authentication middleware before authorization
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 app.MapControllers();
 
 
@@ -151,10 +186,8 @@ app.MapControllers();
 // Ensure default admin exists on startup
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-    var authService = new AuthService(dbContext, config);
-    authService.EnsureDefaultAdminExistsAsync().GetAwaiter().GetResult();
+    var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
+    await authService.EnsureDefaultAdminExistsAsync();
 }
 
 app.Run();
